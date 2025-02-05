@@ -1,16 +1,29 @@
-from typing import AsyncGenerator
+from typing import Annotated, AsyncGenerator
 
-from fastapi import FastAPI, lifespan
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from contextlib import asynccontextmanager
 
+from sqlmodel import Session
+
 from app.config import AppSettings
 from app.services.leonardo.img_request import PhoenixPayload, generate_image
 from app.services.openai.prompter import character_creator
-from app.db.database import create_db_tables
+from app.db.database import create_db_tables, get_session
 
+# Load app settings
 settings = AppSettings()
+
+
+# Load database and its dependency
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncGenerator:
+    create_db_tables()
+    yield
+
+
+SessionDep = Annotated[Session, Depends(get_session)]
 
 app = FastAPI(lifespan=lifespan)
 
@@ -27,16 +40,13 @@ app.add_middleware(
 )
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator:
-    create_db_tables()
-    yield
-
-
 @app.post("/generate")
-async def generate(max_retries: int = 3) -> None:
-    retries = 0
+async def generate(
+    session: SessionDep,
+    max_retries: int = 3,
+) -> dict:
 
+    retries = 0
     while retries < max_retries:
         new_character = character_creator(settings.openai_api_key)
 
@@ -53,7 +63,6 @@ async def generate(max_retries: int = 3) -> None:
                 styleUUID="dee282d3-891f-4f73-ba02-7f8131e5541b",  # Vibrant
                 ultra=False,
             )
-
             await generate_image(settings.leonardo_api_key, payload)
             print("Character generation succesful!")
             return
