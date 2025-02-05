@@ -1,16 +1,18 @@
-# from typing import Annotated
+from typing import AsyncGenerator
 
-from fastapi import FastAPI
+from fastapi import FastAPI, lifespan
 from fastapi.middleware.cors import CORSMiddleware
+
+from contextlib import asynccontextmanager
 
 from app.config import AppSettings
 from app.services.leonardo.img_request import PhoenixPayload, generate_image
 from app.services.openai.prompter import character_creator
-
+from app.db.database import create_db_tables
 
 settings = AppSettings()
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 origins = [
     "http://127.0.0.1:8000",
@@ -23,6 +25,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator:
+    create_db_tables()
+    yield
 
 
 @app.post("/generate")

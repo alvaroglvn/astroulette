@@ -64,7 +64,9 @@ def character_creator(openai_key: str) -> dict | None:
 
                     "character_profile": {{
                         "name": "[Generate a unique name for this alien]",
-                        "personality_traits": "[escribe facial expression based on personality]",
+                        "planet_name": [Unique name for this alien's homeplanet]
+                        "planet_description": [Main characteristics of the homeplanet and how its nature impacts its inhabitants] 
+                        "personality_traits": "[Describe facial expression based on personality]",
                         "speech_style": "[Describe how they talk (e.g., cryptic, humorous, regal, cold, poetic)]",
                         "quirks": "[Any strange habits, or expressions that make them unique.]"
                     }}```
@@ -100,9 +102,9 @@ def character_validator(raw_data: str) -> dict:
 
     # Strip markdown formatting
     if raw_data.startswith("```json"):
-        raw_data = raw_data[7:]  # Remove the leading ```json
+        raw_data = raw_data[7:]
     if raw_data.endswith("```"):
-        raw_data = raw_data[:-3]  # Remove the trailing ```
+        raw_data = raw_data[:-3]
 
     try:
         validated_data = CharacterResponse.model_validate_json(raw_data)
