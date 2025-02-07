@@ -1,8 +1,12 @@
 from sqlmodel import Session, select
-from database import CharacterProfile, CharacterData
+from app.db.database import CharacterProfile, CharacterData
 
 
-def store_character(new_character: dict, session: Session) -> CharacterProfile:
+def store_character(
+    new_character: dict, image_url: str, session: Session
+) -> CharacterProfile:
+
+    image_prompt = new_character["image_prompt"]
 
     # Create new character profile
     new_character = CharacterProfile(
@@ -20,8 +24,8 @@ def store_character(new_character: dict, session: Session) -> CharacterProfile:
 
     # Create CharacterData entry
     character_data = CharacterData(
-        image_prompt=new_character["image_prompt"],
-        image_url="",
+        image_prompt=image_prompt,
+        image_url=image_url,
         character_profile_id=new_character.profile_id,
     )
 

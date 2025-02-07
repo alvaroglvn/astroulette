@@ -23,6 +23,12 @@ def character_creator(openai_key: str) -> dict | None:
         "galactic emperor",
         "galactic royal",
         "alien supermodel",
+        "space vampire",
+        "alien zombie",
+        "alien supersoldier",
+        "mad scientist",
+        "galactic divine being",
+        "galactic demon",
     ]
     gender = ["male", "female"]
     species = [
@@ -38,6 +44,7 @@ def character_creator(openai_key: str) -> dict | None:
         "mutant",
         "mineral based",
         "plant based",
+        "rock based",
     ]
 
     # Make chat request to OpenAI
@@ -47,7 +54,7 @@ def character_creator(openai_key: str) -> dict | None:
         messages=[
             {
                 "role": "developer",
-                "content": "You are a character designer with expertise in unique and exciting retro scifi characters.",
+                "content": "You are a character designer with expertise in unique and exciting retro futurism characters.",
             },
             {
                 "role": "user",
@@ -60,7 +67,7 @@ def character_creator(openai_key: str) -> dict | None:
 
                 ```json
                 {{
-                    "image_prompt": "Frontal close-up of a {random.choice(gender)} {random.choice(species)} {random.choice(archetypes)}, looking straight into the camera. This alien has [describe physical features such as eyes, skin, shape, unique details]. It has a [describe facial expression based on personality]. It wears [describe outfit] inspired by [insert a fashion designer]. Background is a colorful mod pattern.",
+                    "image_prompt": "Vibrant colors frontal close-up of a {random.choice(gender)} {random.choice(species)} {random.choice(archetypes)}, looking straight into the camera. This alien has [describe physical features such as eyes, skin, shape, unique details]. It has a [describe facial expression based on personality]. It wears [describe outfit] inspired by [insert a fashion designer]. Background is a colorful mod pattern.",
 
                     "character_profile": {{
                         "name": "[Generate a unique name for this alien]",
@@ -68,7 +75,7 @@ def character_creator(openai_key: str) -> dict | None:
                         "planet_description": [Main characteristics of the homeplanet and how its nature impacts its inhabitants] 
                         "personality_traits": "[Describe facial expression based on personality]",
                         "speech_style": "[Describe how they talk (e.g., cryptic, humorous, regal, cold, poetic)]",
-                        "quirks": "[Any strange habits, or expressions that make them unique.]"
+                        "quirks": "[Any strange speech habits, or expressions that make them unique.]"
                     }}```
                 }}
                 """,
@@ -90,6 +97,8 @@ def character_validator(raw_data: str) -> dict:
         model_config = ConfigDict(strict=True)
 
         name: str
+        planet_name: str
+        planet_description: str
         personality_traits: str
         speech_style: str
         quirks: str

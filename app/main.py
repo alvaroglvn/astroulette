@@ -1,16 +1,18 @@
 from typing import Annotated, AsyncGenerator
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 
 from contextlib import asynccontextmanager
 
 from sqlmodel import Session
 
+from app.models import *
 from app.config import AppSettings
 from app.services.leonardo.img_request import PhoenixPayload, generate_image
 from app.services.openai.prompter import character_creator
 from app.db.database import create_db_tables, get_session
+from app.db.queries import store_character
 
 # Load app settings
 settings = AppSettings()
@@ -41,10 +43,10 @@ app.add_middleware(
 
 
 @app.post("/generate")
-async def generate(
+async def generate_character(
     session: SessionDep,
     max_retries: int = 3,
-) -> dict:
+) -> Response:
 
     retries = 0
     while retries < max_retries:
@@ -60,15 +62,23 @@ async def generate(
                 alchemy=False,
                 contrast=4,
                 enhancePrompt=False,
-                styleUUID="dee282d3-891f-4f73-ba02-7f8131e5541b",  # Vibrant
+                styleUUID="8e2bc543-6ee2-45f9-bcd9-594b6ce84dcd",  # Vibrant
                 ultra=False,
             )
-            await generate_image(settings.leonardo_api_key, payload)
-            print("Character generation succesful!")
-            return
+            image_url = await generate_image(settings.leonardo_api_key, payload)
+
+            if image_url:
+                # Add new character to database
+                store_character(new_character, image_url, session)
+                print("Character generation succesful!")
+
+                return Response(
+                    content="New character added to the database", status_code=201
+                )
 
         retries += 1
         print(f"Retry {retries} of {max_retries}...")
-
-    print("Character generation failed")
-    return None
+    return Response(
+        content=f"Character generation failed after {max_retries} retries.",
+        status_code=417,
+    )
