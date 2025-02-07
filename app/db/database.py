@@ -1,10 +1,9 @@
 from typing import List, Optional, Iterator
 
-from fastapi import Depends, Query
 from sqlmodel import Field, Session, SQLModel, create_engine, select, Relationship
 
 
-# Tables structure
+# Tables
 
 
 class CharacterProfile(SQLModel, table=True):
@@ -16,8 +15,13 @@ class CharacterProfile(SQLModel, table=True):
     speech_style: str = Field(nullable=False)
     quirks: str = Field(nullable=False)
 
-    users: List["UserCharacter"] = Relationship(back_populates="character")
-    chats: List["Chat"] = Relationship(back_populates="character")
+    users: List["UserCharacter"] = Relationship(
+        back_populates="character", cascade_delete=True
+    )
+    chats: List["Chat"] = Relationship(back_populates="character", cascade_delete=True)
+    character_data: Optional["CharacterData"] = Relationship(
+        back_populates="character_profile", cascade_delete=True
+    )
 
 
 class CharacterData(SQLModel, table=True):
@@ -28,14 +32,18 @@ class CharacterData(SQLModel, table=True):
         nullable=False, foreign_key="characterprofile.profile_id"
     )
 
+    character_profile: CharacterProfile = Relationship(back_populates="character_data")
+
 
 class User(SQLModel, table=True):
     user_id: Optional[int] = Field(default=None, primary_key=True)
     user_name: str = Field(nullable=False)
     email: str = Field(nullable=False, unique=True)
 
-    characters: List["UserCharacter"] = Relationship(back_populates="user")
-    chats: List["Chat"] = Relationship(back_populates="user")
+    characters: List["UserCharacter"] = Relationship(
+        back_populates="user", cascade_delete=True
+    )
+    chats: List["Chat"] = Relationship(back_populates="user", cascade_delete=True)
 
 
 class UserCharacter(SQLModel, table=True):
@@ -60,7 +68,7 @@ class Chat(SQLModel, table=True):
 
 
 # Engine
-sqlite_file_name = "app/db/alien_talk.db"
+sqlite_file_name = "app/db/alien_talk.sqlite"
 sqlite_url = f"sqlite:///{sqlite_file_name}"
 
 connect_args = {"check_same_thread": False}

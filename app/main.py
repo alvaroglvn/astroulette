@@ -1,6 +1,6 @@
 from typing import Annotated, AsyncGenerator
 
-from fastapi import FastAPI, Depends, Response, status
+from fastapi import FastAPI, Depends, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from contextlib import asynccontextmanager
@@ -12,7 +12,7 @@ from app.config import AppSettings
 from app.services.leonardo.img_request import PhoenixPayload, generate_image
 from app.services.openai.prompter import character_creator
 from app.db.database import create_db_tables, get_session
-from app.db.queries import store_character
+from app.db.queries import *
 
 # Load app settings
 settings = AppSettings()
@@ -42,7 +42,8 @@ app.add_middleware(
 )
 
 
-@app.post("/generate")
+# Generate new character and add it to the database
+@app.post("/generate_character")
 async def generate_character(
     session: SessionDep,
     max_retries: int = 3,
@@ -73,7 +74,7 @@ async def generate_character(
                 print("Character generation succesful!")
 
                 return Response(
-                    content="New character added to the database", status_code=201
+                    content="New character added to the database.", status_code=201
                 )
 
         retries += 1
@@ -82,3 +83,31 @@ async def generate_character(
         content=f"Character generation failed after {max_retries} retries.",
         status_code=417,
     )
+
+
+# Add character to the database manually
+@app.post("/add_character")
+async def add_character(
+    character_data: NewCharacterRequest, session: SessionDep
+) -> Response:
+    """This endpoint allows to add a new character to the database manually, instead of automatically generated"""
+    new_character = store_character(
+        character_data.model_dump(), character_data.image_url, session
+    )
+    if new_character:
+        return Response(
+            content="New character manually added to the database.", status_code=201
+        )
+    return Response(content="Unable to add character to the database.", status_code=404)
+
+
+# Delete character from the database
+@app.delete("/delete_character/{profile_id}")
+async def delete_character(profile_id: int, session: SessionDep) -> Response:
+
+    success = delete_entry(profile_id, session)
+
+    if success:
+        return Response(content=f"Profile {profile_id} deleted", status_code=200)
+
+    return Response(status_code=404, content=f"Profile {profile_id} not in database")

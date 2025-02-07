@@ -1,10 +1,9 @@
-from sqlmodel import Session, select
+from sqlmodel import Session
+
 from app.db.database import CharacterProfile, CharacterData
 
 
-def store_character(
-    new_character: dict, image_url: str, session: Session
-) -> CharacterProfile:
+def store_character(new_character: dict, image_url: str, session: Session) -> bool:
 
     image_prompt = new_character["image_prompt"]
 
@@ -34,4 +33,19 @@ def store_character(
 
     print(f"New character entry: {new_character.profile_id}, {new_character.name}")
 
-    return new_character
+    return True
+
+
+# Delete database entry
+def delete_entry(profile_id: int, session: Session) -> bool:
+    """Deletes a character entry safely and all related data"""
+
+    character = session.get(CharacterProfile, profile_id)
+    if not character:
+        print(f"Profile ID {profile_id} not found")
+        return False
+
+    session.delete(character)
+    session.commit()
+    print(f"Character {profile_id} deleted succesfully")
+    return True
