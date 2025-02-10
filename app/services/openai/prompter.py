@@ -1,7 +1,7 @@
 from openai import OpenAI
 import random
-from pydantic import BaseModel, ConfigDict, ValidationError
-import json
+
+from app.services.openai.openai_models import CharacterData, openai_resp_validator
 
 
 def character_creator(openai_key: str) -> dict | None:
@@ -49,7 +49,7 @@ def character_creator(openai_key: str) -> dict | None:
 
     # Make chat request to OpenAI
     client = OpenAI(api_key=openai_key, project="proj_iHucBz89WXK9PvH3Hqvf5mhf")
-    response = client.chat.completions.create(
+    response = client.beta.chat.completions.parse(
         model="gpt-4o-mini",
         messages=[
             {
@@ -63,62 +63,32 @@ def character_creator(openai_key: str) -> dict | None:
                 1. A detailed **image prompt** for AI-generated art.
                 2. A **personality & behavior profile** for interactive dialogue.
                 
-                Return the result **strictly** as a valid JSON object with two fields: `image_prompt` and `character_profile`.
+                Follow this instructions to create the data insde the fields:
 
-                ```json
-                {{
-                    "image_prompt": "Vibrant colors frontal close-up of a {random.choice(gender)} {random.choice(species)} {random.choice(archetypes)}, looking straight into the camera. This alien has [describe physical features such as eyes, skin, shape, unique details]. It has a [describe facial expression based on personality]. It wears [describe outfit] inspired by [insert a fashion designer]. Background is a colorful mod pattern.",
+                "image_prompt": "Vibrant colors frontal close-up of a {random.choice(gender)} {random.choice(species)} {random.choice(archetypes)}, looking straight into the camera. This alien has [describe physical features such as eyes, skin, shape, unique details]. It has a [describe facial expression based on personality]. It wears [describe outfit] inspired by [insert a fashion designer]. Background is a colorful mod pattern.",
 
-                    "character_profile": {{
-                        "name": "[Generate a unique name for this alien]",
-                        "planet_name": [Unique name for this alien's homeplanet]
-                        "planet_description": [Main characteristics of the homeplanet and how its nature impacts its inhabitants] 
-                        "personality_traits": "[Describe facial expression based on personality]",
-                        "speech_style": "[Describe how they talk (e.g., cryptic, humorous, regal, cold, poetic)]",
-                        "quirks": "[Any strange speech habits, or expressions that make them unique.]"
-                    }}```
-                }}
+                "character_profile": 
+                    "name": "[Generate a unique name for this alien]",
+                    "planet_name": [Unique name for this alien's homeplanet]
+                    "planet_description": [Main characteristics of the homeplanet and how its nature impacts its inhabitants] 
+                    "personality_traits": "[Describe facial expression based on personality]",
+                    "speech_style": "[Describe how they talk (e.g., cryptic, humorous, regal, cold, poetic)]",
+                    "quirks": "[Any strange speech habits, or expressions that make them unique.]"
                 """,
             },
         ],
+        response_format=CharacterData,
     )
-    raw_data = response.choices[0].message.content.strip()
 
-    # Character data validation
-    validated_data = character_validator(raw_data)
+    # Select new character information
+    new_character = response.choices[0].message.content
 
-    return validated_data
+    # # Strip markdown formatting
+    # if raw_data.startswith("```json"):
+    #     raw_data = raw_data[7:]
+    # if raw_data.endswith("```"):
+    #     raw_data = raw_data[:-3]
 
-
-def character_validator(raw_data: str) -> dict:
-    """This function validates the JSON object returned by OpenAI's GPT-4 model for generating a fantasy character. It checks if the object has the required fields and values, and returns the parsed data if valid."""
-
-    class CharacterProfile(BaseModel):
-        model_config = ConfigDict(strict=True)
-
-        name: str
-        planet_name: str
-        planet_description: str
-        personality_traits: str
-        speech_style: str
-        quirks: str
-
-    class CharacterResponse(BaseModel):
-        model_config = ConfigDict(strict=True)
-
-        image_prompt: str
-        character_profile: CharacterProfile
-
-    # Strip markdown formatting
-    if raw_data.startswith("```json"):
-        raw_data = raw_data[7:]
-    if raw_data.endswith("```"):
-        raw_data = raw_data[:-3]
-
-    try:
-        validated_data = CharacterResponse.model_validate_json(raw_data)
-    except ValidationError as e:
-        print(f"Error parsing JSON: {e}")
-        return None
-
-    return validated_data.model_dump()
+    validate_character = openai_resp_validator(CharacterData, new_character)
+    print(validate_character)
+    return validate_character

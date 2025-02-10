@@ -111,3 +111,10 @@ async def delete_character(profile_id: int, session: SessionDep) -> Response:
         return Response(content=f"Profile {profile_id} deleted", status_code=200)
 
     return Response(status_code=404, content=f"Profile {profile_id} not in database")
+
+
+@app.post("/character_test")
+async def test_character_creator():
+    response = character_creator(settings.openai_api_key)
+    print(type(response))
+    print(response)
