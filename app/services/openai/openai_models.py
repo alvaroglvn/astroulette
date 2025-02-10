@@ -3,10 +3,6 @@ from pydantic import BaseModel, ValidationError, ConfigDict
 from typing import Any, Optional, List
 
 
-class Tools(BaseModel):
-    type: str
-
-
 class CharacterProfile(BaseModel):
     model_config = ConfigDict(strict=True)
 
@@ -23,6 +19,10 @@ class CharacterData(BaseModel):
 
     image_prompt: str
     character_profile: CharacterProfile
+
+
+class Tools(BaseModel):
+    type: str
 
 
 class Assistant(BaseModel):

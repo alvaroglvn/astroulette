@@ -9,8 +9,12 @@ from sqlmodel import Session
 
 from app.models import *
 from app.config import AppSettings
+
 from app.services.leonardo.img_request import PhoenixPayload, generate_image
+
 from app.services.openai.prompter import character_creator
+from app.services.openai.assistant import create_assistant
+
 from app.db.database import create_db_tables, get_session
 from app.db.queries import *
 
@@ -68,9 +72,11 @@ async def generate_character(
             )
             image_url = await generate_image(settings.leonardo_api_key, payload)
 
-            if image_url:
+            new_assistant = create_assistant(settings.openai_api_key, new_character)
+
+            if image_url and new_assistant:
                 # Add new character to database
-                store_character(new_character, image_url, session)
+                store_character(new_character, image_url, new_assistant.id, session)
                 print("Character generation succesful!")
 
                 return Response(

@@ -83,12 +83,6 @@ def character_creator(openai_key: str) -> dict | None:
     # Select new character information
     new_character = response.choices[0].message.content
 
-    # # Strip markdown formatting
-    # if raw_data.startswith("```json"):
-    #     raw_data = raw_data[7:]
-    # if raw_data.endswith("```"):
-    #     raw_data = raw_data[:-3]
-
     validate_character = openai_resp_validator(CharacterData, new_character)
     print(validate_character)
     return validate_character

@@ -28,6 +28,7 @@ class CharacterData(SQLModel, table=True):
     character_id: Optional[int] = Field(default=None, primary_key=True)
     image_prompt: str = Field(nullable=False)
     image_url: str = Field(nullable=False)
+    assistant_id: str = Field(nullable=False)
     character_profile_id: int = Field(
         nullable=False, foreign_key="characterprofile.profile_id"
     )

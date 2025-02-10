@@ -3,7 +3,9 @@ from sqlmodel import Session
 from app.db.database import CharacterProfile, CharacterData
 
 
-def store_character(new_character: dict, image_url: str, session: Session) -> bool:
+def store_character(
+    new_character: dict, image_url: str, assistant_id: str, session: Session
+) -> bool:
 
     image_prompt = new_character["image_prompt"]
 
@@ -25,6 +27,7 @@ def store_character(new_character: dict, image_url: str, session: Session) -> bo
     character_data = CharacterData(
         image_prompt=image_prompt,
         image_url=image_url,
+        assistant_id=assistant_id,
         character_profile_id=new_character.profile_id,
     )
 
