@@ -39,6 +39,11 @@ def store_character(
     return True
 
 
+# Store chat
+def store_chat_message():
+    pass
+
+
 # Delete database entry
 def delete_entry(profile_id: int, session: Session) -> bool:
     """Deletes a character entry safely and all related data"""

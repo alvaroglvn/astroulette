@@ -172,3 +172,4 @@ cython_debug/
 
 # App specific
 alien_talk.db
+templates
