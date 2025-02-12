@@ -15,8 +15,8 @@ from app.services.leonardo.img_request import PhoenixPayload, generate_image
 from app.services.openai.prompter import character_creator
 from app.services.openai.assistant import create_assistant
 
-from app.db.database import create_db_tables, get_session
-from app.db.queries import *
+from app.db.db_models import create_db_tables, get_session
+from app.db.db import *
 
 # Load app settings
 settings = AppSettings()

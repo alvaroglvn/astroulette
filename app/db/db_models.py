@@ -90,8 +90,8 @@ class Message(SQLModel, table=True):
 
 class User(SQLModel, table=True):
     user_id: Optional[int] = Field(default=None, primary_key=True)
-    user_name: str = Field(nullable=False)
-    email: str = Field(nullable=False, unique=True)
+    user_name: str = Field(nullable=False, index=True)
+    email: str = Field(nullable=False, unique=True, index=True)
 
     characters: List["UserCharacter"] = Relationship(
         back_populates="user", cascade_delete=True
