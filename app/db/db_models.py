@@ -1,6 +1,6 @@
-from typing import List, Optional, Iterator
+from typing import List, Optional
 
-from sqlmodel import Field, Session, SQLModel, create_engine, Relationship
+from sqlmodel import Field, SQLModel, Relationship
 
 from enum import Enum
 
@@ -19,11 +19,9 @@ class CharacterData(SQLModel, table=True):
     )
 
     character_profile: "CharacterProfile" = Relationship(
-        back_populates="character_data", cascade_delete=True
+        back_populates="character_data"
     )
-    assistant: "Assistant" = Relationship(
-        back_populates="character_data", cascade_delete=True
-    )
+    assistant: "Assistant" = Relationship(back_populates="character_data")
     users: List["UserCharacter"] = Relationship(back_populates="character_data")
 
 
@@ -62,12 +60,12 @@ class Thread(SQLModel, table=True):
     created_at: int = Field(nullable=False, index=True)
     user_id: int = Field(nullable=False, foreign_key="user.user_id", index=True)
     character_id: int = Field(
-        nullable=False, foreign_key="character_data.character_id", index=True
+        nullable=False, foreign_key="characterdata.character_id", index=True
     )
     assistant_id: str = Field(nullable=False, foreign_key="assistant.assistant_id")
 
     user: "User" = Relationship(back_populates="threads")
-    assistant: Assistant = Relationship(back_populates="threads", cascade_delete=True)
+    assistant: Assistant = Relationship(back_populates="threads")
     messages: List["Message"] = Relationship(
         back_populates="thread", cascade_delete=True
     )
@@ -102,29 +100,8 @@ class User(SQLModel, table=True):
 class UserCharacter(SQLModel, table=True):
     user_id: int = Field(foreign_key="user.user_id", primary_key=True)
     character_id: int = Field(
-        foreign_key="character_data.character_id", primary_key=True
+        foreign_key="characterdata.character_id", primary_key=True
     )
 
-    user: User = Relationship(back_populates="characters", cascade_delete=True)
-    character_data: CharacterData = Relationship(
-        back_populates="character_data", cascade_delete=True
-    )
-
-
-# Engine
-sqlite_file_name = "app/db/alien_talk.sqlite"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
-
-connect_args = {"check_same_thread": False}
-engine = create_engine(sqlite_url, connect_args=connect_args)
-
-
-# Create tables
-def create_db_tables() -> None:
-    SQLModel.metadata.create_all(engine)
-
-
-# Create Session
-def get_session() -> Iterator[Session]:
-    with Session(engine) as session:
-        yield session
+    user: User = Relationship(back_populates="characters")
+    character_data: CharacterData = Relationship(back_populates="users")

@@ -2,7 +2,7 @@ from typing import TypeVar, Type
 
 from sqlmodel import Session, create_engine, SQLModel, select
 
-from app.db.db_models import CharacterProfile, CharacterData, User
+from app.db.db_models import *
 
 
 class DB:
@@ -12,7 +12,21 @@ class DB:
         self.engine = create_engine(
             f"sqlite:///{filepath}", connect_args={"check_same_thread": False}
         )
-        SQLModel.metadata.create_all(self.engine)
+        # Create tables referenced by foreign keys first
+        SQLModel.metadata.create_all(
+            self.engine,
+            tables=[
+                User.__table__,
+                CharacterProfile.__table__,
+                Assistant.__table__,
+                CharacterData.__table__,
+            ],
+        )
+        # Create tables that reference them
+        SQLModel.metadata.create_all(
+            self.engine,
+            tables=[Thread.__table__, Message.__table__, UserCharacter.__table__],
+        )
 
     # Define generic type
     T = TypeVar("T", bound=SQLModel)
@@ -80,21 +94,25 @@ class DB:
 
     # DELETE #
 
-    # Generic delete limited to character or user
-    def delete_entry(self, session: Session, table: Type[T], entry_id: int) -> None:
+    # Limited delete methods to avoid breaking databases's relationships
 
-        allowed = (CharacterData, User)
-
-        if not issubclass(table, allowed):
-            raise PermissionError(f"Entries in {table.__name__} cannot be deleted.")
-
-        entry = self.read_from_db(
-            session, table, f"{table.__name__.lower()}_id", entry_id
+    def delete_character(self, session: Session, character_id: int) -> None:
+        character = self.read_from_db(
+            session, CharacterData, "character_id", character_id
         )
 
-        if not entry:
-            raise LookupError(f"Entry does not exist.")
+        if character:
+            session.delete(character)
+            session.commit()
+            print(f"Character deleted")
+        else:
+            raise ValueError(f"Character with id {character_id} not found.")
 
-        session.delete(entry)
-        session.commit()
-        print(f"{entry_id} deleted from {table.__name__}")
+    def delete_user(self, session: Session, user_id: int) -> None:
+        user = self.read_from_db(session, User, "user_id", user_id)
+        if user:
+            session.delete(user)
+            session.commit()
+            print(f"User deleted")
+        else:
+            raise ValueError(f"Character with id {user_id} not found.")
