@@ -1,6 +1,6 @@
 from typing import Annotated, AsyncGenerator, Generator
 
-from fastapi import FastAPI, Depends, Response
+from fastapi import FastAPI, Depends, Response, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 
 from contextlib import asynccontextmanager
@@ -11,6 +11,7 @@ from app.db.db import DB
 from app.db.db_models import *
 
 from app.config import AppSettings
+from app.models import *
 
 from app.services.leonardo.img_request import PhoenixPayload, generate_image
 
@@ -64,13 +65,13 @@ app.add_middleware(
 @app.post("/generate_character")
 async def generate_character(
     session: SessionDep,
-    max_retries: int = 3,
+    background_tasks: BackgroundTasks,
 ) -> Response:
 
     retries = 0
+    max_retries = 3
     while retries < max_retries:
         try:
-
             # Generate new character
             character_gen = character_generator(settings.openai_api_key)
 
@@ -103,32 +104,22 @@ async def generate_character(
                     print(f"{assistant.name} added to db.")
                 else:
                     raise SystemError(
-                        f"Unable to create new assistant for    {character_profile.name}"
+                        f"Unable to create new assistant for        {character_profile.name}"
                     )
-
-                # Generate character's portrait
-                payload = PhoenixPayload(
-                    prompt=character_gen["image_prompt"],
-                    width=800,
-                    height=800,
-                    num_images=1,
-                    alchemy=False,
-                    contrast=4,
-                    enhancePrompt=False,
-                    styleUUID="8e2bc543-6ee2-45f9-bcd9-594b6ce84dcd",  #    Vibrant
-                    ultra=False,
-                )
-                image_url = await generate_image(settings.leonardo_api_key, payload)
 
                 # Create and store character data
                 character_data = CharacterData(
                     image_prompt=character_gen.image_prompt,
-                    image_url=image_url,
                     assistant_id=assistant.assistant_id,
                     profile_id=character_profile.profile_id,
                 )
                 db.store_entry(character_data)
-                print(f"Character data for {character_profile.name} stored  in db.")
+                print(f"Character data for {character_profile.name}  stored in db.")
+
+                # Queue image generation in the background
+                background_tasks.add_task(
+                    character_portrait, character_data.character_id
+                )
 
                 return Response(
                     content="New character generated successfully!", status_code=201
@@ -140,32 +131,86 @@ async def generate_character(
     return Response(content="Unable to generate new character", status_code=500)
 
 
-# # Add character to the database manually
-# @app.post("/add_character")
-# async def add_character(
-#     character_data: NewCharacterRequest, session: SessionDep
-# ) -> Response:
-#     """This endpoint allows to add a new character to the database manually, instead of automatically generated"""
-#     new_character = store_character(
-#         character_data.model_dump(), character_data.image_url, session
-#     )
-#     if new_character:
-#         return Response(
-#             content="New character manually added to the database.", status_code=201
-#         )
-#     return Response(content="Unable to add character to the database.", status_code=404)
+async def character_portrait(character_id: int) -> Response:
+    # Load character
+    character = db.read_from_db(CharacterData, "character_id", character_id)
+
+    # Generate character's portrait
+    payload = PhoenixPayload(
+        prompt=character.image_prompt,
+        width=800,
+        height=800,
+        num_images=1,
+        alchemy=False,
+        contrast=4,
+        enhancePrompt=False,
+        styleUUID="8e2bc543-6ee2-45f9-bcd9-594b6ce84",  #    Vibrant
+        ultra=False,
+    )
+    image_url = await generate_image(settings.leonardo_api_key, payload)
+
+    # Update character with image url
+    db.update_db(CharacterData, "character_id", character_id, {"image_url": image_url})
+
+    return Response(
+        content=f"Image url added to character {character.character_id}",
+        status_code=200,
+    )
 
 
-# # Delete character from the database
-# @app.delete("/delete_character/{profile_id}")
-# async def delete_character(profile_id: int, session: SessionDep) -> Response:
+# Add character to the database manually
+@app.post("/add_character")
+async def add_character(request: CharacterCreation, session: SessionDep) -> Response:
+    try:
+        character_profile = CharacterProfile(
+            name=request.name,
+            planet_name=request.planet_name,
+            personality_traits=request.personality_traits,
+            speech_style=request.speech_style,
+            quirks=request.quirks,
+        )
+        db.store_entry(character_profile)
+        print(f"Character profile for {request.name} stored successfully.")
 
-#     success = delete_entry(profile_id, session)
+        gen_assistant = create_assistant(settings.openai_api_key, request)
 
-#     if success:
-#         return Response(content=f"Profile {profile_id} deleted", status_code=200)
+        assistant = Assistant(
+            assistant_id=gen_assistant.id,
+            created_at=gen_assistant.created_at,
+            name=gen_assistant.name,
+            model=gen_assistant.model,
+            instructions=gen_assistant.instructions,
+            temperature=gen_assistant.temperature,
+        )
+        db.store_entry(assistant)
+        print(f"New assistant {assistant.name} stored.")
 
-#     return Response(status_code=404, content=f"Profile {profile_id} not in database")
+        character_data = CharacterData(
+            image_prompt=request.image_prompt,
+            image_url=request.image_url,
+            assistant_id=assistant.assistant_id,
+            profile_id=character_profile.profile_id,
+        )
+        db.store_entry(character_data)
+        print(
+            f"{character_profile.name}'s data stored in index {character_data.character_id}"
+        )
+
+        return Response(content="New character added successfully.", status_code=201)
+    except Exception as e:
+        return Response(content=f"Unable to store character: {e}", status_code=500)
+
+
+# Delete character from the database
+@app.delete("/delete_character/{profile_id}")
+async def delete_character(character_id: int) -> Response:
+
+    success = delete_character(character_id)
+
+    if success:
+        return Response(content=f"Character deleted", status_code=200)
+
+    return Response(status_code=404, content=f"Character not in database")
 
 
 # @app.post("/character_test")

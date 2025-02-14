@@ -11,7 +11,7 @@ from enum import Enum
 class CharacterData(SQLModel, table=True):
     character_id: Optional[int] = Field(default=None, primary_key=True)
     image_prompt: str = Field(nullable=False)
-    image_url: str = Field(nullable=False)
+    image_url: str = Field(nullable=False, default="PENDING")
     assistant_id: str = Field(nullable=False, foreign_key="assistant.assistant_id")
     profile_id: int = Field(nullable=False, foreign_key="characterprofile.profile_id")
     generated_by: int = Field(
