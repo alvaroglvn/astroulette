@@ -84,8 +84,7 @@ async def generate_character(
                     speech_style=character_gen.character_profile.speech_style,
                     quirks=character_gen.character_profile.quirks,
                 )
-                db.store_entry(session, character_profile)
-                session.refresh(character_profile)
+                db.store_entry(character_profile)
                 print(f"{character_profile.name} stored in db.")
 
                 # Build and store character's assistant
@@ -100,8 +99,7 @@ async def generate_character(
                         instructions=assistant_gen.instructions,
                         temperature=assistant_gen.temperature,
                     )
-                    db.store_entry(session, assistant)
-                    session.refresh(assistant)
+                    db.store_entry(assistant)
                     print(f"{assistant.name} added to db.")
                 else:
                     raise SystemError(
@@ -129,8 +127,7 @@ async def generate_character(
                     assistant_id=assistant.assistant_id,
                     profile_id=character_profile.profile_id,
                 )
-                db.store_entry(session, character_data)
-                session.refresh(character_data)
+                db.store_entry(character_data)
                 print(f"Character data for {character_profile.name} stored  in db.")
 
                 return Response(
