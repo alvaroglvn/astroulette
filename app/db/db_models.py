@@ -15,7 +15,7 @@ class CharacterData(SQLModel, table=True):
     assistant_id: str = Field(nullable=False, foreign_key="assistant.assistant_id")
     profile_id: int = Field(nullable=False, foreign_key="characterprofile.profile_id")
     generated_by: int = Field(
-        nullable=False, default="Admin", foreign_key="user.user_id", index=True
+        nullable=False, default=1, foreign_key="user.user_id", index=True
     )
 
     character_profile: "CharacterProfile" = Relationship(
@@ -105,3 +105,6 @@ class UserCharacter(SQLModel, table=True):
 
     user: User = Relationship(back_populates="characters")
     character_data: CharacterData = Relationship(back_populates="users")
+
+
+# Data validator

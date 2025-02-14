@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class Headers(BaseModel):
@@ -7,7 +7,14 @@ class Headers(BaseModel):
     authorization: str
 
 
+class CharacterData(BaseModel):
+    image_prompt: str
+    image_url: str
+
+
 class NewCharacterProfile(BaseModel):
+    model_config = ConfigDict(strict=True)
+
     name: str
     planet_name: str
     planet_description: str

@@ -28,6 +28,22 @@ class DB:
             tables=[Thread.__table__, Message.__table__, UserCharacter.__table__],
         )
 
+        # Load admin user
+        self.initialize_admin_user()
+
+    def initialize_admin_user(self) -> None:
+        with Session(self.engine) as session:
+            try:
+                self.read_from_db(session, User, "user_name", "Admin")
+                print("Admin loaded in database")
+            except LookupError:
+                print("No admin found. Creatind new admin user...")
+
+                admin_user = User(user_name="Admin", email="admin@system.local")
+                self.store_entry(session, admin_user)
+
+                print("Admin user created succesfully.")
+
     # Define generic type
     T = TypeVar("T", bound=SQLModel)
 

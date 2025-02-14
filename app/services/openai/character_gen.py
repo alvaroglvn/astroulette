@@ -1,10 +1,12 @@
 from openai import OpenAI
 import random
 
+from app.db.db_models import *
+
 from app.services.openai.openai_models import CharacterData, openai_resp_validator
 
 
-def character_creator(openai_key: str) -> dict | None:
+def character_generator(openai_key: str) -> CharacterData | None:
     """This function creates a fantasy character using OpenAI's GPT-4 model. It returns a JSON object with an image prompt and a character profile that can later be pipelined into other APIs for generating art or dialogue."""
 
     # Select random values for the prompt
@@ -63,7 +65,7 @@ def character_creator(openai_key: str) -> dict | None:
                 1. A detailed **image prompt** for AI-generated art.
                 2. A **personality & behavior profile** for interactive dialogue.
                 
-                Follow this instructions to create the data insde the fields:
+                Follow this instructions to create the data inside the fields:
 
                 "image_prompt": "Vibrant colors frontal close-up of a {random.choice(gender)} {random.choice(species)} {random.choice(archetypes)}, looking straight into the camera. This alien has [describe physical features such as eyes, skin, shape, unique details]. It has a [describe facial expression based on personality]. It wears [describe outfit] inspired by [insert a fashion designer]. Background is a colorful mod pattern.",
 
