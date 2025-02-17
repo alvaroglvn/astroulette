@@ -105,6 +105,3 @@ class UserCharacter(SQLModel, table=True):
 
     user: User = Relationship(back_populates="characters")
     character_data: CharacterData = Relationship(back_populates="users")
-
-
-# Data validator

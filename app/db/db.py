@@ -80,11 +80,18 @@ class DB:
                 raise LookupError(f"No results.")
 
     # Read all
-    def read_all(self, table: Type[T]) -> list[T]:
+    def read_all(self, table: Type[T], field: str | None = None) -> list[T]:
+        """This method will return all values from a table if no field is provided, or all the values from a specific column if it is."""
+
         with Session(self.engine) as session:
             print(f"Loading all records from {table.__name__}")
 
-        statement = select(table)
+        if field:
+            statement = select(getattr(table, field))
+
+        else:
+            statement = select(table)
+
         results = session.exec(statement).all()
 
         return results if results else []

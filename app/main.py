@@ -1,4 +1,5 @@
 from typing import Annotated, AsyncGenerator, Generator
+import json
 
 from fastapi import FastAPI, Depends, Response, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
@@ -154,6 +155,54 @@ async def character_portrait(character_id: int) -> Response:
 
     return Response(
         content=f"Image url added to character {character.character_id}",
+        status_code=200,
+    )
+
+
+async def load_unmet(user_id: int) -> Response:
+    # Load all the character ids
+    character_id_list = db.read_all(CharacterData, "character_id")
+
+    # Load all the characters the user has met
+    user_character_ids = [
+        user_character.character_id
+        for user_character in db.read_all(UserCharacter, "user_id", user_id)
+    ]
+
+    # Check if there is a character in the list the user has never seen before
+    unmet_character_id = None
+    for character_id in character_id_list:
+        if character_id not in user_character_ids:
+            unmet_character_id = character_id
+            break
+    # If the user has met all the characters in the database:
+    if not unmet_character_id:
+        return Response(content="No unmet characters for this user", status_code=404)
+    # If there's a stored character the user has never seen:
+    # Store the relationship in db
+    new_user_character = UserCharacter(
+        user_id=user_id,
+        character_id=unmet_character_id,
+    )
+    db.store_entry(new_user_character)
+
+    # Load the character full information
+    character_data = db.read_from_db(CharacterData, "character_id", unmet_character_id)
+    character_profile = db.read_from_db(
+        CharacterProfile, "profile_id", character_data.profile_id
+    )
+    assistant = db.read_from_db(
+        CharacterData, "assistant_id", character_data.assistant_id
+    )
+
+    return Response(
+        content=json.dumps(
+            {
+                "character": character_profile,
+                "assistant": assistant,
+                "image_url": character_data.image_url,
+            }
+        ),
         status_code=200,
     )
 
