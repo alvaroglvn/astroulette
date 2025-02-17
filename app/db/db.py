@@ -79,6 +79,16 @@ class DB:
             else:
                 raise LookupError(f"No results.")
 
+    # Read all
+    def read_all(self, table: Type[T]) -> list[T]:
+        with Session(self.engine) as session:
+            print(f"Loading all records from {table.__name__}")
+
+        statement = select(table)
+        results = session.exec(statement).all()
+
+        return results if results else []
+
     # UPDATE #
 
     # Generic update
