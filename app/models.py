@@ -1,4 +1,6 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
+
+from app.db.db_models import CharacterProfile, Assistant
 
 
 class Headers(BaseModel):
@@ -7,12 +9,7 @@ class Headers(BaseModel):
     authorization: str
 
 
-class CharacterCreation(BaseModel):
-    name: str
-    planet_name: str
-    planet_description: str
-    personality_traits: str
-    speech_style: str
-    quirks: str
-    image_prompt: str
+class CharacterResponse(BaseModel):
+    character_profile: CharacterProfile
+    assistant: Assistant
     image_url: str

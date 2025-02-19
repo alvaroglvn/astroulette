@@ -44,6 +44,9 @@ class DB:
 
                 print("Admin user created succesfully.")
 
+    def get_session(self) -> Session:
+        return Session(self.engine)
+
     # Define generic type
     T = TypeVar("T", bound=SQLModel)
 
@@ -88,7 +91,6 @@ class DB:
 
         if field:
             statement = select(getattr(table, field))
-
         else:
             statement = select(table)
 
@@ -142,10 +144,27 @@ class DB:
 
     def delete_user(self, user_id: int) -> None:
         with Session(self.engine) as session:
-            user = self.read_from_db(session, User, "user_id", user_id)
+            user = self.read_from_db(User, "user_id", user_id)
             if user:
                 session.delete(user)
                 session.commit()
                 print(f"User deleted")
             else:
                 raise ValueError(f"Character with id {user_id} not found.")
+
+    # API SPECIFIC
+    def get_unmet_character(self, user_id: int) -> CharacterData | None:
+        """Returns the first character in the database the user has never seen before, or None if all have been met."""
+
+        with Session(self.engine) as session:
+            statement = (
+                select(CharacterData)
+                .where(~CharacterData.character_id)
+                .notin_(
+                    select(UserCharacter.character_id).where(
+                        UserCharacter.user_id == user_id
+                    )
+                )
+            ).limit(1)
+
+            return session.exec(statement).first()

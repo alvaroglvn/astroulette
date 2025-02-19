@@ -10,7 +10,7 @@ urls = {
 }
 
 
-async def generate_image(apikey: str, payload: PhoenixPayload) -> str:
+async def generate_image(apikey: str, payload: PhoenixPayload) -> str | None:
 
     headers = {
         "Authorization": f"Bearer {apikey}",
@@ -51,8 +51,8 @@ async def generate_image(apikey: str, payload: PhoenixPayload) -> str:
                         return image_url
                     elif status == "FAILED":
                         print("Image generation failed.")
-                        return ""
+                        return None
                     await asyncio.sleep(delay)
 
             print(f"Unable to retrieve new image's url after {max_retries} retries")
-            return ""
+            return None

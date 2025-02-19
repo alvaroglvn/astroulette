@@ -3,7 +3,7 @@ from openai.types.beta.assistant import Assistant
 from app.services.openai.openai_models import *
 
 
-def create_assistant(openai_key: str, character_data: dict) -> Assistant:
+def create_assistant(openai_key: str, character_data: dict) -> Assistant | None:
     client = OpenAI(api_key=openai_key, project="proj_iHucBz89WXK9PvH3Hqvf5mhf")
 
     name, planet, planet_description, personality, speech_style, quirks = (
