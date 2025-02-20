@@ -36,17 +36,17 @@ class DB:
         with Session(self.engine) as session:
             try:
                 self.read_from_db(session, User, "user_name", "Admin")
-                print("Admin loaded in database")
+                logging.info("Admin loaded in database")
             except LookupError:
-                print("No admin found. Creatind new admin user...")
-
+                logging.warning("No admin found. Creating new admin user...")
                 admin_user = User(user_name="Admin", email="admin@system.local")
-                self.store_entry(admin_user)
 
-                print("Admin user created succesfully.")
-
-    def get_session(self) -> Session:
-        return Session(self.engine)
+                try:
+                    self.store_entry(session, admin_user)
+                    logging.info("Admin user recorded succesfully.")
+                except Exception as e:
+                    logging.error(f"Failed to record admin user: {e}")
+                    session.rollback()
 
     # Define generic type
     T = TypeVar("T", bound=SQLModel)
