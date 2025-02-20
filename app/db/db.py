@@ -35,7 +35,7 @@ class DB:
     def initialize_admin_user(self) -> None:
         with Session(self.engine) as session:
             try:
-                self.read_from_db(User, "user_name", "Admin")
+                self.read_from_db(session, User, "user_name", "Admin")
                 print("Admin loaded in database")
             except LookupError:
                 print("No admin found. Creatind new admin user...")
@@ -63,6 +63,7 @@ class DB:
             session.refresh(data)
             logging.info(f"{data.__class__.__name__} stored succesfully.")
         except Exception as e:
+            session.rollback()
             logging.error(f"Error storing {data.__class__.__name__}: {str(e)}")
             raise
 
@@ -107,7 +108,7 @@ class DB:
                 raise ValueError(f"Field does not exist in {table.__tablename__}")
             statement = select(getattr(table, field))
         else:
-            statement.select(table)
+            statement = select(table)
 
         results = session.exec(statement).all()
 
@@ -202,13 +203,15 @@ class DB:
         try:
             statement = (
                 select(CharacterData)
-                .where(CharacterData.character_id)
-                .notin_(
-                    select(UserCharacter.character_id).where(
-                        UserCharacter.user_id == user_id
+                .where(
+                    CharacterData.character_id.notin_(
+                        select(UserCharacter.character_id).where(
+                            UserCharacter.user_id == user_id
+                        )
                     )
                 )
-            ).limit(1)
+                .limit(1)
+            )
 
             result = session.exec(statement).first()
 
