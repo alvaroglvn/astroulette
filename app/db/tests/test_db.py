@@ -1,8 +1,8 @@
 from typing import Generator
 import time
-
 import pytest
-from sqlmodel import Session
+from sqlmodel import Session, SQLModel
+
 from app.db.db import DB
 from app.db.db_models import *
 
@@ -11,20 +11,19 @@ from app.db.db_models import *
 
 
 @pytest.fixture(scope="session")
-def db_instance() -> Generator:
-    """Creates a test database instance"""
-    db = DB(filepath=":memory:")
-    yield db
+def db_instance() -> DB:
+    """Creates a test database instance."""
+    return DB(filepath=":memory:")
 
 
-@pytest.fixture(scope="session")
-def session(db_instance: DB) -> Generator:
-    """Creates a test session wih the database"""
+@pytest.fixture(scope="function")
+def session(db_instance: DB) -> Generator[Session, None, None]:
+    """Creates a fresh test session with the database for each test."""
     with Session(db_instance.engine) as session:
         yield session
 
 
-# Reset database before new test
+# Reset database before each test
 @pytest.fixture(autouse=True, scope="function")
 def reset_db(session: Session) -> Generator:
     SQLModel.metadata.drop_all(session.bind)
@@ -36,17 +35,17 @@ def reset_db(session: Session) -> Generator:
 
 
 @pytest.fixture()
-def mockup_user(db_instance: DB) -> User:
+def mockup_user(session: Session, db_instance: DB) -> User:
     mockup_user = User(
         user_name="William Ryker",
         email="williamryker@staracademy.org",
     )
-    db_instance.store_entry(mockup_user)
+    db_instance.store_entry(session, mockup_user)
     return mockup_user
 
 
 @pytest.fixture()
-def mockup_profile(db_instance: DB) -> CharacterProfile:
+def mockup_profile(session: Session, db_instance: DB) -> CharacterProfile:
     mockup_profile = CharacterProfile(
         name="Glorb",
         planet_name="Banana Prime",
@@ -55,12 +54,12 @@ def mockup_profile(db_instance: DB) -> CharacterProfile:
         speech_style="Talks excitedly and fast",
         quirks="Uses old-timey expressions",
     )
-    db_instance.store_entry(mockup_profile)
+    db_instance.store_entry(session, mockup_profile)
     return mockup_profile
 
 
 @pytest.fixture()
-def mockup_assistant(db_instance: DB) -> Assistant:
+def mockup_assistant(session: Session, db_instance: DB) -> Assistant:
     mockup_assistant = Assistant(
         assistant_id="glorb_assistant_1",
         created_at=int(time.time()),
@@ -69,12 +68,13 @@ def mockup_assistant(db_instance: DB) -> Assistant:
         instructions="You are Glorb the alien.",
         temperature=1,
     )
-    db_instance.store_entry(mockup_assistant)
+    db_instance.store_entry(session, mockup_assistant)
     return mockup_assistant
 
 
 @pytest.fixture()
 def mockup_character(
+    session: Session,
     db_instance: DB,
     mockup_profile: CharacterProfile,
     mockup_assistant: Assistant,
@@ -87,12 +87,13 @@ def mockup_character(
         profile_id=mockup_profile.profile_id,
         generated_by=mockup_user.user_id,
     )
-    db_instance.store_entry(mockup_character)
+    db_instance.store_entry(session, mockup_character)
     return mockup_character
 
 
 @pytest.fixture()
 def mockup_thread(
+    session: Session,
     db_instance: DB,
     mockup_user: User,
     mockup_character: CharacterData,
@@ -104,22 +105,19 @@ def mockup_thread(
         character_id=mockup_character.character_id,
         assistant_id=mockup_assistant.assistant_id,
     )
-    db_instance.store_entry(mockup_thread)
-    return mockup_thread()
+    db_instance.store_entry(session, mockup_thread)
+    return mockup_thread
 
 
 @pytest.fixture()
-def mockup_message(
-    db_instance: DB,
-    mockup_thread: Thread,
-) -> Message:
+def mockup_message(session: Session, db_instance: DB, mockup_thread: Thread) -> Message:
     mockup_message = Message(
         thread_id=mockup_thread.thread_id,
         created_at=int(time.time()),
         role="assistant",
         content="Hello, my name is Glorb",
     )
-    db_instance.store_entry(mockup_message)
+    db_instance.store_entry(session, mockup_message)
     return mockup_message
 
 
@@ -135,31 +133,38 @@ def test_storage(mockup_character: CharacterData) -> None:
 
 
 # Read from DB
-def test_read(db_instance: DB, mockup_character: CharacterData) -> None:
+def test_read(
+    session: Session, db_instance: DB, mockup_character: CharacterData
+) -> None:
     character = db_instance.read_from_db(
-        CharacterData, "character_id", mockup_character.character_id
+        session, CharacterData, "character_id", mockup_character.character_id
     )
     assert character.image_prompt == "A jolly alien with a monocle."
 
 
 # Update DB
-def test_update(db_instance: DB, mockup_character: CharacterData) -> None:
+def test_update(
+    session: Session, db_instance: DB, mockup_character: CharacterData
+) -> None:
     db_instance.update_db(
         CharacterData,
+        session,
         "character_id",
         mockup_character.character_id,
         {"image_url": "http://new-image.test"},
     )
     updated = db_instance.read_from_db(
-        CharacterData, "character_id", mockup_character.character_id
+        session, CharacterData, "character_id", mockup_character.character_id
     )
     assert updated.image_url == "http://new-image.test"
 
 
 # Delete from DB
-def test_delete(db_instance: DB, mockup_character: CharacterData) -> None:
-    db_instance.delete_character(mockup_character.character_id)
+def test_delete(
+    session: Session, db_instance: DB, mockup_character: CharacterData
+) -> None:
+    db_instance.delete_character(session, mockup_character.character_id)
     with pytest.raises(LookupError):
         db_instance.read_from_db(
-            CharacterData, "character_id", mockup_character.character_id
+            session, CharacterData, "character_id", mockup_character.character_id
         )
