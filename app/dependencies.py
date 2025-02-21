@@ -1,18 +1,15 @@
 from typing import Generator
-from sqlalchemy.orm import sessionmaker, Session
+from sqlmodel import Session
 from app.db.db import DB
 
 # Initialize DB instance
 db_instance = DB("app/db/alien_talk.sqlite")
 
-# Create a session factory
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=db_instance.engine)
-
 
 # Dependency: Get session
 def get_db() -> Generator[Session, None, None]:
-    session = SessionLocal()
+    session = db_instance.get_session()
     try:
-        yield session  # Provide session
+        yield session
     finally:
-        session.close()  # Cleanup session
+        session.close()
