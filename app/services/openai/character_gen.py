@@ -6,8 +6,8 @@ from app.db.db_models import *
 from app.services.openai.openai_models import CharacterData, openai_resp_validator
 
 
-def character_generator(openai_key: str) -> CharacterData | None:
-    """This function creates a fantasy character using OpenAI's GPT-4 model. It returns a JSON object with an image prompt and a character profile that can later be pipelined into other APIs for generating art or dialogue."""
+def character_generator(openai_key: str) -> str | None:
+    """Generate a new character via OpenAI and return the response."""
 
     # Select random values for the prompt
     archetypes = [
@@ -85,6 +85,4 @@ def character_generator(openai_key: str) -> CharacterData | None:
     # Select new character information
     new_character = response.choices[0].message.content
 
-    validate_character = openai_resp_validator(CharacterData, new_character)
-    print(validate_character)
-    return validate_character
+    return new_character

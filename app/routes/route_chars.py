@@ -1,57 +1,39 @@
 from fastapi import APIRouter, BackgroundTasks, Response, Depends
+from sqlalchemy.orm import Session
+from app.services.openai.character_gen import character_generator
+from app.utils.data_validator import validate_data
+from app.dependencies import get_db
+from app.db.db_models import CharacterData, CharacterProfile
 from app.config import AppSettings
-from app.db.db import DB
 
-from app.services.characters import *
 
 router = APIRouter()
 
 
-@router.post("/create-character")
-async def create_character(
-    config: AppSettings = Depends(),
-    db: DB = Depends(get_db),
-    background_tasks: BackgroundTasks = None,
+@router.get("/new-character")
+def create_new(
+    config: AppSettings, session: Session = Depends(get_db), db_instance: DB = Depends()
 ) -> Response:
-    try:
-        with db.get_session() as session:
+    # 1. Generate and store new character
+    new_character = character_generator(config.openai_api_key)
 
-            # 1. Generate new character
-            new_character = await generate_character(config.openai_api_key)
+    if not new_character:
+        return Response(
+            content="Unable to fetch new character from OpenAI.", status_code=500
+        )
 
-            # 2. Generate and store character profile
-            generate_profile(config.openai_api_key, db, new_character)
+    # Validate character profile
+    valid_profile = validate_data(new_character["character_profile"], CharacterProfile)
+    if not valid_profile:
+        return Response(
+            content="Unable to validate character profile.", status_code=500
+        )
+    # Validate character data
+    valid_character_data = validate_data(CharacterData, new_character)
+    if not valid_character_data:
+        return Response(content="Unable to validate character data.", status_code=500)
 
-            # 3. Generate and store assistant
-            assistant = await generate_assistant(
-                config.openai_api_key, db, new_character
-            )
+    # 2. Store new character
+    db.store_entry(db, valid_character_data)
 
-            # 4. Generate and store character data
-            character_data = generate_character_data(
-                config.openai_api_key, db, new_character, assistant
-            )
-
-            # 5. Commit the transaction (if everything succeeds)
-            session.commit()
-            logging.info(
-                f"New character created: {character_data.character_profile.name} with ID {character_data.character_id}"
-            )
-
-    except Exception as e:
-        logging.error(f"Character creation failed: {e}")
-        return Response(content=str(e), status_code=500)
-    # 6. Generate character portrait in the background
-    background_tasks.add_task(
-        generate_portrait, config.leonardo_api_key, db, new_character.image_prompt
-    )
-
-    return Response(
-        content=f"{character_data.character_profile.name} created with ID {character_data.character_id}",
-        status_code=201,
-    )
-
-
-# @router.get("/load_character")
-# async def load_character_endpoint(background_tasks: BackgroundTasks):
-#     return await DB.get_unmet_character()
+    pass
