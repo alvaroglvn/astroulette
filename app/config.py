@@ -8,6 +8,8 @@ class AppSettings(BaseSettings):
     openai_api_key: str
     login_key: str
 
+    db_url: str
+
 
 class EmailConfig(BaseSettings):
     model_config = SettingsConfigDict(env_file="app/.env")

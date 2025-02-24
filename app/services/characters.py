@@ -1,6 +1,6 @@
 import logging
 
-from app.db.db import DB
+from app.db.db_setup import DB
 from app.db.db_models import *
 
 from app.services.openai.character_gen import character_generator

@@ -31,12 +31,8 @@ async def read_record(
     """Retrieve a single record by id from anywhere in the database."""
     try:
         result = await session.execute(select(model).where(model.id == primary_key))
-        value = result.scalar_one_or_none()
 
-        if value is None:
-            logging.warning(f"No value found in {model.__name__} with ID {primary_key}")
-
-        return value
+        return result.scalar_one_or_none()
 
     except SQLAlchemyError as e:
         await session.rollback()
@@ -54,12 +50,7 @@ async def read_all(
             query = query.order_by(order_by)
 
         result = await session.execute(query)
-        entries = result.scalars().all()
-
-        if not entries:
-            logging.warning(f"No values found in {model.__name__}")
-
-        return entries
+        return result.scalars().all()
 
     except SQLAlchemyError as e:
         await session.rollback()
