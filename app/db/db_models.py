@@ -26,7 +26,10 @@ class Assistant(SQLModel, table=True):
     instructions: str = Field(nullable=False)
     temperature: float = Field(default=1, index=True)
 
-    character_data: Optional["CharacterData"] = Relationship(back_populates="assistant")
+    character_data: Optional["CharacterData"] = Relationship(
+        back_populates="assistant",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
+    )
     thread: List["Thread"] = Relationship(
         back_populates="assistant",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
@@ -56,11 +59,10 @@ class CharacterData(SQLModel, table=True):
 
     profile: Optional[CharacterProfile] = Relationship(
         back_populates="character_data",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
+        sa_relationship_kwargs={"cascade": "all, delete-orphan", "single_parent": True},
     )
     assistant: Optional[Assistant] = Relationship(
-        back_populates="character_data",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
+        back_populates="character_data", sa_relationship_kwargs={"cascade": "all"}
     )
     user: Optional[User] = Relationship(back_populates="character_data")
     user_characters: List["UserCharacters"] = Relationship(
