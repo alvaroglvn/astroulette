@@ -215,7 +215,7 @@ async def fetch_unmet_character(
         statement = (
             select(CharacterData)
             .where(
-                CharacterData.character_id.notin_(
+                CharacterData.id.notin_(  # Changed from character_id to id
                     select(UserCharacters.character_id).where(
                         UserCharacters.user_id == user_id
                     )

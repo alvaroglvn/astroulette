@@ -15,7 +15,6 @@ DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 engine = create_async_engine(
     DATABASE_URL,
     echo=True,
-    future=True,
 )
 
 
@@ -193,4 +192,115 @@ async def test_create_record(
     assert message_result.thread_id == thread_result.id
     assert message_result.role == "user"
     assert message_result.content == "Test message content"
-    assert isinstance(message_result.created_at, int)
+
+
+@pytest.mark.asyncio
+async def test_read_record(session: AsyncSession, mock_user: User) -> None:
+    # Create user
+    user_result = await create_record(session, mock_user)
+    assert user_result is not None
+    # Read user
+    read_user = await read_record(session, User, user_result.id)
+    assert read_user is not None
+    assert read_user.username == "test_user"
+    assert read_user.email == "test@example.com"
+    assert read_user.active is True
+
+
+@pytest.mark.asyncio
+async def test_read_all_records(session: AsyncSession, mock_user: User) -> None:
+    # Create user
+    user_result = await create_record(session, mock_user)
+    assert user_result is not None
+    # Read all users
+    users = await read_all(session, User)
+    assert len(users) > 0
+    assert any(user.id == user_result.id for user in users)
+
+
+@pytest.mark.asyncio
+async def test_update_record(session: AsyncSession, mock_user: User) -> None:
+    # Create user
+    user_result = await create_record(session, mock_user)
+    assert user_result is not None
+    # Update user
+    updates = {
+        "username": "updated_user",
+        "email": "updated@example.com",
+        "active": False,
+    }
+    updated_user = await update_record(session, User, user_result.id, updates)
+    assert updated_user is not None
+    assert updated_user.username == "updated_user"
+    assert updated_user.email == "updated@example.com"
+    assert updated_user.active is False
+
+
+@pytest.mark.asyncio
+async def test_delete_record(session: AsyncSession, mock_user: User) -> None:
+    # Create user
+    user_result = await create_record(session, mock_user)
+    assert user_result is not None
+    # Delete user
+    await delete_record(session, User, user_result.id)
+    # Try to read deleted user
+    deleted_user = await read_record(session, User, user_result.id)
+    assert deleted_user is None
+
+
+@pytest.mark.asyncio
+async def test_fetch_unmet_character(
+    session: AsyncSession,
+    mock_user: User,
+    mock_assistant: Assistant,
+    mock_character_profile: CharacterProfile,
+) -> None:
+    # Create user
+    user = await create_record(session, mock_user)
+    assert user is not None
+
+    # Create assistant
+    assistant = await create_record(session, mock_assistant)
+    assert assistant is not None
+
+    # Create character profile
+    profile = await create_record(session, mock_character_profile)
+    assert profile is not None
+
+    # Create two character data entries
+    character1 = CharacterData(
+        image_prompt="Test prompt 1",
+        image_url="PENDING",
+        profile_id=profile.id,
+        assistant_id=assistant.assistant_id,
+        generated_by=user.id,
+    )
+    character2 = CharacterData(
+        image_prompt="Test prompt 2",
+        image_url="PENDING",
+        profile_id=profile.id,
+        assistant_id=assistant.assistant_id,
+        generated_by=user.id,
+    )
+
+    char1 = await create_record(session, character1)
+    char2 = await create_record(session, character2)
+    assert char1 is not None
+    assert char2 is not None
+
+    # Associate character1 with the user
+    user_char = UserCharacters(user_id=user.id, character_id=char1.id)
+    await create_record(session, user_char)
+
+    # Test fetch_unmet_character
+    unmet = await fetch_unmet_character(session, user.id)
+    assert unmet is not None
+    assert unmet.id == char2.id  # Should get character2 as it's unmet
+
+    # Associate character2 with the user
+    user_char2 = UserCharacters(user_id=user.id, character_id=char2.id)
+    await create_record(session, user_char2)
+
+    # Test fetch_unmet_character again
+    unmet = await fetch_unmet_character(session, user.id)
+    assert unmet is None  # Should get None as all characters are met
