@@ -1,7 +1,13 @@
+from typing import AsyncGenerator
 from fastapi import FastAPI
-from app.dependencies import get_db
-from app.routers.route_chars import *
+from contextlib import asynccontextmanager
+from db.db_setup import init_db
 
-app = FastAPI()
-# Include routes
-app.include_router("")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator:
+    init_db()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)

@@ -6,11 +6,14 @@ class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True, index=True)
     username: str = Field(nullable=False, unique=True, index=True)
     email: str = Field(nullable=False, unique=True, index=True)
+    active: bool = Field(nullable=False, default=True, index=True)
 
     character_data: List["CharacterData"] = Relationship(back_populates="user")
-    thread: List["Thread"] = Relationship(back_populates="user", cascade_delete=True)
+    thread: List["Thread"] = Relationship(
+        back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
     user_characters: List["UserCharacters"] = Relationship(
-        back_populates="user", cascade_delete=True
+        back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan"}
     )
 
 
@@ -25,7 +28,8 @@ class Assistant(SQLModel, table=True):
 
     character_data: Optional["CharacterData"] = Relationship(back_populates="assistant")
     thread: List["Thread"] = Relationship(
-        back_populates="assistant", cascade_delete=True
+        back_populates="assistant",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
 
 
@@ -51,14 +55,17 @@ class CharacterData(SQLModel, table=True):
     generated_by: int = Field(foreign_key="user.id", nullable=False)
 
     profile: Optional[CharacterProfile] = Relationship(
-        back_populates="character_data", cascade_delete=True
+        back_populates="character_data",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
     assistant: Optional[Assistant] = Relationship(
-        back_populates="character_data", cascade_delete=True
+        back_populates="character_data",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
     user: Optional[User] = Relationship(back_populates="character_data")
     user_characters: List["UserCharacters"] = Relationship(
-        back_populates="character_data", cascade_delete=True
+        back_populates="character_data",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
 
 
@@ -87,7 +94,8 @@ class Thread(SQLModel, table=True):
     user: Optional[User] = Relationship(back_populates="thread")
     assistant: Optional[Assistant] = Relationship(back_populates="thread")
     messages: List["Message"] = Relationship(
-        back_populates="thread", cascade_delete=True
+        back_populates="thread",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
 
 
