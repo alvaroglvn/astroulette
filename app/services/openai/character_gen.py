@@ -10,7 +10,7 @@ from app.services.openai.openai_models import (
 )
 
 
-def character_generator(openai_key: str) -> tuple[CharacterData, CharacterProfile]:
+def generate_character(openai_key: str) -> tuple[CharacterData, CharacterProfile]:
     """
     Generate a new character via OpenAI and return the character data and profile.
 
