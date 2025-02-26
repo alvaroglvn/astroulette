@@ -4,14 +4,10 @@ from contextlib import asynccontextmanager
 from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.config import AppSettings
-from app.db.db_models import User
-from app.db import db_crud
-
 
 app_settings = AppSettings()
 DATABASE_URL = app_settings.db_url

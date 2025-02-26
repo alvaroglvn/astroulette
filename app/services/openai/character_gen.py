@@ -7,7 +7,6 @@ from app.db.db_models import *
 from app.services.openai.openai_models import (
     CharacterData,
     CharacterProfile,
-    openai_resp_validator,
 )
 
 
