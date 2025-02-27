@@ -1,11 +1,12 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Response, BackgroundTasks
 from sqlmodel import Session
 
 from app.dependencies import *
-from app.services.openai.character_gen import generate_character
-from app.services.openai.assistant_gen import generate_assistant
+
 from app.db.db_crud import *
+from app.db.db_models import *
+
 
 router = APIRouter()
 
@@ -14,26 +15,22 @@ router = APIRouter()
 async def new_character(
     settings: Annotated[AppSettings, Depends(settings_dependency)],
     session: Annotated[Session, Depends(db_dependency)],
+    character_data_profile: Annotated[
+        tuple[CharacterData, CharacterProfile], Depends(generate_character_dependency)
+    ],
+    assistant: Annotated[Assistant, Depends(generate_assistant_dependency)],
 ) -> Response:
-    """Generates a new character and stores it in the database"""
+    # Unpack the tuple
+    character_data, character_profile = character_data_profile
 
-    try:
+    # Store data in order to build db relationships
+    stored_assistant = await create_record(session, assistant)
+    stored_profile = await create_record(session, character_profile)
 
-        # 1. Generate CharacterData and CharacterProfile
-        character_data, character_profile = generate_character(settings.openai_api_key)
+    # Set values for foreign keys relationship
+    character_data.assistant_id = stored_assistant.id
+    character_data.profile_id = stored_profile.id
 
-        # 2. Generate Assistant
-        assistant = generate_assistant(settings.openai_api_key, character_data)
+    create_record(session, character_data)
 
-        # 3. Save to database in order
-        await create_record(assistant)
-        await create_record(character_profile)
-        await create_record(character_data)
-
-        return Response(content="New character created.", status_code=201)
-
-    except Exception as e:
-        session.rollback()
-        return Response(
-            content=f"Failed to create new character: {e}.", status_code=500
-        )
+    return Response(status_code=201)
