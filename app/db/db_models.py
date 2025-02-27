@@ -51,11 +51,11 @@ class CharacterProfile(SQLModel, table=True):
 class CharacterData(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True, index=True)
     image_prompt: str = Field(nullable=False)
-    image_url: str = Field(nullable=False, default="PENDING")
+    image_url: str = Field(default="PENDING")
 
-    profile_id: int = Field(foreign_key="characterprofile.id", nullable=False)
-    assistant_id: str = Field(foreign_key="assistant.id", nullable=False)
-    generated_by: int = Field(foreign_key="user.id", nullable=False)
+    profile_id: int = Field(foreign_key="characterprofile.id")
+    assistant_id: str = Field(foreign_key="assistant.id")
+    generated_by: int = Field(foreign_key="user.id", default=0)
 
     profile: Optional[CharacterProfile] = Relationship(
         back_populates="character_data",

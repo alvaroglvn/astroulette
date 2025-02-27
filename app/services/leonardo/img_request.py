@@ -10,7 +10,8 @@ urls = {
 }
 
 
-async def generate_image(apikey: str, payload: PhoenixPayload) -> str | None:
+async def generate_portrait(apikey: str, prompt: str) -> Optional[str]:
+    payload = PhoenixPayload(prompt=prompt)
 
     headers = {
         "Authorization": f"Bearer {apikey}",
