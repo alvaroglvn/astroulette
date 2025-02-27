@@ -1,18 +1,14 @@
 from openai import OpenAI, OpenAIError
+from pydantic import BaseModel
 import random
 import logging
 
-from app.db.db_models import *
-
-from app.services.openai.openai_models import (
-    CharacterData,
-    CharacterProfile,
-)
+from app.db.db_models import CharacterData, CharacterProfile
 
 
 def generate_character(openai_key: str) -> tuple[CharacterData, CharacterProfile]:
     """
-    Generate a new character via OpenAI and return the character data and profile.
+    Generate a new character via OpenAI and return the character's data and profile as database models.
 
     Args:
         openai_key (str): OpenAI API key for authentication
@@ -101,12 +97,12 @@ def generate_character(openai_key: str) -> tuple[CharacterData, CharacterProfile
 
         # Select new character information
         new_character = response.choices[0].model_dump()
-        # Validate data
-        validated_char = CharacterData.model_validate(new_character)
-        validated_profile = CharacterProfile.model_validate(
+        # Model data
+        character_data = CharacterData.model_validate(new_character)
+        character_profile = CharacterProfile.model_validate(
             new_character["character_profile"]
         )
-        return validated_char, validated_profile
+        return character_data, character_profile
 
     except OpenAIError as e:
         logging.error(f"Error generating character with OpenAI: {e}")
