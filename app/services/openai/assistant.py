@@ -4,7 +4,7 @@ from typing import Optional
 from openai import OpenAI, OpenAIError
 from openai.types.beta.assistant import Assistant
 
-from app.db.db_models import CharacterData, Assistant
+from app.db.db_models import CharacterData, DBAssistant
 
 
 def generate_assistant(
@@ -48,3 +48,15 @@ def generate_assistant(
     except Exception as e:
         logging.error(f"Unexpected error: {e}")
         raise
+
+
+def create_db_assistant(assistant: Assistant) -> DBAssistant:
+    db_assistant = DBAssistant(
+        assistant_id=assistant.id,
+        created_at=assistant.created_at,
+        name=assistant.name,
+        model=assistant.model,
+        instructions=assistant.instructions,
+        temperature=assistant.temperature,
+    )
+    return db_assistant
