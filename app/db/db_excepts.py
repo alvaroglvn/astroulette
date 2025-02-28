@@ -21,5 +21,5 @@ class TableNotFound(HTTPException):
     def __init__(self, table_name: str) -> None:
         super().__init__(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Table {table_name} does not exist",
+            detail=f"Table '{table_name}' does not exist in the database.",
         )

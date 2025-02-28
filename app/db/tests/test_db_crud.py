@@ -8,6 +8,7 @@ import time
 
 from app.db.db_models import *
 from app.db.db_crud import *
+from app.db.db_excepts import RecordNotFound
 
 # Test database URL
 DATABASE_URL = "sqlite+aiosqlite:///:memory:"
@@ -243,9 +244,9 @@ async def test_delete_record(session: AsyncSession, mock_user: User) -> None:
     assert user_result is not None
     # Delete user
     await delete_record(session, User, user_result.id)
-    # Try to read deleted user
-    deleted_user = await read_record(session, User, user_result.id)
-    assert deleted_user is None
+    # Try to read deleted user and expect a RecordNotFound exception
+    with pytest.raises(RecordNotFound):
+        await read_record(session, User, user_result.id)
 
 
 @pytest.mark.asyncio
