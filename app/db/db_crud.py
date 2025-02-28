@@ -4,9 +4,10 @@ from typing import Type, TypeVar, Optional, Any, List
 from sqlmodel import SQLModel, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, NoSuchTableError
 
 from app.db.db_models import CharacterData, UserCharacters
+from app.db.db_excepts import *
 
 
 T = TypeVar("T", bound=SQLModel)
@@ -30,10 +31,12 @@ async def create_record(session: AsyncSession, record: T) -> Optional[T]:
         await session.refresh(record)
         logging.info(f"New record {record.__class__.__name__} created successfully")
         return record
+    except NoSuchTableError as e:
+        logging.error(f"{e}")
+        raise TableNotFound(record.__tablename__)
     except SQLAlchemyError as e:
-        await session.rollback()
-        logging.error(f"Error creating new record {record.__class__.__name__}: {e}")
-        return None
+        logging.error(f"{e}")
+        raise DatabaseError("create", "Failed to store new record")
 
 
 # READ
@@ -52,23 +55,27 @@ async def read_record(
         Optional[T]: The found record or None.
 
     """
-
-    # Catch error if the table doesn't exist
-    if model.__tablename__ not in SQLModel.metadata.tables:
-        raise ValueError(f"Table {model.__tablename__} does not exist.")
-
     try:
-        primary_key_column = list(model.__table__.primary_key)[0]
-        statement = select(model).where(primary_key_column == primary_key)
+
+        statement = select(model).where(model.id == primary_key)
         result = await session.exec(statement)
+        record = result.first()
 
-        return result.one_or_none()
+        if not record:
+            raise RecordNotFound(model.__tablename__, primary_key)
+
+        logging.info(f"{model} id {primary_key} found")
+        return record
+
+    except NoSuchTableError as e:
+        logging.error(f"{e}")
+        raise TableNotFound(model.__tablename__)
     except SQLAlchemyError as e:
-        logging.error(f"Unable to read from table {model.__tablename__}: {e}")
-        raise
+        logging.error(f"{e}")
+        raise DatabaseError("read", "Failed to read record")
 
 
-async def read_all(session: AsyncSession, model: Type[T]) -> List[T]:
+async def read_all(session: AsyncSession, model: Type[T]) -> Optional[List[T]]:
     """Return all records from a table.
 
     Args:
@@ -76,27 +83,22 @@ async def read_all(session: AsyncSession, model: Type[T]) -> List[T]:
         model (Type[T]): The table to read.
 
     Returns:
-        List[T]: A list of records from the table.
+        List[T]: A list of records from the table or None.
     """
-
-    if model.__tablename__ not in SQLModel.metadata.tables:
-        raise ValueError(f"Table {model.__tablename__} does not exist")
 
     try:
         logging.info(f"Loading all records from {model.__tablename__}")
 
         statement = select(model)
         result = await session.exec(statement)
-        results = result.all()
+        return result.all()
 
-        if not results:
-            logging.info(f"No results found.")
-
-        return results
-
+    except NoSuchTableError as e:
+        logging.error(f"{e}")
+        raise TableNotFound(model.__tablename__)
     except SQLAlchemyError as e:
-        logging.error(f"Unable to read from table {model.__tablename__}: {e}")
-        raise
+        logging.error(f"{e}")
+        raise DatabaseError("read", "Failed to read records")
 
 
 # UPDATE
@@ -117,36 +119,29 @@ async def update_record(
     Returns:
         Optional[T]: The updated record or None if update failed.
     """
-    if model.__tablename__ not in SQLModel.metadata.tables:
-        raise ValueError(f"Table {model.__tablename__} does not exist")
-
     try:
-        primary_key_column = list(model.__table__.primary_key)[0]
-        statement = select(model).where(primary_key_column == primary_key)
-        result = await session.exec(statement)
-        record = result.one_or_none()
+        record = await read_record(session, model, primary_key)
 
-        if not record:
-            logging.warning(
-                f"Record with primary key {primary_key} not found in {model.__tablename__}"
-            )
-            return None
+        for field, value in updates.items():
+            setattr(record, field, value)
 
         for field, value in updates.items():
             if hasattr(record, field):
                 setattr(record, field, value)
 
+        await session.add()
         await session.commit()
         await session.refresh(record)
-        logging.info(
-            f"Record {model.__tablename__} with primary key {primary_key} updated successfully"
-        )
         return record
 
+    except NoSuchTableError as e:
+        logging.error(f"{e}")
+        raise TableNotFound(model.__tablename__)
+    except RecordNotFound(model.__tablename__, primary_key):
+        raise
     except SQLAlchemyError as e:
-        await session.rollback()
-        logging.error(f"Unable to update table {model.__tablename__}: {e}")
-        return None
+        logging.error(f"{e}")
+        raise DatabaseError("update", "Failed to update record")
 
 
 # DELETE
@@ -154,7 +149,7 @@ async def delete_record(
     session: AsyncSession,
     model: Type[T],
     primary_key: int,
-) -> bool:
+) -> None:
     """Delete a record from the database.
 
     Args:
@@ -163,34 +158,21 @@ async def delete_record(
         primary_key (int): The primary key of the record to delete.
 
     Returns:
-        bool: True if the record was deleted successfully, False otherwise.
+        None.
     """
-    if model.__tablename__ not in SQLModel.metadata.tables:
-        raise ValueError(f"Table {model.__tablename__} does not exist")
-
     try:
-        primary_key_column = list(model.__table__.primary_key)[0]
-        statement = select(model).where(primary_key_column == primary_key)
-        result = await session.exec(statement)
-        record = result.one_or_none()
-
-        if not record:
-            logging.warning(
-                f"Record with primary key {primary_key} not found in {model.__tablename__}"
-            )
-            return False
-
+        record = await read_record(model, primary_key)
         await session.delete(record)
         await session.commit()
-        logging.info(
-            f"Record {model.__tablename__} with primary key {primary_key} deleted successfully"
-        )
-        return True
 
+    except NoSuchTableError as e:
+        logging.error(f"{e}")
+        raise TableNotFound(model.__tablename__)
+    except RecordNotFound(model, primary_key):
+        raise
     except SQLAlchemyError as e:
-        await session.rollback()
-        logging.error(f"Unable to delete from table {model.__tablename__}: {e}")
-        return False
+        logging.error(f"{e}")
+        raise DatabaseError("delete", "Failed to delete record")
 
 
 # API SPECIFIC
@@ -235,5 +217,7 @@ async def fetch_unmet_character(
             return None
 
     except SQLAlchemyError as e:
-        logging.error(f"Unable to retrieve unmet characters for user {user_id}: {e}")
-        raise
+        logging.error(f"{e}")
+        raise DatabaseError(
+            "unmet characters", "Failed to retrive unmet characters from database"
+        )
