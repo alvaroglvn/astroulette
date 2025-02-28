@@ -61,7 +61,7 @@ class CharacterData(SQLModel, table=True):
         back_populates="character_data",
         sa_relationship_kwargs={"cascade": "all, delete-orphan", "single_parent": True},
     )
-    assistant: Optional[Assistant] = Relationship(
+    assistant: Optional[DBAssistant] = Relationship(
         back_populates="character_data", sa_relationship_kwargs={"cascade": "all"}
     )
     user: Optional[User] = Relationship(back_populates="character_data")
@@ -94,7 +94,7 @@ class Thread(SQLModel, table=True):
     assistant_id: str = Field(nullable=False, foreign_key="assistant.id")
 
     user: Optional[User] = Relationship(back_populates="thread")
-    assistant: Optional[Assistant] = Relationship(back_populates="thread")
+    assistant: Optional[DBAssistant] = Relationship(back_populates="thread")
     messages: List["Message"] = Relationship(
         back_populates="thread",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},

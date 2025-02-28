@@ -38,17 +38,17 @@ async def mock_user_fixture() -> User:
     return user
 
 
-@pytest_asyncio.fixture(name="mock_assistant")
-async def mock_assistant_fixture() -> Assistant:
-    assistant = Assistant(
-        assistant_id="test_assistant_id",
+@pytest_asyncio.fixture(name="mock_DBAssistant")
+async def mock_DBAssistant_fixture() -> DBAssistant:
+    DBAssistant = DBAssistant(
+        DBAssistant_id="test_DBAssistant_id",
         created_at=int(time.time()),
-        name="Test Assistant",
+        name="Test DBAssistant",
         model="gpt-4",
         instructions="Test instructions",
         temperature=0.7,
     )
-    return assistant
+    return DBAssistant
 
 
 @pytest_asyncio.fixture(name="mock_character_profile")
@@ -67,14 +67,14 @@ async def mock_character_profile_fixture() -> CharacterProfile:
 @pytest_asyncio.fixture(name="mock_character_data")
 async def mock_character_data_fixture(
     mock_user: User,
-    mock_assistant: Assistant,
+    mock_DBAssistant: DBAssistant,
     mock_character_profile: CharacterProfile,
 ) -> CharacterData:
     character_data = CharacterData(
         image_prompt="A test image prompt",
         image_url="PENDING",
         profile_id=mock_character_profile.id,
-        assistant_id=mock_assistant.assistant_id,
+        DBAssistant_id=mock_DBAssistant.DBAssistant_id,
         generated_by=mock_user.id,
     )
     return character_data
@@ -95,13 +95,13 @@ async def mock_user_character_fixture(
 async def mock_thread_fixture(
     mock_user: User,
     mock_character_data: CharacterData,
-    mock_assistant: Assistant,
+    mock_DBAssistant: DBAssistant,
 ) -> Thread:
     thread = Thread(
         created_at=int(time.time()),
         user_id=mock_user.id,
         character_id=mock_character_data.id,
-        assistant_id=mock_assistant.assistant_id,
+        DBAssistant_id=mock_DBAssistant.DBAssistant_id,
     )
     return thread
 
@@ -123,7 +123,7 @@ async def mock_message_fixture(
 async def test_create_record(
     session: AsyncSession,
     mock_user: User,
-    mock_assistant: Assistant,
+    mock_DBAssistant: DBAssistant,
     mock_character_profile: CharacterProfile,
     mock_character_data: CharacterData,
     mock_user_character: UserCharacters,
@@ -137,15 +137,15 @@ async def test_create_record(
     assert user_result.email == "test@example.com"
     assert user_result.active is True
 
-    # Create assistant
-    assistant_result = await create_record(session, mock_assistant)
-    assert assistant_result is not None
-    assert assistant_result.assistant_id == "test_assistant_id"
-    assert assistant_result.name == "Test Assistant"
-    assert assistant_result.model == "gpt-4"
-    assert assistant_result.instructions == "Test instructions"
-    assert assistant_result.temperature == 0.7
-    assert isinstance(assistant_result.created_at, int)
+    # Create DBAssistant
+    DBAssistant_result = await create_record(session, mock_DBAssistant)
+    assert DBAssistant_result is not None
+    assert DBAssistant_result.DBAssistant_id == "test_DBAssistant_id"
+    assert DBAssistant_result.name == "Test DBAssistant"
+    assert DBAssistant_result.model == "gpt-4"
+    assert DBAssistant_result.instructions == "Test instructions"
+    assert DBAssistant_result.temperature == 0.7
+    assert isinstance(DBAssistant_result.created_at, int)
 
     # Create character profile
     profile_result = await create_record(session, mock_character_profile)
@@ -165,7 +165,7 @@ async def test_create_record(
     assert character_data_result.image_prompt == "A test image prompt"
     assert character_data_result.image_url == "PENDING"
     assert character_data_result.profile_id == profile_result.id
-    assert character_data_result.assistant_id == mock_assistant.assistant_id
+    assert character_data_result.DBAssistant_id == mock_DBAssistant.DBAssistant_id
     assert character_data_result.generated_by == user_result.id
 
     # Create user-character association
@@ -183,7 +183,7 @@ async def test_create_record(
     assert thread_result is not None
     assert thread_result.user_id == user_result.id
     assert thread_result.character_id == character_data_result.id
-    assert thread_result.assistant_id == mock_assistant.assistant_id
+    assert thread_result.DBAssistant_id == mock_DBAssistant.DBAssistant_id
     assert isinstance(thread_result.created_at, int)
 
     # Create message
@@ -253,16 +253,16 @@ async def test_delete_record(session: AsyncSession, mock_user: User) -> None:
 async def test_fetch_unmet_character(
     session: AsyncSession,
     mock_user: User,
-    mock_assistant: Assistant,
+    mock_DBAssistant: DBAssistant,
     mock_character_profile: CharacterProfile,
 ) -> None:
     # Create user
     user = await create_record(session, mock_user)
     assert user is not None
 
-    # Create assistant
-    assistant = await create_record(session, mock_assistant)
-    assert assistant is not None
+    # Create DBAssistant
+    DBAssistant = await create_record(session, mock_DBAssistant)
+    assert DBAssistant is not None
 
     # Create character profile
     profile = await create_record(session, mock_character_profile)
@@ -273,14 +273,14 @@ async def test_fetch_unmet_character(
         image_prompt="Test prompt 1",
         image_url="PENDING",
         profile_id=profile.id,
-        assistant_id=assistant.assistant_id,
+        DBAssistant_id=DBAssistant.DBAssistant_id,
         generated_by=user.id,
     )
     character2 = CharacterData(
         image_prompt="Test prompt 2",
         image_url="PENDING",
         profile_id=profile.id,
-        assistant_id=assistant.assistant_id,
+        DBAssistant_id=DBAssistant.DBAssistant_id,
         generated_by=user.id,
     )
 
