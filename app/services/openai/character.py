@@ -1,12 +1,16 @@
-from openai import OpenAI, OpenAIError
-from pydantic import BaseModel
 import random
 import logging
+
+from openai import OpenAI, OpenAIError
+
+from typing import Optional
 
 from app.db.db_models import CharacterData, CharacterProfile
 
 
-def generate_character(openai_key: str) -> tuple[CharacterData, CharacterProfile]:
+def generate_character(
+    openai_key: str,
+) -> Optional[tuple[CharacterData, CharacterProfile]]:
     """
     Generate a new character via OpenAI and return the character's data and profile as database models.
 
@@ -23,44 +27,7 @@ def generate_character(openai_key: str) -> tuple[CharacterData, CharacterProfile
 
     try:
         # Select random values for the prompt
-        archetypes = [
-            "elder alien",
-            "cosmic sage",
-            "dark overlord",
-            "bio-mechanical alien",
-            "trickster alien",
-            "impish being",
-            "diplomatic alien",
-            "alien rockstar",
-            "alien celebrity",
-            "silent observer",
-            "space pirate",
-            "galactic emperor",
-            "galactic royal",
-            "alien supermodel",
-            "space vampire",
-            "alien zombie",
-            "alien supersoldier",
-            "mad scientist",
-            "galactic divine being",
-            "galactic demon",
-        ]
-        gender = ["male", "female"]
-        species = [
-            "humanoid",
-            "robot",
-            "insectoid",
-            "beast",
-            "amphibian",
-            "reptilian",
-            "animalistic",
-            "monster",
-            "cyborg",
-            "mutant",
-            "mineral based",
-            "plant based",
-            "rock based",
-        ]
+        gender, species, archetype = character_randomizer()
 
         # Make chat request to OpenAI
         client = OpenAI(api_key=openai_key, project="proj_iHucBz89WXK9PvH3Hqvf5mhf")
@@ -80,7 +47,7 @@ def generate_character(openai_key: str) -> tuple[CharacterData, CharacterProfile
                     
                     Follow this instructions to create the data inside the fields:
 
-                    "image_prompt": "Vibrant colors frontal close-up of a {random.choice(gender)} {random.choice(species)} {random.choice(archetypes)}, looking straight into the camera. This alien has [describe physical features such as eyes, skin, shape, unique details]. It has a [describe facial expression based on personality]. It wears [describe outfit] inspired by [insert a fashion designer]. Background is a colorful mod pattern.",
+                    "image_prompt": "Vibrant colors frontal close-up of a {gender} {species} {archetype}, looking straight into the camera. This alien has [describe physical features such as eyes, skin, shape, unique details]. It has a [describe facial expression based on personality]. It wears [describe outfit] inspired by [insert a fashion designer]. Background is a colorful mod pattern.",
 
                     "character_profile": 
                         "name": "[Generate a unique name for this alien]",
@@ -110,3 +77,48 @@ def generate_character(openai_key: str) -> tuple[CharacterData, CharacterProfile
     except Exception as e:
         logging.error(f"Unexpected error: {e}")
         raise
+
+
+def character_randomizer() -> tuple[str, str, str]:
+    gender = ["male", "female"]
+
+    species = [
+        "humanoid",
+        "robot",
+        "insectoid",
+        "beast",
+        "amphibian",
+        "reptilian",
+        "animalistic",
+        "monster",
+        "cyborg",
+        "mutant",
+        "mineral based",
+        "plant based",
+        "rock based",
+    ]
+
+    archetypes = [
+        "elder alien",
+        "cosmic sage",
+        "dark overlord",
+        "bio-mechanical alien",
+        "trickster alien",
+        "impish being",
+        "diplomatic alien",
+        "alien rockstar",
+        "alien celebrity",
+        "silent observer",
+        "space pirate",
+        "galactic emperor",
+        "galactic royal",
+        "alien supermodel",
+        "space vampire",
+        "alien zombie",
+        "alien supersoldier",
+        "mad scientist",
+        "galactic divine being",
+        "galactic demon",
+    ]
+
+    return random.choice(gender), random.choice(species), random.choice(archetypes)

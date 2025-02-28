@@ -6,9 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.db_setup import get_async_session
 from app.db.db_models import *
 from app.config import AppSettings
-from app.services.openai.character_gen import generate_character
-from app.services.openai.assistant_gen import generate_assistant
-from app.services.leonardo.img_request import generate_portrait
 
 
 def db_dependency() -> AsyncSession:
@@ -36,16 +33,3 @@ def settings_dependency() -> AppSettings:
         AppSettings: An instance of the AppSettings class.
     """
     return AppSettings()
-
-
-async def generate_character_dependency(
-    settings: Annotated[AppSettings, Depends(settings_dependency)]
-) -> tuple[CharacterData, CharacterProfile]:
-    return await generate_character(settings.openai_api_key)
-
-
-async def generate_assistant_dependency(
-    settings: Annotated[AppSettings, Depends(settings_dependency)],
-    character_data: Annotated[CharacterData, Depends(generate_character_dependency)],
-) -> Assistant:
-    return await generate_assistant(settings.openai_api_key, character_data)
