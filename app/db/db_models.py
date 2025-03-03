@@ -51,11 +51,11 @@ class CharacterProfile(SQLModel, table=True):
 class CharacterData(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True, index=True)
     image_prompt: str = Field(nullable=False)
-    image_url: str = Field(default="PENDING")
+    image_url: str = Field()
 
     profile_id: int = Field(foreign_key="characterprofile.id")
-    assistant_id: str = Field(foreign_key="assistant.id")
-    generated_by: int = Field(foreign_key="user.id", default=0)
+    assistant_id: str = Field(foreign_key="dbassistant.id")
+    generated_by: int = Field(foreign_key="user.id")
 
     profile: Optional[CharacterProfile] = Relationship(
         back_populates="character_data",
@@ -91,7 +91,7 @@ class Thread(SQLModel, table=True):
     character_id: int = Field(
         nullable=False, foreign_key="characterdata.id", index=True
     )
-    assistant_id: str = Field(nullable=False, foreign_key="assistant.id")
+    assistant_id: str = Field(nullable=False, foreign_key="dbassistant.id")
 
     user: Optional[User] = Relationship(back_populates="thread")
     assistant: Optional[DBAssistant] = Relationship(back_populates="thread")

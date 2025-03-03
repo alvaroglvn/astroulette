@@ -27,7 +27,7 @@ async def get_async_session() -> AsyncGenerator:
         yield session
 
 
-async def init_db() -> None:
+async def init_db() -> AsyncGenerator:
     # First create all tables
     async with async_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)

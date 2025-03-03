@@ -1,24 +1,23 @@
 import random
 import logging
+from typing import Optional
 
 from openai import OpenAI, OpenAIError
 
-from typing import Optional
-
-from app.db.db_models import CharacterData, CharacterProfile
+from app.services.openai.openai_models import *
 
 
 def generate_character(
     openai_key: str,
-) -> Optional[tuple[CharacterData, CharacterProfile]]:
+) -> Optional[NewCharacter]:
     """
-    Generate a new character via OpenAI and return the character's data and profile as database models.
+    Generate a new character via OpenAI and return the character's data and profile.
 
     Args:
         openai_key (str): OpenAI API key for authentication
 
     Returns:
-        tuple[CharacterData, CharacterProfile]: Generated character data and profile
+        str: Generated character data and profile in JSON string format
 
     Raises:
         OpenAIError: If there is an error with the OpenAI API request
@@ -45,7 +44,7 @@ def generate_character(
                     1. A detailed **image prompt** for AI-generated art.
                     2. A **personality & behavior profile** for interactive dialogue.
                     
-                    Follow this instructions to create the data inside the fields:
+                    Follow these instructions to create the data inside the fields:
 
                     "image_prompt": "Vibrant colors frontal close-up of a {gender} {species} {archetype}, looking straight into the camera. This alien has [describe physical features such as eyes, skin, shape, unique details]. It has a [describe facial expression based on personality]. It wears [describe outfit] inspired by [insert a fashion designer]. Background is a colorful mod pattern.",
 
@@ -59,17 +58,10 @@ def generate_character(
                     """,
                 },
             ],
-            response_format=CharacterData,
+            response_format=NewCharacter,
         )
 
-        # Select new character information
-        new_character = response.choices[0].model_dump()
-        # Model data
-        character_data = CharacterData.model_validate(new_character)
-        character_profile = CharacterProfile.model_validate(
-            new_character["character_profile"]
-        )
-        return character_data, character_profile
+        return response.choices[0].message.parsed
 
     except OpenAIError as e:
         logging.error(f"Error generating character with OpenAI: {e}")
@@ -77,6 +69,14 @@ def generate_character(
     except Exception as e:
         logging.error(f"Unexpected error: {e}")
         raise
+
+
+def new_character_parser(openai_key: str) -> tuple[CharacterData, CharacterProfile]:
+    openai_gen = generate_character(openai_key)
+    # Map data to db models
+    character_data, character_profile = char_data_parser(openai_gen)
+
+    return character_data, character_profile
 
 
 def character_randomizer() -> tuple[str, str, str]:

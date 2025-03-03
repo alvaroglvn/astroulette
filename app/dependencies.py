@@ -1,3 +1,4 @@
+from typing import AsyncGenerator, Annotated
 from fastapi import Depends
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,18 +8,12 @@ from app.db.db_models import *
 from app.config import AppSettings
 
 
-def db_dependency() -> AsyncSession:
-    """
-    Dependency function that provides an asynchronous database session.
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    async with get_async_session() as session:
+        yield session
 
-    This function uses the FastAPI `Depends` utility to inject an instance of
-    `AsyncSession` from the `get_async_session` function. It is typically used
-    as a dependency in route handlers to interact with the database.
 
-    Returns:
-        AsyncSession: An instance of the asynchronous database session.
-    """
-    return Depends(get_async_session)
+db_dependency = Annotated[AsyncSession, Depends(get_db)]
 
 
 def settings_dependency() -> AppSettings:
