@@ -4,11 +4,12 @@ from typing import Optional
 from openai import OpenAI, OpenAIError
 from openai.types.beta.assistant import Assistant
 
-from app.db.db_models import CharacterData, DBAssistant
+from app.db.db_models import CharacterProfile
+from app.services.openai.openai_models import assistant_data_mapper
 
 
 def generate_assistant(
-    openai_key: str, character_data: CharacterData
+    openai_key: str, character_profile: CharacterProfile
 ) -> Optional[Assistant]:
     """
     Creates an OpenAI assistant with character-specific traits.
@@ -23,12 +24,12 @@ def generate_assistant(
     try:
         client = OpenAI(api_key=openai_key, project="proj_iHucBz89WXK9PvH3Hqvf5mhf")
 
-        name = character_data.character_profile.name
-        planet = character_data.character_profile.planet
-        planet_description = character_data.character_profile.planet_description
-        personality = character_data.character_profile.personality_traits
-        speech_style = character_data.character_profile.speech_style
-        quirks = character_data.character_profile.quirks
+        name = character_profile.name
+        planet = character_profile.planet_name
+        planet_description = character_profile.planet_description
+        personality = character_profile.personality_traits
+        speech_style = character_profile.speech_style
+        quirks = character_profile.quirks
 
         response = client.beta.assistants.create(
             model="gpt-4o-mini",
@@ -39,9 +40,8 @@ def generate_assistant(
             response_format="auto",
         )
 
-        assistant = Assistant.model_validate(response)
+        return response
 
-        return assistant
     except OpenAIError as e:
         logging.error(f"Error generating assistant with OpenAI: {e}")
         raise
@@ -50,13 +50,9 @@ def generate_assistant(
         raise
 
 
-def create_db_assistant(assistant: Assistant) -> DBAssistant:
-    db_assistant = DBAssistant(
-        assistant_id=assistant.id,
-        created_at=assistant.created_at,
-        name=assistant.name,
-        model=assistant.model,
-        instructions=assistant.instructions,
-        temperature=assistant.temperature,
-    )
-    return db_assistant
+def new_assistant_parser(
+    openai_key: str, character_profile: CharacterProfile
+) -> Optional[Assistant]:
+    openai_assistant = generate_assistant(openai_key, character_profile)
+    mapped_assistant = assistant_data_mapper(openai_assistant)
+    return mapped_assistant

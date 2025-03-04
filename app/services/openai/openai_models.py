@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
-from app.db.db_models import CharacterData, CharacterProfile
+from openai.types.beta.assistant import Assistant
+from app.db.db_models import CharacterData, CharacterProfile, DBAssistant
 
 
 class NewProfile(BaseModel):
@@ -17,7 +18,7 @@ class NewCharacter(BaseModel):
     profile: NewProfile = Field()
 
 
-def char_data_parser(
+def char_data_mapper(
     new_character: NewCharacter,
 ) -> tuple[CharacterData, CharacterProfile]:
     character_data = CharacterData(
@@ -34,3 +35,14 @@ def char_data_parser(
     )
 
     return character_data, character_profile
+
+
+def assistant_data_mapper(assistant: Assistant) -> DBAssistant:
+    return DBAssistant(
+        assistant_id=assistant.id,
+        created_at=assistant.created_at,
+        name=assistant.name,
+        model=assistant.model,
+        instructions=assistant.instructions,
+        temperature=assistant.temperature,
+    )

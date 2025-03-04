@@ -74,7 +74,7 @@ def generate_character(
 def new_character_parser(openai_key: str) -> tuple[CharacterData, CharacterProfile]:
     openai_gen = generate_character(openai_key)
     # Map data to db models
-    character_data, character_profile = char_data_parser(openai_gen)
+    character_data, character_profile = char_data_mapper(openai_gen)
 
     return character_data, character_profile
 
