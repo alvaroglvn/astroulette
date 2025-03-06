@@ -16,19 +16,19 @@ from app.db.db_crud import create_record, read_record, RecordNotFound
 app_settings = AppSettings()
 DATABASE_URL = app_settings.db_url
 
-async_engine = create_async_engine(
-    DATABASE_URL,
-    echo=True,
-)
+async_engine = create_async_engine(DATABASE_URL, echo=True)
 
 
 @asynccontextmanager
 async def get_async_session() -> AsyncGenerator:
     async_session = sessionmaker(
-        bind=async_engine, class_=AsyncSession, expire_on_commit=False
+        bind=async_engine, class_=AsyncSession, expire_on_commit=False, autoflush=False
     )
     async with async_session() as session:
-        yield session
+        try:
+            yield session
+        finally:
+            await session.close()
 
 
 async def init_db() -> None:

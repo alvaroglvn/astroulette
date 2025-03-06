@@ -10,7 +10,10 @@ from app.config import AppSettings
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with get_async_session() as session:
-        yield session
+        try:
+            yield session
+        finally:
+            await session.close()
 
 
 db_dependency = Annotated[AsyncSession, Depends(get_db)]
