@@ -16,7 +16,7 @@ from app.db.db_crud import create_record, read_record, RecordNotFound
 app_settings = AppSettings()
 DATABASE_URL = app_settings.db_url
 
-async_engine = create_async_engine(DATABASE_URL, echo=True)
+async_engine = create_async_engine(DATABASE_URL, echo=False)
 
 
 @asynccontextmanager
