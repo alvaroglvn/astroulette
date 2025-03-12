@@ -122,3 +122,51 @@ def character_randomizer() -> tuple[str, str, str]:
     ]
 
     return random.choice(gender), random.choice(species), random.choice(archetypes)
+
+
+def chat_with_character(
+    openai_key: str, character_profile: CharacterProfile, user_message: str
+) -> Optional[str]:
+    """
+    Sends a chat request to OpenAI to simulate a conversation with a character.
+
+    Args:
+        openai_key (str): OpenAI API key
+        character_profile (CharacterProfile): Character profile data
+        user_message (str): The user's message
+
+    Returns:
+        Optional[str]: AI-generated response from the character
+    """
+    try:
+        client = OpenAI(api_key=openai_key, project="proj_iHucBz89WXK9PvH3Hqvf5mhf")
+
+        # Build system prompt to establish character's personality
+        system_prompt = f"""
+        You are {character_profile.name}, an alien from {character_profile.planet_name}. 
+        Your planet is {character_profile.planet_description}.
+        Your personality is described as: {character_profile.personality_traits}.
+        Your speech style is: {character_profile.speech_style}.
+        Additionally, you have the following quirks: {character_profile.quirks}.
+        
+        Stay in character and respond to the user as if you are {character_profile.name}.
+        """
+
+        # OpenAI chat completion request
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_message},
+            ],
+            temperature=1.0,
+        )
+
+        return response.choices[0].message.content if response.choices else None
+
+    except OpenAIError as e:
+        logging.error(f"Error in chat request with OpenAI: {e}")
+        raise
+    except Exception as e:
+        logging.error(f"Unexpected error: {e}")
+        raise

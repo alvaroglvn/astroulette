@@ -10,7 +10,6 @@ from app.db.db_excepts import *
 from app.db.db_utils import *
 
 from app.services.openai.character import new_character_parser
-from app.services.openai.assistant import new_assistant_parser
 from app.services.leonardo.img_request import generate_portrait
 
 
@@ -29,26 +28,18 @@ async def new_character(
                 settings.openai_api_key
             )
 
-            # Generate assistant
-            assistant = new_assistant_parser(settings.openai_api_key, character_profile)
-
             # DB storage
-            # 1. Store assistant and build relationshop with character data
-            stored_assistant = await create_record(session, assistant)
-            character_data.assistant_id = stored_assistant.id
-            # 2. Store character profile adn build relationship with character data
+            # 1. Store character profile adn build relationship with character data
             stored_profile = await create_record(session, character_profile)
             character_data.profile_id = stored_profile.id
-            # 4. Build user relationship with character data
-            character_data.generated_by = (
-                1  # Admin user until user system is      implemented
-            )
-            # 5. Generate character portrait
+            # 2. Build user relationship with character data
+            character_data.generated_by = 1  # Default admin
+            # 3. Generate character portrait
             prompt = character_data.image_prompt
             portrait_url = await generate_portrait(settings.leonardo_api_key, prompt)
 
             if portrait_url:
-                character_data.image_url = portrait_url
+                character_profile.image_url = portrait_url
             else:
                 raise Exception("Failed to generate character portrait")
 
@@ -59,6 +50,7 @@ async def new_character(
                 content={
                     "profile": stored_profile.model_dump(),
                     "character": stored_character_data.model_dump(),
+                    "character_id": stored_character_data.id,
                 },
                 status_code=201,
             )
