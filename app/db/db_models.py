@@ -9,11 +9,13 @@ class User(SQLModel, table=True):
     active: bool = Field(nullable=False, default=True, index=True)
 
     character_data: List["CharacterData"] = Relationship(back_populates="user")
-    thread: List["Thread"] = Relationship(
-        back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan"}
-    )
     user_characters: List["UserCharacters"] = Relationship(
-        back_populates="user", sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+        back_populates="user",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
+    )
+    messages: List["Message"] = Relationship(
+        back_populates="user",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
 
 
@@ -47,6 +49,10 @@ class CharacterData(SQLModel, table=True):
         back_populates="character_data",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
+    messages: List["Message"] = Relationship(
+        back_populates="character",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
+    )
 
 
 class UserCharacters(SQLModel, table=True):
@@ -61,27 +67,15 @@ class UserCharacters(SQLModel, table=True):
     )
 
 
-class Thread(SQLModel, table=True):
+class Message(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    created_at: int = Field(nullable=False, index=True)
-
     user_id: int = Field(nullable=False, foreign_key="user.id", index=True)
     character_id: int = Field(
         nullable=False, foreign_key="characterdata.id", index=True
     )
-
-    user: Optional[User] = Relationship(back_populates="thread")
-    messages: List["Message"] = Relationship(
-        back_populates="thread",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
-    )
-
-
-class Message(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    thread_id: int = Field(nullable=False, foreign_key="thread.id", index=True)
     created_at: int = Field(nullable=False, index=True)
     role: str = Field(nullable=False, index=True)
     content: str = Field(nullable=False)
 
-    thread: Optional[Thread] = Relationship(back_populates="messages")
+    user: Optional[User] = Relationship(back_populates="messages")
+    character: Optional[CharacterData] = Relationship(back_populates="messages")
