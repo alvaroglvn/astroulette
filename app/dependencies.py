@@ -19,7 +19,7 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 db_dependency = Annotated[AsyncSession, Depends(get_db)]
 
 
-def settings_dependency() -> AppSettings:
+def get_settings() -> AppSettings:
     """
     Provides an instance of the AppSettings class.
 
@@ -30,3 +30,6 @@ def settings_dependency() -> AppSettings:
         AppSettings: An instance of the AppSettings class.
     """
     return AppSettings()
+
+
+settings_dependency = Annotated[AppSettings, Depends(get_settings)]
