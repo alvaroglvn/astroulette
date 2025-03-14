@@ -1,5 +1,6 @@
 from typing import List, Optional
 from sqlmodel import Field, SQLModel, Relationship
+import time
 
 
 class User(SQLModel, table=True):
@@ -17,6 +18,10 @@ class User(SQLModel, table=True):
         back_populates="user",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
+    threads: List["Thread"] = Relationship(
+        back_populates="user",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
+    )
 
 
 class CharacterProfile(SQLModel, table=True):
@@ -30,6 +35,15 @@ class CharacterProfile(SQLModel, table=True):
     quirks: str = Field(nullable=False)
 
     character_data: Optional["CharacterData"] = Relationship(back_populates="profile")
+
+    threads: List["Thread"] = Relationship(
+        back_populates="character",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
+    )
+    messages: List["Message"] = Relationship(
+        back_populates="character",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
+    )
 
 
 class CharacterData(SQLModel, table=True):
@@ -49,10 +63,6 @@ class CharacterData(SQLModel, table=True):
         back_populates="character_data",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-    messages: List["Message"] = Relationship(
-        back_populates="character",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
-    )
 
 
 class UserCharacters(SQLModel, table=True):
@@ -69,13 +79,31 @@ class UserCharacters(SQLModel, table=True):
 
 class Message(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+    thread_id: int = Field(foreign_key="thread.id", nullable=False, index=True)
     user_id: int = Field(nullable=False, foreign_key="user.id", index=True)
     character_id: int = Field(
-        nullable=False, foreign_key="characterdata.id", index=True
+        nullable=False, foreign_key="characterprofile.id", index=True
     )
-    created_at: int = Field(nullable=False, index=True)
+    created_at: float = Field(default_factory=time.time, nullable=False, index=True)
     role: str = Field(nullable=False, index=True)
     content: str = Field(nullable=False)
 
     user: Optional[User] = Relationship(back_populates="messages")
-    character: Optional[CharacterData] = Relationship(back_populates="messages")
+    character: Optional[CharacterProfile] = Relationship(back_populates="messages")
+    thread: Optional["Thread"] = Relationship(back_populates="messages")
+
+
+class Thread(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True, index=True)
+    user_id: int = Field(foreign_key="user.id", nullable=False, index=True)
+    character_id: int = Field(
+        foreign_key="characterprofile.id", nullable=False, index=True
+    )
+    created_at: float = Field(default_factory=time.time, nullable=False, index=True)
+
+    user: Optional[User] = Relationship(back_populates="threads")
+    character: Optional[CharacterProfile] = Relationship(back_populates="threads")
+    messages: List["Message"] = Relationship(
+        back_populates="thread",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
+    )
