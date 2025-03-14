@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from openai.types.beta.assistant import Assistant
-from app.db.db_models import CharacterData, CharacterProfile
+from app.db.db_models import CharacterData, CharacterProfile, Thread
 
 
 class NewProfile(BaseModel):
@@ -19,10 +19,11 @@ class NewCharacter(BaseModel):
 
 
 def char_data_mapper(
-    new_character: NewCharacter,
-) -> tuple[CharacterData, CharacterProfile]:
+    new_character: NewCharacter, user_id: int
+) -> tuple[CharacterData, CharacterProfile, Thread]:
     character_data = CharacterData(
         image_prompt=new_character.image_prompt,
+        generated_by=user_id,
     )
 
     character_profile = CharacterProfile(
@@ -35,4 +36,9 @@ def char_data_mapper(
         quirks=new_character.profile.quirks,
     )
 
-    return character_data, character_profile
+    thread = Thread(
+        user_id=user_id,
+        character_id=character_data.id,
+    )
+
+    return character_data, character_profile, thread
