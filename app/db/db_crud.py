@@ -1,12 +1,13 @@
-import logging
 from typing import Type, TypeVar, Optional, Any, List
+import logging
+import time
 
 from sqlmodel import SQLModel, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from sqlalchemy.exc import SQLAlchemyError, NoSuchTableError
 
-from app.db.db_models import CharacterData, UserCharacters
+from app.db.db_models import CharacterData, UserCharacters, Thread
 from app.db.db_excepts import *
 
 
@@ -152,3 +153,32 @@ async def fetch_unmet_character(
         raise DatabaseError(
             "unmet characters", "Failed to retrieve unmet characters from database"
         )
+
+
+async def fetch_thread(
+    session: AsyncSession,
+    user_id: int,
+    character_id: int,
+) -> Optional[Thread]:
+    try:
+        thread = read_record(session, Thread, Thread.id).where(
+            Thread.user_id == user_id, Thread.character_id == character_id
+        )
+        if thread:
+            logging.info(
+                f"Previous thread found between user {user_id} and character {character_id}."
+            )
+            return thread
+        else:
+            logging.info(
+                f"Creating new thread between user {user_id} and character {character_id}."
+            )
+            new_thread = Thread(
+                user_id=user_id,
+                character_id=character_id,
+                created_at=time.time(),
+            )
+            return new_thread
+    except SQLAlchemyError as e:
+        logging.error(f"{e}")
+        raise DatabaseError("thread", "Failed to retrieve thread from database")
