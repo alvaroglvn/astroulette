@@ -1,16 +1,18 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 import openai
 
 from app.dependencies import db_dependency, settings_dependency
 
 from app.db.db_models import CharacterProfile
-from app.db.db_crud import read_record, fetch_thread
+from app.db.db_crud import read_record, fetch_thread, create_record
+
+from app.services.openai.openai_models import message_mapper
 
 router = APIRouter()
 active_sessions = {}
 
 
-@router.websocket("/chat/{character_id}/{user_id}")
+@router.websocket("/chat/{profile_id}/{user_id}")
 async def chat_endpoint(
     websocket: WebSocket,
     profile_id: int,
@@ -37,13 +39,32 @@ async def chat_endpoint(
     # Load thread
     thread = await fetch_thread(session, user_id, profile_id)
 
+    active_sessions[user_id] = {
+        "previous_response_id": None,
+        "thread_id": thread.id,
+    }
+
     await websocket.send_text(f"System: {character.name} has joined the chat!")
 
-    active_sessions[user_id] = {"previous_response_id": None}
+    # Session tracking
+    active_sessions[user_id] = {
+        "previous_response_id": None,
+        "thread_id": thread.id,
+    }
 
     try:
         while True:
             user_message = await websocket.receive_text()
+
+            # Store user message
+            stored_user_message = message_mapper(
+                thread.id,
+                user_id,
+                profile_id,
+                "user",
+                user_message,
+            )
+            await create_record(session, stored_user_message)
 
             # Get last response for this user, if any
             previous_response_id = active_sessions[user_id].get("previous_response_id")
@@ -60,11 +81,25 @@ async def chat_endpoint(
                 user=user_id,
             ) as response:
 
+                # Accumulate AI response for storage
+                ai_response = ""
+
                 async for event in response:
                     if event.type == "text_delta":
+                        ai_response += event.delta
                         await websocket.send_text(event.delta)
                     elif event.type == "text_done":
                         break
+
+                # Store AI response
+                stored_ai_message = message_mapper(
+                    thread.id,
+                    user_id,
+                    profile_id,
+                    "assistant",
+                    ai_response,
+                )
+                await create_record(session, stored_ai_message)
 
                 active_sessions[user_id][
                     "previous_response_id"

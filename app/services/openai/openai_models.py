@@ -1,6 +1,7 @@
+import time
+
 from pydantic import BaseModel, Field
-from openai.types.beta.assistant import Assistant
-from app.db.db_models import CharacterData, CharacterProfile, Thread
+from app.db.db_models import CharacterData, CharacterProfile, Thread, Message
 
 
 class NewProfile(BaseModel):
@@ -42,3 +43,20 @@ def char_data_mapper(
     )
 
     return character_data, character_profile, thread
+
+
+def message_mapper(
+    thread_id: int,
+    user_id: int,
+    character_id: int,
+    role: str,
+    content: str,
+) -> Message:
+    return Message(
+        thread_id=thread_id,
+        user_id=user_id,
+        character_id=character_id,
+        created_at=time.time(),
+        role=role,
+        content=content,
+    )

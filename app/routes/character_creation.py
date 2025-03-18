@@ -24,7 +24,7 @@ async def new_character(
     try:
         async with session.begin():
             # Generate character data and profile
-            character_data, character_profile = new_character_parser(
+            character_data, character_profile, thread = new_character_parser(
                 settings.openai_api_key
             )
 

@@ -71,12 +71,14 @@ def generate_character(
         raise
 
 
-def new_character_parser(openai_key: str) -> tuple[CharacterData, CharacterProfile]:
+def new_character_parser(
+    openai_key: str,
+) -> tuple[CharacterData, CharacterProfile, Thread]:
     openai_gen = generate_character(openai_key)
     # Map data to db models
-    character_data, character_profile = char_data_mapper(openai_gen)
+    character_data, character_profile, thread = char_data_mapper(openai_gen)
 
-    return character_data, character_profile
+    return character_data, character_profile, thread
 
 
 def character_randomizer() -> tuple[str, str, str]:
