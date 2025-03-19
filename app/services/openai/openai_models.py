@@ -20,7 +20,7 @@ class NewCharacter(BaseModel):
 
 
 def char_data_mapper(
-    new_character: NewCharacter, user_id: int
+    new_character: NewCharacter, user_id: int = 1
 ) -> tuple[CharacterData, CharacterProfile, Thread]:
     character_data = CharacterData(
         image_prompt=new_character.image_prompt,
@@ -28,7 +28,6 @@ def char_data_mapper(
     )
 
     character_profile = CharacterProfile(
-        image_url=new_character.image_url,
         name=new_character.profile.name,
         planet_name=new_character.profile.planet_name,
         planet_description=new_character.profile.planet_description,

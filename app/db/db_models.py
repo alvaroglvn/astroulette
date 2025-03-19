@@ -26,7 +26,7 @@ class User(SQLModel, table=True):
 
 class CharacterProfile(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True, index=True)
-    image_url: str = Field()
+    image_url: str = Field(default="PENDING")
     name: str = Field(nullable=False, index=True)
     planet_name: str = Field(nullable=False)
     planet_description: str = Field(nullable=False)

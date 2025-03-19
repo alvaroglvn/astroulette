@@ -34,6 +34,10 @@ async def get_async_session() -> AsyncGenerator:
 async def init_db() -> None:
     """Initialize database and load admin user."""
     try:
+        # [Emergency drop all in case db schema doesn't update]
+        # async with async_engine.begin() as conn:
+        #     await conn.run_sync(SQLModel.metadata.drop_all)
+
         # Create all tables
         async with async_engine.begin() as conn:
             await conn.run_sync(SQLModel.metadata.create_all)

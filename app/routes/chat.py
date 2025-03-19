@@ -1,7 +1,7 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 import openai
 
-from app.dependencies import db_dependency, settings_dependency
+from app.dependencies import db_dependency
 
 from app.db.db_models import CharacterProfile
 from app.db.db_crud import read_record, fetch_thread, create_record
@@ -18,11 +18,10 @@ async def chat_endpoint(
     profile_id: int,
     user_id: int,
     session: db_dependency,
-    settings: settings_dependency,
 ):
     await websocket.accept()
 
-    client = openai.AsyncClient(api_key=settings.openai_api_key)
+    # client = openai.AsyncClient(api_key=settings.openai_api_key)
 
     # Load character
     character = await read_record(

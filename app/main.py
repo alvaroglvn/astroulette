@@ -15,5 +15,5 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
 app = FastAPI(lifespan=lifespan)
 
 
-app.include_router(characters, prefix="/api/v1")
+app.include_router(characters)
 app.include_router(chat)
