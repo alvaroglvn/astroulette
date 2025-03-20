@@ -34,17 +34,40 @@ async def create_record(session: AsyncSession, record: T) -> Optional[T]:
 
 # READ
 async def read_record(
-    session: AsyncSession,
-    model: Type[T],
-    primary_key: int,
-) -> Optional[T]:
-    """Retrieve a single record from the database."""
+    session: AsyncSession, model: Type[T], primary_key: int, field: Optional[str] = None
+) -> Optional[Any]:
+    """
+    Retrieve a single record or a specific field from the database.
+
+    Args:
+        session (AsyncSession): Database session
+        model (Type[T]): SQLModel class to query
+        primary_key (int): Primary key of the record
+        field (Optional[str]): Specific field to return. If None, returns whole record
+
+    Returns:
+        Optional[Any]: The requested field value or the whole record
+
+    Raises:
+        RecordNotFound: If record doesn't exist
+        TableNotFound: If table doesn't exist
+        DatabaseError: For other database errors
+        AttributeError: If specified field doesn't exist in model
+    """
     try:
         statement = select(model).where(model.id == primary_key)
         result = await session.exec(statement)
         record = result.first()
+
         if not record:
             raise RecordNotFound(model.__tablename__, primary_key)
+
+        if field:
+            if not hasattr(record, field):
+                raise AttributeError(f"{field} not in {model.__tablename__}")
+            value = getattr(record, field)
+            return value
+
         logging.info(f"{model} id {primary_key} found")
         return record
     except NoSuchTableError as e:
@@ -161,24 +184,30 @@ async def fetch_thread(
     character_id: int,
 ) -> Optional[Thread]:
     try:
-        thread = read_record(session, Thread, Thread.id).where(
+        statement = select(Thread).where(
             Thread.user_id == user_id, Thread.character_id == character_id
         )
+        result = await session.exec(statement)
+        thread = result.first()
+
         if thread:
             logging.info(
                 f"Previous thread found between user {user_id} and character {character_id}."
             )
             return thread
-        else:
-            logging.info(
-                f"Creating new thread between user {user_id} and character {character_id}."
-            )
-            new_thread = Thread(
-                user_id=user_id,
-                character_id=character_id,
-                created_at=time.time(),
-            )
-            return new_thread
+
+        logging.info(
+            f"Creating new thread between user {user_id} and character {character_id}."
+        )
+        new_thread = Thread(
+            user_id=user_id,
+            character_id=character_id,
+            created_at=time.time(),
+        )
+        await create_record(session, new_thread)
+        return new_thread
     except SQLAlchemyError as e:
         logging.error(f"{e}")
-        raise DatabaseError("thread", "Failed to retrieve thread from database")
+        raise DatabaseError(
+            "thread", "Failed to retrieve or create thread in the database"
+        )
