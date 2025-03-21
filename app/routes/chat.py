@@ -3,9 +3,9 @@ from fastapi.responses import JSONResponse
 from app.dependencies import db_dependency, settings_dependency
 from app.services.openai.chat import ai_response
 
-from app.db.db_crud import store_message, read_record
+from app.db.db_crud import read_record, store_message, get_last_resp_id
 
-from app.db.db_models import Thread
+from app.db.db_models import User, CharacterProfile
 
 router = APIRouter()
 
@@ -19,6 +19,10 @@ async def chat_with_character(
     user_id=1,  # Hardcoded admin for now
     profile_id=10,  # Hardcoded for now
 ):
+
+    user = await read_record(session, User, user_id, "username")
+    character = await read_record(session, CharacterProfile, profile_id)
+
     await websocket.accept()
 
     while True:
@@ -29,8 +33,11 @@ async def chat_with_character(
             session, thread_id, user_id, profile_id, "user", user_message
         )
 
+        # Get the last response id
+        last_response_id = await get_last_resp_id(session, thread_id)
+
         response = await ai_response(
-            user_id, profile_id, user_message, settings, session
+            settings.openai_api_key, user, character, user_message, last_response_id
         )
 
         # Init variables for message storage

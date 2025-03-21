@@ -6,18 +6,15 @@ from app.db.db_crud import read_record, create_record
 
 
 async def ai_response(
-    user_id: int,
+    openai_api_key: str,
+    username: str,
+    character: CharacterProfile,
     user_message: str,
-    profile_id: int,
-    settings: settings_dependency,
-    session: db_dependency,
+    previous_response_id: Optional[str] = "",
 ) -> AsyncGenerator:
 
-    user = await read_record(session, User, user_id)
-    character = await read_record(session, CharacterProfile, profile_id)
-
     client = AsyncOpenAI(
-        api_key=settings.openai_api_key,
+        api_key=openai_api_key,
         project="proj_iHucBz89WXK9PvH3Hqvf5mhf",
     )
 
@@ -26,10 +23,11 @@ async def ai_response(
         model="gpt-4o-mini",
         instructions=f"You are {character.name}, an alien from the planet {character.planet_name}: {character.planet_description}. Your personality is {character.personality_traits}. About your speech style: {character.speech_style}. You also show some quirks: {character.quirks}.",
         max_output_tokens=500,
+        previous_response_id=previous_response_id,
         store=True,
         stream=True,
         temperature=1,
-        user=user.username,
+        user=username,
     )
 
     return response_stream

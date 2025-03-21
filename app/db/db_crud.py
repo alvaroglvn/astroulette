@@ -235,3 +235,20 @@ async def store_message(
     )
 
     await create_record(session, new_message)
+
+
+async def get_last_resp_id(session: AsyncSession, thread_id: int) -> Optional[str]:
+    query = (
+        select(Message)
+        .where(Message.thread_id == thread_id)
+        .order_by(Message.created_at.desc())
+        .limit(1)
+    )
+
+    result = await session.exec(query)
+    last_message = result.first()
+
+    if last_message:
+        return last_message.openai_response_id
+    else:
+        return ""
