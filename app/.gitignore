@@ -171,6 +171,6 @@ cython_debug/
 .pypirc
 
 # App specific
-db/alien_talk.sqlite
+app/db/alien_talk.sqlite
 templates
 scraps

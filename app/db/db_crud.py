@@ -7,7 +7,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from sqlalchemy.exc import SQLAlchemyError, NoSuchTableError
 
-from app.db.db_models import CharacterData, UserCharacters, Thread
+from app.db.db_models import CharacterData, UserCharacters, Thread, Message
 from app.db.db_excepts import *
 
 
@@ -35,7 +35,7 @@ async def create_record(session: AsyncSession, record: T) -> Optional[T]:
 # READ
 async def read_record(
     session: AsyncSession, model: Type[T], primary_key: int, field: Optional[str] = None
-) -> Optional[Any]:
+) -> Optional[T] | Any:
     """
     Retrieve a single record or a specific field from the database.
 
@@ -211,3 +211,27 @@ async def fetch_thread(
         raise DatabaseError(
             "thread", "Failed to retrieve or create thread in the database"
         )
+
+
+async def store_message(
+    session: AsyncSession,
+    openai_response_id: Optional[str],
+    thread_id: int,
+    user_id: int,
+    profile_id: int,
+    role: str,
+    content: str,
+    created_at: Optional[int] = time.time(),
+) -> None:
+
+    new_message = Message(
+        openai_response_id=openai_response_id,
+        thread_id=thread_id,
+        user_id=user_id,
+        profile_id=profile_id,
+        created_at=created_at,
+        role=role,
+        content=content,
+    )
+
+    await create_record(session, new_message)

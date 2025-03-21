@@ -79,9 +79,10 @@ class UserCharacters(SQLModel, table=True):
 
 class Message(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
+    openai_response_id: Optional[str] = Field(default=None, index=True)
     thread_id: int = Field(foreign_key="thread.id", nullable=False, index=True)
     user_id: int = Field(nullable=False, foreign_key="user.id", index=True)
-    character_id: int = Field(
+    profile_id: int = Field(
         nullable=False, foreign_key="characterprofile.id", index=True
     )
     created_at: float = Field(default_factory=time.time, nullable=False, index=True)

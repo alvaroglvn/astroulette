@@ -3,7 +3,6 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from app.db.db_setup import init_db
 from app.routes.character_creation import router as characters
-from app.routes.chat import router as chat
 
 
 @asynccontextmanager
@@ -16,4 +15,3 @@ app = FastAPI(lifespan=lifespan)
 
 
 app.include_router(characters)
-app.include_router(chat)
