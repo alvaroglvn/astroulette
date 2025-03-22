@@ -85,7 +85,7 @@ class Message(SQLModel, table=True):
     profile_id: int = Field(
         nullable=False, foreign_key="characterprofile.id", index=True
     )
-    created_at: float = Field(default_factory=time.time, nullable=False, index=True)
+    created_at: float = Field(nullable=False, index=True)
     role: str = Field(nullable=False, index=True)
     content: str = Field(nullable=False)
 

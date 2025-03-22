@@ -215,13 +215,13 @@ async def fetch_thread(
 
 async def store_message(
     session: AsyncSession,
-    openai_response_id: Optional[str],
     thread_id: int,
     user_id: int,
     profile_id: int,
     role: str,
     content: str,
-    created_at: Optional[int] = time.time(),
+    created_at: int = time.time(),
+    openai_response_id: Optional[str] = "",
 ) -> None:
 
     new_message = Message(
@@ -251,4 +251,4 @@ async def get_last_resp_id(session: AsyncSession, thread_id: int) -> Optional[st
     if last_message:
         return last_message.openai_response_id
     else:
-        return ""
+        return None
