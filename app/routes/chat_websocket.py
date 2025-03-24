@@ -13,8 +13,11 @@ templates = Jinja2Templates(directory="app/templates")
 
 
 @router.get("/chat-ui", response_class=HTMLResponse)
-async def load_chat(request: Request):
-    return templates.TemplateResponse(request=request, name="chat.html")
+async def load_chat(request: Request, session: db_dependency, profile_id: int = 1):
+    character = await read_record(session, CharacterProfile, profile_id)
+    return templates.TemplateResponse(
+        request=request, name="chat.html", context={"character": character}
+    )
 
 
 @router.websocket("/chat")
