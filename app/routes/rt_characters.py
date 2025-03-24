@@ -17,7 +17,7 @@ router = APIRouter()
 MAX_RETRIES = 3  # Maximum number of retries
 
 
-@router.post("/generate-character")
+@router.post("/character/generate")
 async def new_character(
     settings: settings_dependency,
     session: db_dependency,
@@ -83,7 +83,40 @@ async def new_character(
                     status_code=500,
                 )
 
-        finally:
-            # Ensure session is always closed
-            await session.close()
-            logging.info("Session closed to prevent memory leaks")
+
+@router.get("character/{character_id}")
+async def character_info(session: db_dependency, character_id: int) -> JSONResponse:
+    try:
+        character_data = await read_record(session, CharacterData, character_id)
+        character_profile = await read_record(session, CharacterProfile, character_id)
+
+        return JSONResponse(
+            content={
+                "character_data": character_data.model_dump(),
+                "character_profile": character_profile.model_dump(),
+            },
+            status_code=200,
+        )
+    except (DatabaseError, RecordNotFound, TableNotFound) as e:
+        return JSONResponse(content=e.detail, status_code=e.status_code)
+    except Exception as e:
+        return JSONResponse(content="Unexpected error", status_code=500)
+
+
+@router.put("character/{character_id}")
+async def update_character_profile(
+    session: db_dependency, character_id: int
+) -> JSONResponse:
+    await update_record(session, CharacterProfile, character_id)
+
+
+@router.delete("character/{character_id}")
+async def delete_character(session: db_dependency, character_id: int) -> JSONResponse:
+    try:
+        await delete_record(session, CharacterData, character_id)
+
+        return JSONResponse(content="Character deleted succesfully", status_code=200)
+    except (DatabaseError, RecordNotFound, TableNotFound) as e:
+        return JSONResponse(content=e.detail, status_code=e.status_code)
+    except Exception as e:
+        return JSONResponse(content="Unexpected error", status_code=500)
