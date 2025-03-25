@@ -1,15 +1,16 @@
 from pydantic import BaseModel
 
-from app.db.db_models import CharacterProfile, Assistant
 
-
-class Headers(BaseModel):
-    accept: str
-    content_type: str
-    authorization: str
-
-
-class CharacterResponse(BaseModel):
-    character_profile: CharacterProfile
-    assistant: Assistant
+class CharacterFullData(BaseModel):
+    # Data for CharacterData
+    image_prompt: str
+    profile_id: int
+    generated_by: int
+    # Data for CharacterProfile
     image_url: str
+    name: str
+    planet_name: str
+    planet_description: str
+    personality_traits: str
+    speech_style: str
+    quirks: str

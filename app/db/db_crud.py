@@ -7,8 +7,10 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from sqlalchemy.exc import SQLAlchemyError, NoSuchTableError
 
-from app.db.db_models import CharacterData, UserCharacters, Thread, Message
+from app.db.db_models import *
 from app.db.db_excepts import *
+
+from app.services.openai.openai_models import NewCharacter, char_data_mapper
 
 
 T = TypeVar("T", bound=SQLModel)
@@ -176,6 +178,26 @@ async def fetch_unmet_character(
         raise DatabaseError(
             "unmet characters", "Failed to retrieve unmet characters from database"
         )
+
+
+async def store_new_character(
+    session: AsyncSession, openai_key: str, new_character: NewCharacter
+) -> tuple[CharacterProfile, CharacterData]:
+    # Map character data for storage
+    character_data, character_profile, thread = char_data_mapper(new_character)
+
+    # Store character profile
+    stored_profile = await create_record(session, character_profile)
+    character_data.profile_id = stored_profile.id
+
+    # Store character data
+    stored_character_data = await create_record(session, character_data)
+
+    # Store thread data
+    thread.character_id = stored_character_data.id
+    await create_record(session, thread)
+
+    return stored_profile, stored_character_data
 
 
 async def fetch_thread(
