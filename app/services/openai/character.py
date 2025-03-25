@@ -42,19 +42,20 @@ def generate_character(
                     "content": f"""
                     Generate a unique alien character with both:
                     1. A detailed **image prompt** for AI-generated art.
-                    2. A **personality & behavior profile** for interactive dialogue.
+                    2. **Character details** useful for interactive dialogue.
                     
                     Follow these instructions to create the data inside the fields:
 
                     "image_prompt": "Vibrant colors frontal close-up of a {gender} {species} {archetype}, looking straight into the camera. This alien has [describe physical features such as eyes, skin, shape, unique details]. It has a [describe facial expression based on personality]. It wears [describe outfit] inspired by [insert a fashion designer]. Background is a colorful mod pattern.",
 
-                    "character_profile": 
-                        "name": "[Generate a unique name for this alien]",
-                        "planet_name": [Unique name for this alien's homeplanet]
-                        "planet_description": [Main characteristics of the homeplanet and how its nature impacts its inhabitants] 
-                        "personality_traits": "[Describe facial expression based on personality]",
-                        "speech_style": "[Describe how they talk (e.g., cryptic, humorous, regal, cold, poetic)]",
-                        "quirks": "[Any strange speech habits, or expressions that make them unique.]"
+                    
+                    "name": "[Generate a unique name for this alien]",
+                    "planet_name": [Unique name for this alien's homeplanet]
+                    "planet_description": [Main characteristics of the home planet and how its nature impacts its inhabitants] 
+                    "personality_traits": "[Personality traits that would come apparent as the alien speaks.]",
+                    "speech_style": "[Explain how they express themselves (e.g. are they cryptic? humorous? regal? cold? poetic? etc.)]",
+                    "quirks": "[Any quirky speech habits, or unique expressions they tend to use.]"
+                    "human_relationship": [How they see humans (eg. Are they curious? Confrontational? Distrustful? Uninterested? etc.)]
                     """,
                 },
             ],
@@ -114,51 +115,3 @@ def character_randomizer() -> tuple[str, str, str]:
     ]
 
     return random.choice(gender), random.choice(species), random.choice(archetypes)
-
-
-def chat_with_character(
-    openai_key: str, character_profile: CharacterProfile, user_message: str
-) -> Optional[str]:
-    """
-    Sends a chat request to OpenAI to simulate a conversation with a character.
-
-    Args:
-        openai_key (str): OpenAI API key
-        character_profile (CharacterProfile): Character profile data
-        user_message (str): The user's message
-
-    Returns:
-        Optional[str]: AI-generated response from the character
-    """
-    try:
-        client = OpenAI(api_key=openai_key, project="proj_iHucBz89WXK9PvH3Hqvf5mhf")
-
-        # Build system prompt to establish character's personality
-        system_prompt = f"""
-        You are {character_profile.name}, an alien from {character_profile.planet_name}. 
-        Your planet is {character_profile.planet_description}.
-        Your personality is described as: {character_profile.personality_traits}.
-        Your speech style is: {character_profile.speech_style}.
-        Additionally, you have the following quirks: {character_profile.quirks}.
-        
-        Stay in character and respond to the user as if you are {character_profile.name}.
-        """
-
-        # OpenAI chat completion request
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_message},
-            ],
-            temperature=1.0,
-        )
-
-        return response.choices[0].message.content if response.choices else None
-
-    except OpenAIError as e:
-        logging.error(f"Error in chat request with OpenAI: {e}")
-        raise
-    except Exception as e:
-        logging.error(f"Unexpected error: {e}")
-        raise

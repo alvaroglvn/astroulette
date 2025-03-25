@@ -34,26 +34,26 @@ async def new_character(
             new_character = generate_character(settings.openai_api_key)
 
             # 2. Store new character
-            stored_profile, stored_character_data = await store_new_character(
+            stored_character = await store_new_character(
                 session, settings.openai_api_key, new_character
             )
 
             # 3. Generate character portrait
-            prompt = stored_character_data.image_prompt
+            prompt = stored_character.image_prompt
             portrait_url = await generate_portrait(settings.leonardo_api_key, prompt)
 
             if portrait_url:
                 await update_record(
                     session,
-                    CharacterProfile,
-                    stored_profile.id,
+                    Character,
+                    stored_character.id,
                     {"image_url": portrait_url},
                 )
             else:
                 raise Exception("Failed to generate character portrait")
 
             return JSONResponse(
-                content=f"{stored_profile.name} created and stored.",
+                content=f"{stored_character.name} created and stored.",
                 status_code=201,
             )
 
@@ -78,13 +78,11 @@ async def new_character(
 async def character_info(session: db_dependency, character_id: int) -> JSONResponse:
     try:
 
-        character_data = await read_record(session, CharacterData, character_id)
-        character_profile = await read_record(session, CharacterProfile, character_id)
+        character = await read_record(session, Character, character_id)
 
         return JSONResponse(
             content={
-                "character": {character_data.model_dump()},
-                "character_profile": character_profile.model_dump(),
+                "character": character.model_dump(),
             },
             status_code=200,
         )
@@ -96,50 +94,30 @@ async def character_info(session: db_dependency, character_id: int) -> JSONRespo
 
 @router.put("/character/{character_id}")
 async def character_upsert(
-    session: db_dependency, character_id: int, character: CharacterFullData
+    session: db_dependency, character_id: int, character_data: CharacterFullData
 ) -> JSONResponse:
     try:
-        character_profile = character.model_dump(
-            exclude={"image_prompt", "generated_by"}
-        )
-        character_data = {
-            "image_promt": character.image_prompt,
-            "generated_by": character.generated_by,
-            "profile_id": character_id,
-        }
+        character_dict = character_data.model_dump()
 
-        updated_profile = await update_record(
-            session, CharacterProfile, character_id, character_profile
-        )
-        updated_data = await update_record(
-            session, CharacterData, character_id, character_data
+        updated_character = await update_record(
+            session, Character, character_id, character_dict
         )
 
         logging.info(f"Character {character_id} updated succesfully.")
         return JSONResponse(
             content={
-                "character_data": updated_data.model_dump(),
-                "character_profile": updated_profile.model_dump(),
+                "character": updated_character.model_dump(),
             },
             status_code=200,
         )
     except RecordNotFound:
-        new_profile = CharacterProfile(id=character_id, **character_profile)
-        stored_profile = await create_record(session, new_profile)
+        new_character = Character(id=character_id, **character_data)
+        stored_character = await create_record(session, new_character)
 
-        new_char_data = CharacterData(
-            id=character_id,
-            profile_id=character_id,
-            image_prompt=character.image_prompt,
-            generated_by=character.generated_by,
-        )
-        stored_char_data = await create_record(session, new_char_data)
-
-        logging.info(f"New character {character.name} stored.")
+        logging.info(f"New character {new_character.name} stored.")
         return JSONResponse(
             content={
-                "character_data": stored_char_data.model_dump(),
-                "character_profile": stored_profile.model_dump(),
+                "character": stored_character.model_dump(),
             },
             status_code=201,
         )
@@ -152,7 +130,7 @@ async def character_upsert(
 @router.delete("/character/{character_id}")
 async def delete_character(session: db_dependency, character_id: int) -> JSONResponse:
     try:
-        await delete_record(session, CharacterData, character_id)
+        await delete_record(session, Character, character_id)
 
         return JSONResponse(content="Character deleted succesfully", status_code=200)
     except (DatabaseError, RecordNotFound, TableNotFound) as e:

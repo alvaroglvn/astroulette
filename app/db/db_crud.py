@@ -148,16 +148,16 @@ async def delete_record(
 
 async def fetch_unmet_character(
     session: AsyncSession, user_id: int
-) -> Optional[CharacterData]:
+) -> Optional[Character]:
     """
     Returns the first character in the database the user has never seen before,
     or None if all have been met.
     """
     try:
         statement = (
-            select(CharacterData)
+            select(Character)
             .where(
-                CharacterData.id.notin_(
+                Character.id.notin_(
                     select(UserCharacters.character_id).where(
                         UserCharacters.user_id == user_id
                     )
@@ -181,23 +181,19 @@ async def fetch_unmet_character(
 
 
 async def store_new_character(
-    session: AsyncSession, openai_key: str, new_character: NewCharacter
-) -> tuple[CharacterProfile, CharacterData]:
+    session: AsyncSession, new_character: NewCharacter
+) -> Character:
     # Map character data for storage
-    character_data, character_profile, thread = char_data_mapper(new_character)
+    character, thread = char_data_mapper(new_character)
 
-    # Store character profile
-    stored_profile = await create_record(session, character_profile)
-    character_data.profile_id = stored_profile.id
-
-    # Store character data
-    stored_character_data = await create_record(session, character_data)
+    # Store character
+    stored_character = await create_record(session, character)
 
     # Store thread data
-    thread.character_id = stored_character_data.id
+    thread.character_id = character.id
     await create_record(session, thread)
 
-    return stored_profile, stored_character_data
+    return stored_character
 
 
 async def fetch_thread(

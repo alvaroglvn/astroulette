@@ -14,6 +14,7 @@ class Character(SQLModel, table=True):
     personality_traits: str = Field(nullable=False)
     speech_style: str = Field(nullable=False)
     quirks: str = Field(nullable=False)
+    human_relationship: str = Field(nullable=False)
 
     # Many-to-many: Users who have visited this character
     user_characters: List["UserCharacters"] = Relationship(
@@ -69,7 +70,7 @@ class Message(SQLModel, table=True):
     profile_id: int = Field(
         nullable=False,
         foreign_key="character.id",
-        index=True,  # Updated FK to 'character'
+        index=True,
     )
     created_at: float = Field(nullable=False, index=True)
     role: str = Field(nullable=False, index=True)
@@ -86,7 +87,7 @@ class Thread(SQLModel, table=True):
     character_id: int = Field(
         foreign_key="character.id",
         nullable=False,
-        index=True,  # Updated FK to 'character'
+        index=True,
     )
     created_at: float = Field(default_factory=time.time, nullable=False, index=True)
 
