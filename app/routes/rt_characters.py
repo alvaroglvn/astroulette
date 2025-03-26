@@ -90,6 +90,16 @@ async def character_info(session: db_dependency, character_id: int) -> JSONRespo
         return JSONResponse(content="Unexpected error", status_code=500)
 
 
+@router.get("/characters")
+async def get_all_characters(session: db_dependency) -> JSONResponse:
+    try:
+        characters = await read_all(session, Character)
+        result = {"characters": [character.model_dump() for character in characters]}
+        return JSONResponse(content=result, status_code=200)
+    except (DatabaseError, TableNotFound) as e:
+        return JSONResponse(content=e.detail, status_code=e.status_code)
+
+
 @router.put("/character/{character_id}")
 async def character_upsert(
     session: db_dependency, character_id: int, character_data: CharacterFullData
