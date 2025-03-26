@@ -16,13 +16,13 @@ class CharacterFullData(BaseModel):
 
 
 class CharacterPatchData(BaseModel):
-    image_prompt: Optional[str]
-    image_url: Optional[str]
-    generated_by: Optional[int]
-    name: Optional[str]
-    planet_name: Optional[str]
-    planet_description: Optional[str]
-    personality_traits: Optional[str]
-    speech_style: Optional[str]
-    quirks: Optional[str]
-    human_relationship: Optional[str]
+    image_prompt: Optional[str] = None
+    image_url: Optional[str] = None
+    generated_by: Optional[int] = None
+    name: Optional[str] = None
+    planet_name: Optional[str] = None
+    planet_description: Optional[str] = None
+    personality_traits: Optional[str] = None
+    speech_style: Optional[str] = None
+    quirks: Optional[str] = None
+    human_relationship: Optional[str] = None

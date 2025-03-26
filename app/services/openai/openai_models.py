@@ -5,7 +5,7 @@ from app.db.db_models import Character, Thread, Message
 
 
 class NewCharacter(BaseModel):
-    id: int
+    id: int = None
     image_prompt: str
     name: str
     planet_name: str

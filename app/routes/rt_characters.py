@@ -72,6 +72,30 @@ async def new_character(
                 )
 
 
+@router.post("/character/add")
+async def add_character(
+    session: db_dependency, new_character: NewCharacter
+) -> JSONResponse:
+    try:
+        stored_character = await store_new_character(session, new_character)
+
+        return JSONResponse(content=stored_character.model_dump(), status_code=201)
+    except Exception as e:
+        return JSONResponse(
+            content=f"Unable to create new character: {e}", status_code=500
+        )
+
+
+@router.get("/character")
+async def get_all_characters(session: db_dependency) -> JSONResponse:
+    try:
+        characters = await read_all(session, Character)
+        result = {"characters": [character.model_dump() for character in characters]}
+        return JSONResponse(content=result, status_code=200)
+    except (DatabaseError, TableNotFound) as e:
+        return JSONResponse(content=e.detail, status_code=e.status_code)
+
+
 @router.get("/character/{character_id}")
 async def character_info(session: db_dependency, character_id: int) -> JSONResponse:
     try:
@@ -85,51 +109,6 @@ async def character_info(session: db_dependency, character_id: int) -> JSONRespo
             status_code=200,
         )
     except (DatabaseError, RecordNotFound, TableNotFound) as e:
-        return JSONResponse(content=e.detail, status_code=e.status_code)
-    except Exception as e:
-        return JSONResponse(content="Unexpected error", status_code=500)
-
-
-@router.get("/characters")
-async def get_all_characters(session: db_dependency) -> JSONResponse:
-    try:
-        characters = await read_all(session, Character)
-        result = {"characters": [character.model_dump() for character in characters]}
-        return JSONResponse(content=result, status_code=200)
-    except (DatabaseError, TableNotFound) as e:
-        return JSONResponse(content=e.detail, status_code=e.status_code)
-
-
-@router.put("/character/{character_id}")
-async def upsert_character(
-    session: db_dependency, character_id: int, character_data: CharacterFullData
-) -> JSONResponse:
-    try:
-        character_dict = character_data.model_dump()
-
-        updated_character = await update_record(
-            session, Character, character_id, character_dict
-        )
-
-        logging.info(f"Character {character_id} updated succesfully.")
-        return JSONResponse(
-            content={
-                "character": updated_character.model_dump(),
-            },
-            status_code=200,
-        )
-    except RecordNotFound:
-        new_character = Character(id=character_id, **character_data)
-        stored_character = await create_record(session, new_character)
-
-        logging.info(f"New character {new_character.name} stored.")
-        return JSONResponse(
-            content={
-                "character": stored_character.model_dump(),
-            },
-            status_code=201,
-        )
-    except (DatabaseError, TableNotFound) as e:
         return JSONResponse(content=e.detail, status_code=e.status_code)
     except Exception as e:
         return JSONResponse(content="Unexpected error", status_code=500)
