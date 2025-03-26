@@ -6,7 +6,7 @@ from fastapi.templating import Jinja2Templates
 from app.dependencies import db_dependency, settings_dependency
 from app.services.openai.chat import ai_response
 from app.db.db_crud import read_record, store_message, get_last_resp_id, fetch_thread
-from app.db.db_models import User, CharacterProfile
+from app.db.db_models import User, Character
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -14,7 +14,7 @@ templates = Jinja2Templates(directory="app/templates")
 
 @router.get("/chat-ui", response_class=HTMLResponse)
 async def load_chat(request: Request, session: db_dependency, profile_id: int = 1):
-    character = await read_record(session, CharacterProfile, profile_id)
+    character = await read_record(session, Character, profile_id)
     return templates.TemplateResponse(
         request=request, name="chat.html", context={"character": character}
     )
@@ -34,7 +34,7 @@ async def chat_with_character(
         # Fetch thread, user and character details needed for context
         thread = await fetch_thread(session, user_id, profile_id)
         user = await read_record(session, User, user_id, "username")
-        character = await read_record(session, CharacterProfile, profile_id)
+        character = await read_record(session, Character, profile_id)
 
         while True:
             # Receive a text message from the client

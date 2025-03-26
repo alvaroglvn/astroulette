@@ -6,7 +6,7 @@ from app.dependencies import *
 async def ai_response(
     openai_api_key: str,
     username: str,
-    character: CharacterProfile,
+    character: Character,
     user_message: str,
     previous_response_id: Optional[str] = None,
 ) -> AsyncGenerator:
