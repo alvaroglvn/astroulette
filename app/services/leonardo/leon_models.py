@@ -10,9 +10,9 @@ class PhoenixPayload(BaseModel):
     height: Optional[int] = 800
     num_images: Optional[int] = 1
     alchemy: Optional[bool] = False  # False for Fast, True for High Quality
-    contrast: Optional[float] = 4  # Low=3, Medium=3.5, High=4
+    contrast: Optional[float] = 3.5  # Low=3, Medium=3.5, High=4
     enhancePrompt: Optional[bool] = False  # True=ON, False=OFF
-    styleUUID: Optional[str] = "556c1ee5-ec38-42e8-955a-1e82dad0ffa1"
+    styleUUID: Optional[str] = "8e2bc543-6ee2-45f9-bcd9-594b6ce84dcd"
     ultra: Optional[bool] = False
 
 

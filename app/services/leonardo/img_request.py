@@ -29,7 +29,7 @@ async def generate_portrait(apikey: str, prompt: str) -> Optional[str]:
             generation_id = response_gen_data.sdGenerationJob.generationId
 
             # After we know the image is being generated, we need to retrieve its information
-            max_retries = 5
+            max_retries = 10
             delay = 1
 
             for attempt in range(max_retries):

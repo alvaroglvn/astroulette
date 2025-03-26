@@ -34,9 +34,7 @@ async def new_character(
             new_character = generate_character(settings.openai_api_key)
 
             # 2. Store new character
-            stored_character = await store_new_character(
-                session, settings.openai_api_key, new_character
-            )
+            stored_character = await store_new_character(session, new_character)
 
             # 3. Generate character portrait
             prompt = stored_character.image_prompt

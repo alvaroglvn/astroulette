@@ -41,12 +41,12 @@ def generate_character(
                     "role": "user",
                     "content": f"""
                     Generate a unique alien character with both:
-                    1. A detailed **image prompt** for AI-generated art.
+                    1. A descriptive **image prompt** tuned for AI-generated art.
                     2. **Character details** useful for interactive dialogue.
                     
                     Follow these instructions to create the data inside the fields:
 
-                    "image_prompt": "Vibrant colors frontal close-up of a {gender} {species} {archetype}, looking straight into the camera. This alien has [describe physical features such as eyes, skin, shape, unique details]. It has a [describe facial expression based on personality]. It wears [describe outfit] inspired by [insert a fashion designer]. Background is a colorful mod pattern.",
+                    "image_prompt": "Retrofuturism frontal close-up of a {gender} {species} {archetype}, looking straight into the camera. This alien has [describe physical features such as eyes, skin, facial shape, and unique details]. It has a [describe facial expression based on the character's personality]. It wears [describe outfit] inspired by [insert a fashion designer]. Background is a colorful mod pattern.",
 
                     
                     "name": "[Generate a unique name for this alien]",
@@ -55,7 +55,7 @@ def generate_character(
                     "personality_traits": "[Personality traits that would come apparent as the alien speaks.]",
                     "speech_style": "[Explain how they express themselves (e.g. are they cryptic? humorous? regal? cold? poetic? etc.)]",
                     "quirks": "[Any quirky speech habits, or unique expressions they tend to use.]"
-                    "human_relationship": [How they see humans (eg. Are they curious? Confrontational? Distrustful? Uninterested? etc.)]
+                    "human_relationship": [How they see humans (eg. Are they curious? Friendly? Hostile? Pleasant? Distrustful? Uninterested? etc.)]
                     """,
                 },
             ],
