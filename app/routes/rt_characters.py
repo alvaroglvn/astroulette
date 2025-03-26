@@ -4,7 +4,7 @@ import logging
 import asyncio
 
 from app.dependencies import *
-from app.models import CharacterFullData
+from app.models import *
 from app.db.db_crud import *
 from app.db.db_models import *
 from app.db.db_excepts import *
@@ -101,7 +101,7 @@ async def get_all_characters(session: db_dependency) -> JSONResponse:
 
 
 @router.put("/character/{character_id}")
-async def character_upsert(
+async def upsert_character(
     session: db_dependency, character_id: int, character_data: CharacterFullData
 ) -> JSONResponse:
     try:
@@ -130,6 +130,23 @@ async def character_upsert(
             status_code=201,
         )
     except (DatabaseError, TableNotFound) as e:
+        return JSONResponse(content=e.detail, status_code=e.status_code)
+    except Exception as e:
+        return JSONResponse(content="Unexpected error", status_code=500)
+
+
+@router.patch("/character/{character_id}")
+async def update_character(
+    session: db_dependency, character_id: int, updates: CharacterPatchData
+) -> JSONResponse:
+    try:
+        updated = await update_record(
+            session, Character, character_id, updates.model_dump(exclude_unset=True)
+        )
+
+        return JSONResponse(content=updated.model_dump(), status_code=200)
+
+    except (DatabaseError, RecordNotFound, TableNotFound) as e:
         return JSONResponse(content=e.detail, status_code=e.status_code)
     except Exception as e:
         return JSONResponse(content="Unexpected error", status_code=500)
