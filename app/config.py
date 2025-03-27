@@ -10,14 +10,6 @@ class AppSettings(BaseSettings):
 
     db_url: str
 
-
-class EmailConfig(BaseSettings):
-    model_config = SettingsConfigDict(env_file="app/.env")
-
-    MAIL_USERNAME: str
-    MAIL_PASSWORD: str
-    MAIL_FROM: str
-    MAIL_FROM_NAME: str
-    MAIL_PORT: int
-    MAIL_SERVER: str
-    MAIL_SSL_TLS: bool
+    mailgun_domain: str
+    mailgun_api_key: str
+    from_email: str

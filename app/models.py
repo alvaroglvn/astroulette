@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class CharacterFullData(BaseModel):
@@ -26,3 +26,7 @@ class CharacterPatchData(BaseModel):
     speech_style: Optional[str] = None
     quirks: Optional[str] = None
     human_relationship: Optional[str] = None
+
+
+class LoginRequest(BaseModel):
+    email: EmailStr
