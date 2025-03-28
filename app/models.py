@@ -15,6 +15,14 @@ class CharacterPatchData(BaseModel):
     human_relationship: Optional[str] = None
 
 
+class UserPatchData(BaseModel):
+    username: Optional[str] = None
+    email: Optional[EmailStr] = None
+    active: Optional[bool] = None
+    login_token: Optional[str] = None
+    token_expiry: Optional[int] = None
+
+
 class MagicLinkRequest(BaseModel):
     email: EmailStr
     username: str
