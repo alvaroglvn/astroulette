@@ -68,6 +68,8 @@ async def load_admin() -> bool:
                     username="admin",
                     email="admin@admin.com",
                     active=True,
+                    login_token=None,
+                    token_expiry=None,
                 )
                 await create_record(session, admin)
                 logging.info("Admin user created successfully")

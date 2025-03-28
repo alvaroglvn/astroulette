@@ -1,5 +1,6 @@
 from typing import List, Optional
 from sqlmodel import Field, SQLModel, Relationship
+from pydantic import EmailStr
 import time
 
 
@@ -34,8 +35,10 @@ class Character(SQLModel, table=True):
 class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True, index=True)
     username: str = Field(nullable=False, unique=True, index=True)
-    email: str = Field(nullable=False, unique=True, index=True)
+    email: EmailStr = Field(nullable=False, index=True)
     active: bool = Field(nullable=False, default=True, index=True)
+    login_token: str = Field(nullable=True, default=None, index=True)
+    token_expiry: int = Field(nullable=True, default=None, index=True)
 
     # Many-to-many relationship: all characters this user has visited
     user_characters: List["UserCharacters"] = Relationship(
@@ -72,7 +75,7 @@ class Message(SQLModel, table=True):
         foreign_key="character.id",
         index=True,
     )
-    created_at: float = Field(nullable=False, index=True)
+    created_at: str = Field(nullable=False, index=True)
     role: str = Field(nullable=False, index=True)
     content: str = Field(nullable=False)
 

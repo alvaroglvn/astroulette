@@ -95,6 +95,26 @@ async def read_all(session: AsyncSession, model: Type[T]) -> Optional[List[T]]:
         raise DatabaseError("read", "Failed to read records")
 
 
+async def read_one_by_field(
+    session: AsyncSession, model: Type[T], field_name: str, value: Any
+) -> Optional[T]:
+    """Read a single record based on a field other than primary key."""
+    try:
+        field = getattr(model, field_name)
+        statement = select(model).where(field == value)
+        result = await session.exec(statement)
+        record = result.first()
+        if not record:
+            raise RecordNotFound(model.__tablename__, f"{field_name}={value}")
+        return record
+    except AttributeError:
+        raise AttributeError(f"{field_name} is not a valid field of {model.__name__}")
+    except NoSuchTableError as e:
+        raise TableNotFound(model.__tablename__)
+    except SQLAlchemyError as e:
+        raise DatabaseError("read", f"Failed to read {model.__name__} by {field_name}")
+
+
 # UPDATE
 async def update_record(
     session: AsyncSession,
@@ -238,7 +258,7 @@ async def store_message(
     profile_id: int,
     role: str,
     content: str,
-    created_at: int = time.time(),
+    created_at: int = int(time.time()),
     openai_response_id: Optional[str] = "",
 ) -> None:
 
