@@ -36,7 +36,7 @@ class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True, index=True)
     username: str = Field(nullable=False, unique=True, index=True)
     email: EmailStr = Field(nullable=False, index=True)
-    active: bool = Field(nullable=False, default=True, index=True)
+    status: str = Field(nullable=False, default="active", index=True)
     login_token: str = Field(nullable=True, default=None, index=True)
     token_expiry: int = Field(nullable=True, default=None, index=True)
 
