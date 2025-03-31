@@ -1,4 +1,4 @@
-from typing import Type, TypeVar, Optional, Any, List
+from typing import Type, TypeVar, Optional, Any, List, Sequence
 import logging
 import time
 
@@ -80,11 +80,15 @@ async def read_record(
         raise DatabaseError("read", "Failed to read record")
 
 
-async def read_all(session: AsyncSession, model: Type[T]) -> Optional[List[T]]:
+async def read_all(
+    session: AsyncSession, model: Type[T], **filters
+) -> Optional[List[T]]:
     """Return all records from a table."""
     try:
         logging.info(f"Loading all records from {model.__tablename__}")
         statement = select(model)
+        if filters:
+            statement = statement.filter_by(**filters)
         result = await session.exec(statement)
         return result.all()
     except NoSuchTableError as e:
