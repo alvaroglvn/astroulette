@@ -1,6 +1,4 @@
 import httpx
-import uuid
-import time
 from pydantic import EmailStr
 from fastapi.responses import JSONResponse
 from app.config import AppSettings
@@ -26,10 +24,3 @@ async def send_magic_link(mail_settings: AppSettings, to: EmailStr, token: str) 
             response.raise_for_status()
         except Exception as e:
             raise Exception(f"Failed to send magic link: {e}")
-
-
-def create_token() -> tuple[str, int]:
-    token = str(uuid.uuid4())
-    expiry = int(time.time()) + 600  # ten minutes
-
-    return token, expiry

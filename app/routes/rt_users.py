@@ -1,13 +1,18 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
-
 from app.dependencies import *
 from app.models import MagicLinkRequest, UserPatchData
-from app.services.mailer import send_magic_link, create_token
-from app.db.db_crud import create_record, read_record, read_one_by_field, read_all, update_record
+from app.services.mailer import send_magic_link
+from app.services.auth import *
+from app.db.db_crud import (
+    create_record,
+    read_record,
+    read_one_by_field,
+    read_all,
+    update_record,
+)
 from app.db.db_models import User
 from app.db.db_excepts import *
-
 
 router = APIRouter()
 
@@ -23,7 +28,7 @@ async def register_or_login(
 
         # If no user exists, create and store it
         if not user:
-            token, expiry = create_token()
+            token, expiry = create_mailer_token()
             new_user = User(
                 username=payload.username,
                 email=payload.email,
@@ -34,15 +39,36 @@ async def register_or_login(
             # Store new user
             user = await create_record(session, new_user)
 
-        await send_magic_link(
-            settings,
-            user.email,
-        )
+        await send_magic_link(settings, user.email, token)
 
         return JSONResponse(content=f"User {user.username} registered", status_code=200)
 
     except Exception as e:
         return JSONResponse(content=f"Unexpected error: {e}", status_code=500)
+
+
+@router.get("/user/verify")
+async def verify_magic_link(
+    token: str, session: db_dependency, settings: settings_dependency
+) -> dict[str, str]:
+    user = await read_one_by_field(session, User, "login_token", token)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid token.")
+
+    if user.token_expiry < int(time.time()):
+        raise HTTPException(status_code=401, detail="Token is expired.")
+
+    access_token = create_access_token(
+        data={"sub": str(user.id)},
+        secret_key=settings.secret_key,
+        expires_in_seconds=3600,
+    )
+
+    user.login_token = None
+    user.token_expiry = None
+    await session.commit()
+
+    return {"access_token": access_token, "token_type": "bearer"}
 
 
 @router.post("/user")
@@ -71,8 +97,7 @@ async def get_all_users(session: db_dependency) -> JSONResponse:
     try:
         users = await read_all(session, User)
         result = {"user": [user.model_dump() for user in users]}
-        return JSONResponse(content=result.model_dump(),
-                            status_code=200)
+        return JSONResponse(content=result.model_dump(), status_code=200)
     except (DatabaseError, TableNotFound) as e:
         return JSONResponse(content=e.detail, status_code=e.status_code)
     except Exception as e:
@@ -80,15 +105,15 @@ async def get_all_users(session: db_dependency) -> JSONResponse:
 
 
 @router.get("/user/{user_id}")
-async def get_user(session: db_dependency, user_id:int) -> JSONResponse:
+async def get_user(session: db_dependency, user_id: int) -> JSONResponse:
     try:
         user = await read_record(session, User, user_id)
-        return JSONResponse(content=user.model_dump(),
-                            status_code=200)
+        return JSONResponse(content=user.model_dump(), status_code=200)
     except (DatabaseError, RecordNotFound, TableNotFound) as e:
         return JSONResponse(content=e.detail, status_code=e.status_code)
     except Exception as e:
         return JSONResponse(content="Unexpected error", status_code=500)
+
 
 @router.patch("/user/{user_id}")
 async def update_user(
@@ -107,12 +132,12 @@ async def update_user(
     except Exception as e:
         return JSONResponse(content="Unexpected error", status_code=500)
 
+
 @router.delete("user/{user_id}")
-async def delete_user(session:db_dependency, user_id:int) -> JSONResponse:
+async def delete_user(session: db_dependency, user_id: int) -> JSONResponse:
     try:
-        await inactive_user = await update_record(session, User, user_id, {"status":"deleted"})
+        await update_record(session, User, user_id, {"status": "deleted"})
     except (DatabaseError, RecordNotFound, TableNotFound) as e:
         return JSONResponse(content=e.detail, status_code=e.status_code)
     except Exception as e:
         return JSONResponse(content="Unexpected error", status_code=500)
-    

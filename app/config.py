@@ -4,6 +4,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class AppSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file="app/.env")
 
+    secret_key: str
+
     leonardo_api_key: str
     openai_api_key: str
     login_key: str
