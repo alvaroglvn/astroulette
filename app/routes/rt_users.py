@@ -32,7 +32,8 @@ async def register_or_login(
             new_user = User(
                 username=payload.username,
                 email=payload.email,
-                active=True,
+                status="active",
+                role="user",
                 login_token=token,
                 token_expiry=expiry,
             )
@@ -80,7 +81,8 @@ async def add_user(
         new_user = User(
             username=user.username,
             email=user.email,
-            active=user.active,
+            status=user.status,
+            role=user.role,
             login_token=None,
             token_expiry=None,
         )

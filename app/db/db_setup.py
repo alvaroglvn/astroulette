@@ -67,7 +67,8 @@ async def load_admin() -> bool:
                 admin = User(
                     username="admin",
                     email="admin@admin.com",
-                    active=True,
+                    role="admin",
+                    status="active",
                     login_token=None,
                     token_expiry=None,
                 )
