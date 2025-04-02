@@ -2,10 +2,6 @@ import uuid
 import time
 import jwt
 from typing import Optional, Tuple
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-
-from app.dependencies import settings_dependency
 
 
 def create_mailer_token() -> Tuple[str, int]:
@@ -44,44 +40,3 @@ def create_access_token(
     expire = int(time.time()) + (expires_in_seconds or 3600)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, secret_key, algorithm="HS256")
-
-
-oath2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-
-def get_valid_user(
-    settings: settings_dependency,
-    token: str = Depends(oath2_scheme),
-) -> str:
-    """
-    Retrieve and validate the current user's ID from the provided JWT token.
-
-    This function decodes the JWT token using the secret key obtained from settings.
-    It then validates the token and extracts the user ID ("sub") from the token payload.
-
-    Args:
-        settings: Dependency injection of application settings.
-        token (str): JWT token provided by the client (via OAuth2 bearer token).
-
-    Raises:
-        HTTPException: If the token is invalid, expired, or the user ID is not found.
-
-    Returns:
-        str: The validated user ID.
-    """
-    credential_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Couldn't validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-
-    try:
-        payload = jwt.decode(token, settings.secret_key, algorithms=["HS256"])
-        user_id: str = payload.get("sub")
-        if not user_id:
-            raise credential_exception
-        return user_id
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token has expired")
-    except jwt.PyJWTError:
-        raise credential_exception
