@@ -255,23 +255,19 @@ async def fetch_thread(
 
 async def store_message(
     session: AsyncSession,
+    openai_response_id: Optional[str],
     thread_id: int,
-    user_id: int,
-    profile_id: int,
     role: str,
     content: str,
     created_at: int = int(time.time()),
-    openai_response_id: Optional[str] = "",
 ) -> None:
 
     new_message = Message(
         openai_response_id=openai_response_id,
         thread_id=thread_id,
-        user_id=user_id,
-        profile_id=profile_id,
-        created_at=created_at,
         role=role,
         content=content,
+        created_at=created_at,
     )
 
     await create_record(session, new_message)

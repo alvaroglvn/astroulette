@@ -1,3 +1,5 @@
+import time
+
 from app.dependencies import *
 from app.db.db_crud import fetch_unmet_character, store_new_character, create_record
 from app.services.openai.character import generate_character_async
@@ -7,7 +9,7 @@ async def chat_builder(
     session: db_dependency,
     settings: settings_dependency,
     user: valid_user_dependency,
-):
+) -> Optional[Thread]:
     """
     Load chat for the user with a character they have never met:
     a) From the database.
@@ -42,3 +44,5 @@ async def chat_builder(
 
     # Store the thread in db
     stored_thread = await create_record(session, thread)
+
+    return stored_thread
