@@ -255,10 +255,10 @@ async def fetch_thread(
 
 async def store_message(
     session: AsyncSession,
-    openai_response_id: Optional[str],
     thread_id: int,
     role: str,
     content: str,
+    openai_response_id: Optional[str] = None,
     created_at: int = int(time.time()),
 ) -> None:
 

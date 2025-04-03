@@ -25,25 +25,18 @@ async def chat_with_character(
     websocket: WebSocket,
     session: db_dependency,
     settings: settings_dependency,
-    user: valid_user_dependency,
-    profile_id: int = 1,  # Hardcoded for now
+    thread: thread_dependency,
 ):
     # Accept the WebSocket connection
     await websocket.accept()
     try:
-        # Fetch thread, user and character details needed for context
-        user_id = user.id
-        thread = await fetch_thread(session, user_id, profile_id)
-        character = await read_record(session, Character, profile_id)
 
         while True:
             # Receive a text message from the client
             user_message = await websocket.receive_text()
 
             # Store the user message in your database
-            await store_message(
-                session, thread.id, user_id, profile_id, "user", user_message
-            )
+            await store_message(session, thread.id, "user", user_message)
 
             # Retrieve the last OpenAI response id, if any, for context
             last_response_id = await get_last_resp_id(session, thread.id)
@@ -51,8 +44,15 @@ async def chat_with_character(
                 last_response_id = None
 
             # Get the streaming response from OpenAI using your custom logic
+            username = await read_record(session, User, thread.user_id, "username")
+            character = await read_record(session, Character, thread.character_id)
+
             response = await ai_response(
-                settings.openai_api_key, user, character, user_message, last_response_id
+                settings.openai_api_key,
+                username,
+                character,
+                user_message,
+                last_response_id,
             )
 
             # Initialize variables to capture the final response details
@@ -76,12 +76,10 @@ async def chat_with_character(
                 await store_message(
                     session,
                     thread.id,
-                    user_id,
-                    profile_id,
                     role,
                     content,
-                    created_at=created_at,
                     openai_response_id=openai_response_id,
+                    created_at=created_at,
                 )
 
     except WebSocketDisconnect:

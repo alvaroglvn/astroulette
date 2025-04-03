@@ -11,6 +11,7 @@ from app.db.db_setup import get_async_session
 from app.db.db_models import *
 from app.db.db_crud import read_record
 from app.config import AppSettings
+from app.chat_builder import chat_builder
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
@@ -87,3 +88,5 @@ async def get_valid_user(
 
 
 valid_user_dependency = Annotated[User, Depends(get_valid_user)]
+
+thread_dependency = Annotated[Thread, Depends(chat_builder)]
