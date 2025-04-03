@@ -182,9 +182,7 @@ async def fetch_unmet_character(
             select(Character)
             .where(
                 Character.id.notin_(
-                    select(UserCharacters.character_id).where(
-                        UserCharacters.user_id == user_id
-                    )
+                    select(Thread.character_id).where(Thread.user_id == user_id)
                 )
             )
             .limit(1)

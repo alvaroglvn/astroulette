@@ -1,6 +1,8 @@
 import random
 import logging
+import asyncio
 from typing import Optional
+from concurrent.futures import ThreadPoolExecutor
 
 from openai import OpenAI, OpenAIError
 
@@ -17,11 +19,11 @@ def generate_character(
         openai_key (str): OpenAI API key for authentication
 
     Returns:
-        str: Generated character data and profile in JSON string format
+        Optional[NewCharacter]: Generated character data and profile as a NewCharacter object.
 
     Raises:
-        OpenAIError: If there is an error with the OpenAI API request
-        Exception: For any other unexpected errors
+        OpenAIError: If there is an error with the OpenAI API request.
+        Exception: For any other unexpected errors.
     """
 
     try:
@@ -115,3 +117,20 @@ def character_randomizer() -> tuple[str, str, str]:
     ]
 
     return random.choice(gender), random.choice(species), random.choice(archetypes)
+
+
+# Concurrency for generating characters
+executor = ThreadPoolExecutor()
+
+
+async def generate_character_async(openai_key: str) -> Optional[NewCharacter]:
+    """
+    This function is a wrapper for the generate_character function to run it in a separate thread.
+    It uses asyncio's run_in_executor to allow for non-blocking behavior in an async context.
+    Args:
+        openai_key (str): OpenAI API key for authentication
+    Returns:
+        Optional[NewCharacter]: Generated character data and profile as a NewCharacter object.
+    """
+    loop = asyncio.get_running_loop()
+    return await loop.run_in_executor(executor, generate_character, openai_key)

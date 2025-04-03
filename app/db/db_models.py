@@ -17,11 +17,6 @@ class Character(SQLModel, table=True):
     quirks: str = Field(nullable=False)
     human_relationship: str = Field(nullable=False)
 
-    # Many-to-many: Users who have visited this character
-    user_characters: List["UserCharacters"] = Relationship(
-        back_populates="character",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
-    )
     threads: List["Thread"] = Relationship(
         back_populates="character",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
@@ -41,11 +36,6 @@ class User(SQLModel, table=True):
     login_token: str = Field(nullable=True, default=None, index=True)
     token_expiry: int = Field(nullable=True, default=None, index=True)
 
-    # Many-to-many relationship: all characters this user has visited
-    user_characters: List["UserCharacters"] = Relationship(
-        back_populates="user",
-        sa_relationship_kwargs={"cascade": "all, delete-orphan"},
-    )
     messages: List["Message"] = Relationship(
         back_populates="user",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
@@ -54,16 +44,6 @@ class User(SQLModel, table=True):
         back_populates="user",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )
-
-
-class UserCharacters(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-
-    user_id: int = Field(foreign_key="user.id", nullable=False)
-    character_id: int = Field(foreign_key="character.id", nullable=False)
-
-    user: Optional[User] = Relationship(back_populates="user_characters")
-    character: Optional[Character] = Relationship(back_populates="user_characters")
 
 
 class Message(SQLModel, table=True):
@@ -88,12 +68,8 @@ class Message(SQLModel, table=True):
 class Thread(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True, index=True)
     user_id: int = Field(foreign_key="user.id", nullable=False, index=True)
-    character_id: int = Field(
-        foreign_key="character.id",
-        nullable=False,
-        index=True,
-    )
-    created_at: float = Field(default_factory=time.time, nullable=False, index=True)
+    character_id: int = Field(foreign_key="character.id", nullable=False, index=True)
+    created_at: int = Field(nullable=False, index=True)
 
     user: Optional[User] = Relationship(back_populates="threads")
     character: Optional[Character] = Relationship(back_populates="threads")

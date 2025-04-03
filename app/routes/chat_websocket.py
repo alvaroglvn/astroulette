@@ -3,7 +3,7 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from app.dependencies import db_dependency, settings_dependency
+from app.dependencies import *
 from app.services.openai.chat import ai_response
 from app.db.db_crud import read_record, store_message, get_last_resp_id, fetch_thread
 from app.db.db_models import User, Character
@@ -25,15 +25,15 @@ async def chat_with_character(
     websocket: WebSocket,
     session: db_dependency,
     settings: settings_dependency,
-    user_id: int = 1,  # Hardcoded admin for now
+    user: valid_user_dependency,
     profile_id: int = 1,  # Hardcoded for now
 ):
     # Accept the WebSocket connection
     await websocket.accept()
     try:
         # Fetch thread, user and character details needed for context
+        user_id = user.id
         thread = await fetch_thread(session, user_id, profile_id)
-        user = await read_record(session, User, user_id, "username")
         character = await read_record(session, Character, profile_id)
 
         while True:

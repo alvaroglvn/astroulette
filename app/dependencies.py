@@ -82,7 +82,7 @@ async def get_valid_user(
         return user
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token has expired")
-    except jwt.PyJWKError:
+    except jwt.InvalidTokenError:
         raise credential_exception
 
 
