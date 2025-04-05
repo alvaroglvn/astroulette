@@ -1,10 +1,13 @@
 import httpx
 from pydantic import EmailStr
-from fastapi.responses import JSONResponse
-from app.config import AppSettings
+from app.config.settings import settings_dependency
 
 
-async def send_magic_link(mail_settings: AppSettings, to: EmailStr, token: str) -> None:
+async def send_magic_link(
+    settings: settings_dependency,
+    to: EmailStr,
+    token: str,
+) -> None:
     magic_link = f"https://marsroulette.com/login?token={token}"
     subject = "Your MarsRoulette Login"
     text = f"Click here to login: {magic_link}"
@@ -12,10 +15,10 @@ async def send_magic_link(mail_settings: AppSettings, to: EmailStr, token: str) 
     async with httpx.AsyncClient() as client:
         try:
             response = await client.post(
-                f"https://api.mailgun.net/v3/{mail_settings.mailgun_domain}/messages",
-                auth=("api", mail_settings.mailgun_api_key),
+                f"https://api.mailgun.net/v3/{settings.mailgun_domain}/messages",
+                auth=("api", settings.mailgun_api_key),
                 data={
-                    "from": mail_settings.from_email,
+                    "from": settings.from_email,
                     "to": to,
                     "subject": subject,
                     "text": text,

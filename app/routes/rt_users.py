@@ -1,9 +1,11 @@
+import time
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
-from app.dependencies import *
+from app.config.settings import settings_dependency
+from app.config.session import db_dependency
 from app.models import MagicLinkRequest, UserPatchData
 from app.services.mailer import send_magic_link
-from app.services.auth import *
+from app.services.auth import create_mailer_token, create_access_token
 from app.db.db_crud import (
     create_record,
     read_record,
@@ -12,7 +14,7 @@ from app.db.db_crud import (
     update_record,
 )
 from app.db.db_models import User
-from app.db.db_excepts import *
+from app.db.db_excepts import DatabaseError, TableNotFound, RecordNotFound
 
 router = APIRouter()
 

@@ -1,6 +1,6 @@
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Optional
 from openai import AsyncOpenAI
-from app.dependencies import *
+from app.db.db_models import Character
 
 
 async def ai_response(

@@ -1,7 +1,16 @@
 import time
+from typing import Optional
 
-from app.dependencies import *
-from app.db.db_crud import fetch_unmet_character, store_new_character, create_record
+from app.config.session import db_dependency
+from app.config.settings import settings_dependency
+from app.services.auth import valid_user_dependency
+
+from app.db.db_models import Thread
+from app.db.db_crud import (
+    fetch_unmet_character,
+    store_new_character,
+    create_record,
+)
 from app.services.openai.character import generate_character_async
 
 

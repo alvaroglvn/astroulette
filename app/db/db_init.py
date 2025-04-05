@@ -1,34 +1,9 @@
-from typing import AsyncGenerator
 import logging
-from contextlib import asynccontextmanager
-
 from sqlmodel import SQLModel
-from sqlmodel.ext.asyncio.session import AsyncSession
-
-from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy.orm import sessionmaker
-
-from app.config import AppSettings
+from app.config.session import async_engine, get_async_session
 from app.db.db_models import User
-from app.db.db_crud import create_record, read_record, RecordNotFound
-
-
-app_settings = AppSettings()
-DATABASE_URL = app_settings.db_url
-
-async_engine = create_async_engine(DATABASE_URL, echo=False)
-
-
-@asynccontextmanager
-async def get_async_session() -> AsyncGenerator:
-    async_session = sessionmaker(
-        bind=async_engine, class_=AsyncSession, expire_on_commit=False, autoflush=False
-    )
-    async with async_session() as session:
-        try:
-            yield session
-        finally:
-            await session.close()
+from app.db.db_crud import create_record, read_record
+from app.db.db_excepts import RecordNotFound
 
 
 async def init_db() -> None:

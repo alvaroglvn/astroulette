@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from openai import OpenAI, OpenAIError
 
-from app.services.openai.openai_models import *
+from app.services.openai.openai_models import NewCharacter
 
 
 def generate_character(

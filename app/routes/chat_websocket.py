@@ -1,12 +1,24 @@
 import logging
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Request
+from fastapi import (
+    APIRouter,
+    WebSocket,
+    WebSocketDisconnect,
+    Request,
+)
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from app.dependencies import *
+from app.config.settings import settings_dependency
+from app.config.session import db_dependency
+from app.services.auth import valid_user_dependency
+from app.chat_builder import chat_builder
 from app.services.openai.chat import ai_response
-from app.db.db_crud import read_record, store_message, get_last_resp_id, fetch_thread
 from app.db.db_models import User, Character
+from app.db.db_crud import (
+    read_record,
+    store_message,
+    get_last_resp_id,
+)
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -25,12 +37,13 @@ async def chat_with_character(
     websocket: WebSocket,
     session: db_dependency,
     settings: settings_dependency,
-    thread: thread_dependency,
+    user: valid_user_dependency,
 ):
+    # Build the chat thread for the specific user
+    thread = await chat_builder(session, settings, user)
     # Accept the WebSocket connection
     await websocket.accept()
     try:
-
         while True:
             # Receive a text message from the client
             user_message = await websocket.receive_text()

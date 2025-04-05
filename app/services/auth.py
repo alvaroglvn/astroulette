@@ -1,7 +1,21 @@
 import uuid
 import time
 import jwt
-from typing import Optional, Tuple
+from typing import (
+    Annotated,
+    Optional,
+    Tuple,
+)
+from fastapi import (
+    Depends,
+    HTTPException,
+    status,
+)
+from fastapi.security import OAuth2PasswordBearer
+from app.config.settings import settings_dependency
+from app.config.session import db_dependency
+from app.db.db_models import User
+from app.db.db_crud import read_record
 
 
 def create_mailer_token() -> Tuple[str, int]:
@@ -40,3 +54,47 @@ def create_access_token(
     expire = int(time.time()) + (expires_in_seconds or 3600)
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, secret_key, algorithm="HS256")
+
+
+oath2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+
+async def get_valid_user(
+    session: db_dependency,
+    settings: settings_dependency,
+    token: Annotated[str, Depends(oath2_scheme)],
+) -> User:
+    """
+    Retrieve and validate the current user from the provided JWT token.
+
+    Args:
+        settings: Dependency injection of application settings.
+        token (str): The JWT token to validate.
+
+    Raises:
+        HTTPException: If the token is invalid or expired.
+
+    Returns:
+        User: The user object associated with the token.
+    """
+    credential_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Couldn't validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    try:
+        payload = jwt.decode(token, settings.secret_key, algorithms=["HS256"])
+        user_id: str = payload.get("sub")
+        if not user_id:
+            raise credential_exception
+
+        user = await read_record(session, User, user_id)
+        return user
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except jwt.InvalidTokenError:
+        raise credential_exception
+
+
+valid_user_dependency = Annotated[User, Depends(get_valid_user)]

@@ -1,5 +1,4 @@
 import time
-
 from pydantic import BaseModel
 from app.db.db_models import Character, Thread, Message
 

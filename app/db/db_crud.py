@@ -1,18 +1,21 @@
-from typing import Type, TypeVar, Optional, Any, List, Sequence
+from typing import (
+    Type,
+    TypeVar,
+    Optional,
+    Any,
+    List,
+)
 import logging
 import time
-
 from sqlmodel import SQLModel, select
 from sqlmodel.ext.asyncio.session import AsyncSession
-
 from sqlalchemy.exc import SQLAlchemyError, NoSuchTableError
-
-from app.db.db_models import *
-from app.db.db_excepts import *
-
+from app.db.db_models import Character, Thread, Message
+from app.db.db_excepts import TableNotFound, RecordNotFound, DatabaseError
 from app.services.openai.openai_models import NewCharacter, char_data_mapper
 
 
+# Global variable for type hinting
 T = TypeVar("T", bound=SQLModel)
 
 

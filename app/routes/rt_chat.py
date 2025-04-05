@@ -1,10 +1,10 @@
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
-from app.dependencies import db_dependency
+from app.config.session import db_dependency
 from app.db.db_crud import read_all, delete_record
 from app.db.db_models import Message, Thread
-from app.db.db_excepts import *
+from app.db.db_excepts import DatabaseError, TableNotFound
 
 router = APIRouter()
 

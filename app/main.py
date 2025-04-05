@@ -1,7 +1,7 @@
 from typing import AsyncGenerator
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from app.db.db_setup import init_db
+from app.db.db_init import init_db
 from app.routes.rt_users import router as users
 from app.routes.rt_characters import router as characters
 from app.routes.chat_websocket import router as chat

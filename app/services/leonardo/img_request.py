@@ -1,7 +1,11 @@
+from typing import Optional
 import httpx
 import asyncio
-
-from app.services.leonardo.leon_models import *
+from app.services.leonardo.leon_models import (
+    PhoenixPayload,
+    ImageGenResponse,
+    GenerationInfo,
+)
 
 
 urls = {

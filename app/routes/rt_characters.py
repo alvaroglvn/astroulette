@@ -1,15 +1,23 @@
-from fastapi import APIRouter
-from fastapi.responses import JSONResponse
 import logging
 import asyncio
 
-from app.dependencies import *
-from app.models import *
-from app.db.db_crud import *
-from app.db.db_models import *
-from app.db.db_excepts import *
-from app.db.db_utils import *
+from fastapi import APIRouter
+from fastapi.responses import JSONResponse
+
+from app.config.settings import settings_dependency
+from app.config.session import db_dependency
+from app.models import CharacterPatchData
+from app.db.db_crud import (
+    store_new_character,
+    update_record,
+    read_all,
+    read_record,
+    delete_record,
+)
+from app.db.db_models import Character
+from app.db.db_excepts import DatabaseError, TableNotFound, RecordNotFound
 from app.services.openai.character import generate_character
+from app.services.openai.openai_models import NewCharacter
 from app.services.leonardo.img_request import generate_portrait
 
 router = APIRouter()
