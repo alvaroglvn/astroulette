@@ -3,6 +3,7 @@ import asyncio
 
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
+from httpx import ASGITransport
 
 from app.config.settings import settings_dependency
 from app.config.session import db_dependency

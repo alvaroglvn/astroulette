@@ -33,6 +33,7 @@ def char_data_mapper(
     thread = Thread(
         user_id=user_id,
         character_id=new_character.id,
+        created_at=time.time(),
     )
 
     return character, thread
