@@ -2,6 +2,18 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr
 
 
+class NewCharacter(BaseModel):
+    id: int = None
+    image_prompt: str
+    name: str
+    planet_name: str
+    planet_description: str
+    personality_traits: str
+    speech_style: str
+    quirks: str
+    human_relationship: str
+
+
 class CharacterPatchData(BaseModel):
     image_prompt: Optional[str] = None
     image_url: Optional[str] = None

@@ -10,9 +10,10 @@ import time
 from sqlmodel import SQLModel, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError, NoSuchTableError
+from app.models import NewCharacter
 from app.db.db_models import Character, Thread, Message
+from app.db.data_mappers import character_mapper, message_mapper
 from app.db.db_excepts import TableNotFound, RecordNotFound, DatabaseError
-from app.services.openai.openai_models import NewCharacter, char_data_mapper
 
 
 # Global variable for type hinting
@@ -209,7 +210,7 @@ async def store_new_character(
     session: AsyncSession, new_character: NewCharacter
 ) -> Character:
     # Map character data for storage
-    character, thread = char_data_mapper(new_character)
+    character, thread = character_mapper(new_character)
 
     # Store character
     stored_character = await create_record(session, character)

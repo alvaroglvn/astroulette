@@ -1,21 +1,9 @@
 import time
-from pydantic import BaseModel
+from app.models import NewCharacter
 from app.db.db_models import Character, Thread, Message
 
 
-class NewCharacter(BaseModel):
-    id: int = None
-    image_prompt: str
-    name: str
-    planet_name: str
-    planet_description: str
-    personality_traits: str
-    speech_style: str
-    quirks: str
-    human_relationship: str
-
-
-def char_data_mapper(
+def character_mapper(
     new_character: NewCharacter, user_id: int = 1
 ) -> tuple[Character, Thread]:
     character = Character(

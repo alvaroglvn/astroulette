@@ -7,6 +7,7 @@ from httpx import ASGITransport
 
 from app.config.settings import settings_dependency
 from app.config.session import db_dependency
+from app.services.auth import admin_only_dependency
 from app.models import CharacterPatchData
 from app.db.db_crud import (
     store_new_character,
@@ -18,7 +19,7 @@ from app.db.db_crud import (
 from app.db.db_models import Character
 from app.db.db_excepts import DatabaseError, TableNotFound, RecordNotFound
 from app.services.openai.character import generate_character
-from app.services.openai.openai_models import NewCharacter
+from app.models import NewCharacter
 from app.services.leonardo.img_request import generate_portrait
 
 router = APIRouter()
@@ -83,7 +84,9 @@ async def new_character(
 
 @router.post("/character/add")
 async def add_character(
-    session: db_dependency, new_character: NewCharacter
+    session: db_dependency,
+    new_character: NewCharacter,
+    admin: admin_only_dependency,
 ) -> JSONResponse:
     try:
         stored_character = await store_new_character(session, new_character)
@@ -96,7 +99,10 @@ async def add_character(
 
 
 @router.get("/character")
-async def get_all_characters(session: db_dependency) -> JSONResponse:
+async def get_all_characters(
+    session: db_dependency,
+    admin: admin_only_dependency,
+) -> JSONResponse:
     try:
         characters = await read_all(session, Character)
         result = {"characters": [character.model_dump() for character in characters]}
@@ -106,7 +112,11 @@ async def get_all_characters(session: db_dependency) -> JSONResponse:
 
 
 @router.get("/character/{character_id}")
-async def character_info(session: db_dependency, character_id: int) -> JSONResponse:
+async def character_info(
+    session: db_dependency,
+    character_id: int,
+    admin: admin_only_dependency,
+) -> JSONResponse:
     try:
 
         character = await read_record(session, Character, character_id)
@@ -125,7 +135,10 @@ async def character_info(session: db_dependency, character_id: int) -> JSONRespo
 
 @router.patch("/character/{character_id}")
 async def update_character(
-    session: db_dependency, character_id: int, updates: CharacterPatchData
+    session: db_dependency,
+    character_id: int,
+    updates: CharacterPatchData,
+    admin: admin_only_dependency,
 ) -> JSONResponse:
     try:
         updated = await update_record(
@@ -141,7 +154,11 @@ async def update_character(
 
 
 @router.delete("/character/{character_id}")
-async def delete_character(session: db_dependency, character_id: int) -> JSONResponse:
+async def delete_character(
+    session: db_dependency,
+    character_id: int,
+    admin: admin_only_dependency,
+) -> JSONResponse:
     try:
         await delete_record(session, Character, character_id)
 

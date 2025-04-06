@@ -3,10 +3,8 @@ import logging
 import asyncio
 from typing import Optional
 from concurrent.futures import ThreadPoolExecutor
-
 from openai import OpenAI, OpenAIError
-
-from app.services.openai.openai_models import NewCharacter
+from app.models import NewCharacter
 
 
 def generate_character(
