@@ -98,3 +98,16 @@ async def get_valid_user(
 
 
 valid_user_dependency = Annotated[User, Depends(get_valid_user)]
+
+
+# Admin only privileges
+def admin_only(user: valid_user_dependency) -> User:
+    if user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to perform this action",
+        )
+    return user
+
+
+admin_only_dependency = Annotated[User, Depends(admin_only)]
