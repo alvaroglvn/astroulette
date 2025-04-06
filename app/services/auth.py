@@ -101,7 +101,7 @@ valid_user_dependency = Annotated[User, Depends(get_valid_user)]
 
 
 # Admin only privileges
-def admin_only(user: valid_user_dependency) -> User:
+def assert_admin(user: valid_user_dependency) -> User:
     if user.role != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -110,4 +110,4 @@ def admin_only(user: valid_user_dependency) -> User:
     return user
 
 
-admin_only_dependency = Annotated[User, Depends(admin_only)]
+admin_only_dependency = Annotated[User, Depends(assert_admin)]

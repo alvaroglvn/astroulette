@@ -1,5 +1,6 @@
 import logging
 import asyncio
+import traceback
 
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
@@ -101,7 +102,6 @@ async def add_character(
 @router.get("/character")
 async def get_all_characters(
     session: db_dependency,
-    admin: admin_only_dependency,
 ) -> JSONResponse:
     try:
         characters = await read_all(session, Character)
@@ -112,10 +112,9 @@ async def get_all_characters(
 
 
 @router.get("/character/{character_id}")
-async def character_info(
+async def get_character_by_id(
     session: db_dependency,
     character_id: int,
-    admin: admin_only_dependency,
 ) -> JSONResponse:
     try:
 
@@ -130,6 +129,9 @@ async def character_info(
     except (DatabaseError, RecordNotFound, TableNotFound) as e:
         return JSONResponse(content=e.detail, status_code=e.status_code)
     except Exception as e:
+        logging.error(
+            "Unhandled exception in get_character_by_id:\n" + traceback.format_exc()
+        )
         return JSONResponse(content="Unexpected error", status_code=500)
 
 
