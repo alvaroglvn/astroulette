@@ -1,11 +1,16 @@
 import time
+import traceback
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from app.config.settings import settings_dependency
 from app.config.session import db_dependency
 from app.models import MagicLinkRequest, UserPatchData
 from app.services.mailer import send_magic_link
-from app.services.auth import create_mailer_token, create_access_token
+from app.services.auth import (
+    create_mailer_token,
+    create_access_token,
+    admin_only_dependency,
+)
 from app.db.db_crud import (
     create_record,
     read_record,
@@ -78,6 +83,7 @@ async def verify_magic_link(
 async def add_user(
     user: User,
     session: db_dependency,
+    admin=admin_only_dependency,
 ) -> JSONResponse:
     try:
         new_user = User(
@@ -124,6 +130,7 @@ async def update_user(
     user_id: int,
     session: db_dependency,
     updates: UserPatchData,
+    admin: admin_only_dependency,
 ) -> JSONResponse:
     try:
         updated_user = await update_record(
@@ -138,9 +145,12 @@ async def update_user(
 
 
 @router.delete("user/{user_id}")
-async def delete_user(session: db_dependency, user_id: int) -> JSONResponse:
+async def delete_user(
+    session: db_dependency, user_id: int, admin: admin_only_dependency
+) -> JSONResponse:
     try:
         await update_record(session, User, user_id, {"status": "deleted"})
+        return JSONResponse(content="User deleted", status_code=200)
     except (DatabaseError, RecordNotFound, TableNotFound) as e:
         return JSONResponse(content=e.detail, status_code=e.status_code)
     except Exception as e:
