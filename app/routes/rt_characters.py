@@ -4,11 +4,10 @@ import traceback
 
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
-from httpx import ASGITransport
 
 from app.config.settings import settings_dependency
 from app.config.session import db_dependency
-from app.services.auth import admin_only_dependency
+from app.services.auth import admin_only_dependency, valid_user_dependency
 from app.models import CharacterPatchData
 from app.db.db_crud import (
     store_new_character,
@@ -32,6 +31,7 @@ MAX_RETRIES = 3  # Maximum number of retries
 async def new_character(
     settings: settings_dependency,
     session: db_dependency,
+    user: valid_user_dependency,
 ) -> JSONResponse:
 
     for attempt in range(1, MAX_RETRIES + 1):
@@ -102,6 +102,7 @@ async def add_character(
 @router.get("/character")
 async def get_all_characters(
     session: db_dependency,
+    user: valid_user_dependency,
 ) -> JSONResponse:
     try:
         characters = await read_all(session, Character)
@@ -115,6 +116,7 @@ async def get_all_characters(
 async def get_character_by_id(
     session: db_dependency,
     character_id: int,
+    user: valid_user_dependency,
 ) -> JSONResponse:
     try:
 
