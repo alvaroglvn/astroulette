@@ -12,7 +12,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError, NoSuchTableError
 from app.models import NewCharacter
 from app.db.db_models import Character, Thread, Message
-from app.db.data_mappers import character_mapper, message_mapper
+from app.db.data_mappers import character_mapper
 from app.db.db_excepts import TableNotFound, RecordNotFound, DatabaseError
 
 
@@ -117,9 +117,9 @@ async def read_one_by_field(
         return record
     except AttributeError:
         raise AttributeError(f"{field_name} is not a valid field of {model.__name__}")
-    except NoSuchTableError as e:
+    except NoSuchTableError:
         raise TableNotFound(model.__tablename__)
-    except SQLAlchemyError as e:
+    except SQLAlchemyError:
         raise DatabaseError("read", f"Failed to read {model.__name__} by {field_name}")
 
 
@@ -197,7 +197,7 @@ async def fetch_unmet_character(
             logging.info(f"Found unmet character for user {user_id}.")
             return character
         else:
-            logging.info(f"User has met all the characters in database.")
+            logging.info("User has met all the characters in database.")
             return None
     except SQLAlchemyError as e:
         logging.error(f"{e}")

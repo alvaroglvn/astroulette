@@ -130,7 +130,7 @@ async def get_character_by_id(
         )
     except (DatabaseError, RecordNotFound, TableNotFound) as e:
         return JSONResponse(content=e.detail, status_code=e.status_code)
-    except Exception as e:
+    except Exception:
         logging.error(
             "Unhandled exception in get_character_by_id:\n" + traceback.format_exc()
         )
@@ -153,7 +153,7 @@ async def update_character(
 
     except (DatabaseError, RecordNotFound, TableNotFound) as e:
         return JSONResponse(content=e.detail, status_code=e.status_code)
-    except Exception as e:
+    except Exception:
         return JSONResponse(content="Unexpected error", status_code=500)
 
 
@@ -169,5 +169,5 @@ async def delete_character(
         return JSONResponse(content="Character deleted succesfully", status_code=200)
     except (DatabaseError, RecordNotFound, TableNotFound) as e:
         return JSONResponse(content=e.detail, status_code=e.status_code)
-    except Exception as e:
+    except Exception:
         return JSONResponse(content="Unexpected error", status_code=500)

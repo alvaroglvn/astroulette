@@ -1,5 +1,4 @@
 import time
-import traceback
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from app.config.settings import settings_dependency
@@ -121,7 +120,7 @@ async def get_user(session: db_dependency, user_id: int) -> JSONResponse:
         return JSONResponse(content=user.model_dump(), status_code=200)
     except (DatabaseError, RecordNotFound, TableNotFound) as e:
         return JSONResponse(content=e.detail, status_code=e.status_code)
-    except Exception as e:
+    except Exception:
         return JSONResponse(content="Unexpected error", status_code=500)
 
 
@@ -140,7 +139,7 @@ async def update_user(
         return JSONResponse(content=updated_user.model_dump(), status_code=200)
     except (DatabaseError, RecordNotFound, TableNotFound) as e:
         return JSONResponse(content=e.detail, status_code=e.status_code)
-    except Exception as e:
+    except Exception:
         return JSONResponse(content="Unexpected error", status_code=500)
 
 
@@ -153,5 +152,5 @@ async def delete_user(
         return JSONResponse(content="User deleted", status_code=200)
     except (DatabaseError, RecordNotFound, TableNotFound) as e:
         return JSONResponse(content=e.detail, status_code=e.status_code)
-    except Exception as e:
+    except Exception:
         return JSONResponse(content="Unexpected error", status_code=500)
