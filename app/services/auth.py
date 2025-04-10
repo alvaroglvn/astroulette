@@ -3,8 +3,8 @@ import time
 import jwt
 from typing import (
     Annotated,
-    Optional,
     Tuple,
+    Any,
 )
 from fastapi import (
     Depends,
@@ -34,7 +34,7 @@ def create_mailer_token() -> Tuple[str, int]:
 
 
 def create_access_token(
-    data: dict, secret_key: str, expires_in_seconds: Optional[int] = None
+    data: dict[str, Any], secret_key: str, expires_in_seconds: int | None = None
 ) -> str:
     """
     Create a JWT access token.
@@ -85,11 +85,13 @@ async def get_valid_user(
 
     try:
         payload = jwt.decode(token, settings.secret_key, algorithms=["HS256"])
-        user_id: str = payload.get("sub")
-        if not user_id:
+        user_id = payload.get("sub")
+        if not isinstance(user_id, int):
             raise credential_exception
 
         user = await read_record(session, User, user_id)
+        if user is None:
+            raise credential_exception
         return user
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token has expired")

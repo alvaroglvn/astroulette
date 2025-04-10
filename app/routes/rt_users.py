@@ -43,12 +43,23 @@ async def register_or_login(
                 login_token=token,
                 token_expiry=expiry,
             )
-            # Store new user
             user = await create_record(session, new_user)
+            if not user:
+                raise HTTPException(status_code=500, detail="Failed to store new user.")
 
-        await send_magic_link(settings, user.email, token)
-
-        return JSONResponse(content=f"User {user.username} registered", status_code=200)
+            await send_magic_link(settings, user.email, token)
+            return JSONResponse(
+                content=f"User {user.username} registered", status_code=201
+            )
+        else:
+            token, expiry = create_mailer_token()
+            user.login_token = token
+            user.token_expiry = expiry
+            await session.commit()
+            await send_magic_link(settings, user.email, token)
+            return JSONResponse(
+                content=f"Login link sent to {user.email}", status_code=200
+            )
 
     except Exception as e:
         return JSONResponse(content=f"Unexpected error: {e}", status_code=500)
@@ -71,8 +82,8 @@ async def verify_magic_link(
         expires_in_seconds=3600,
     )
 
-    user.login_token = None
-    user.token_expiry = None
+    user.login_token = "None"
+    user.token_expiry = 0
     await session.commit()
 
     return {"access_token": access_token, "token_type": "bearer"}
@@ -82,7 +93,7 @@ async def verify_magic_link(
 async def add_user(
     user: User,
     session: db_dependency,
-    admin=admin_only_dependency,
+    admin: admin_only_dependency,
 ) -> JSONResponse:
     try:
         new_user = User(
@@ -90,10 +101,12 @@ async def add_user(
             email=user.email,
             status=user.status,
             role=user.role,
-            login_token=None,
-            token_expiry=None,
+            login_token="None",
+            token_expiry=0,
         )
         stored_user = await create_record(session, new_user)
+        if not stored_user:
+            raise HTTPException(status_code=500, detail="Failed to store new user.")
         return JSONResponse(
             content=f"User {stored_user.username} created.", status_code=201
         )
@@ -105,8 +118,10 @@ async def add_user(
 async def get_all_users(session: db_dependency) -> JSONResponse:
     try:
         users = await read_all(session, User)
+        if not users:
+            return JSONResponse(content="No users found.", status_code=404)
         result = {"user": [user.model_dump() for user in users]}
-        return JSONResponse(content=result.model_dump(), status_code=200)
+        return JSONResponse(content=result, status_code=200)
     except (DatabaseError, TableNotFound) as e:
         return JSONResponse(content=e.detail, status_code=e.status_code)
     except Exception as e:
@@ -117,6 +132,8 @@ async def get_all_users(session: db_dependency) -> JSONResponse:
 async def get_user(session: db_dependency, user_id: int) -> JSONResponse:
     try:
         user = await read_record(session, User, user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found.")
         return JSONResponse(content=user.model_dump(), status_code=200)
     except (DatabaseError, RecordNotFound, TableNotFound) as e:
         return JSONResponse(content=e.detail, status_code=e.status_code)
@@ -136,7 +153,7 @@ async def update_user(
             session, User, user_id, updates.model_dump(exclude_unset=True)
         )
 
-        return JSONResponse(content=updated_user.model_dump(), status_code=200)
+        return JSONResponse(content=updated_user, status_code=200)
     except (DatabaseError, RecordNotFound, TableNotFound) as e:
         return JSONResponse(content=e.detail, status_code=e.status_code)
     except Exception:

@@ -2,23 +2,22 @@ from typing import Annotated, AsyncGenerator
 from contextlib import asynccontextmanager
 from fastapi import Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
-from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy.orm import sessionmaker
-from app.config.settings import AppSettings
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from app.config.settings import get_settings
 
-app_settings = AppSettings()
+app_settings = get_settings()
 DATABASE_URL = app_settings.db_url
 
 async_engine = create_async_engine(DATABASE_URL, echo=False)
 
 
 @asynccontextmanager
-async def get_async_session() -> AsyncGenerator:
-    async_session = sessionmaker(
+async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
+    async_session = async_sessionmaker(
         bind=async_engine,
         class_=AsyncSession,
+        autoflush=True,
         expire_on_commit=False,
-        autoflush=False,
     )
     async with async_session() as session:
         yield session

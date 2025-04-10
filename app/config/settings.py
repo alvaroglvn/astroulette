@@ -31,7 +31,7 @@ def get_settings() -> AppSettings:
     Returns:
         AppSettings: An instance of the AppSettings class.
     """
-    return AppSettings()
+    return AppSettings()  # type: ignore[call-arg]
 
 
 settings_dependency = Annotated[AppSettings, Depends(get_settings)]

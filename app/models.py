@@ -1,9 +1,8 @@
-from typing import Optional
 from pydantic import BaseModel, EmailStr
 
 
 class NewCharacter(BaseModel):
-    id: int = None
+    id: int | None = None
     image_prompt: str
     name: str
     planet_name: str
@@ -15,24 +14,24 @@ class NewCharacter(BaseModel):
 
 
 class CharacterPatchData(BaseModel):
-    image_prompt: Optional[str] = None
-    image_url: Optional[str] = None
-    generated_by: Optional[int] = None
-    name: Optional[str] = None
-    planet_name: Optional[str] = None
-    planet_description: Optional[str] = None
-    personality_traits: Optional[str] = None
-    speech_style: Optional[str] = None
-    quirks: Optional[str] = None
-    human_relationship: Optional[str] = None
+    image_prompt: str | None = None
+    image_url: str | None = None
+    generated_by: int | None = None
+    name: str | None = None
+    planet_name: str | None = None
+    planet_description: str | None = None
+    personality_traits: str | None = None
+    speech_style: str | None = None
+    quirks: str | None = None
+    human_relationship: str | None = None
 
 
 class UserPatchData(BaseModel):
-    username: Optional[str] = None
-    email: Optional[EmailStr] = None
-    active: Optional[bool] = None
-    login_token: Optional[str] = None
-    token_expiry: Optional[int] = None
+    username: str | None = None
+    email: EmailStr | None = None
+    active: bool | None = None
+    login_token: str | None = None
+    token_expiry: int | None = None
 
 
 class MagicLinkRequest(BaseModel):

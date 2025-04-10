@@ -1,4 +1,4 @@
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Any
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from app.db.db_init import init_db
@@ -8,7 +8,7 @@ from app.routes.chat_websocket import router as chat
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator:
+async def lifespan(app: FastAPI) -> AsyncGenerator[Any, None]:
     await init_db()
     yield
 

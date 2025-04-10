@@ -4,8 +4,11 @@ from httpx import AsyncClient, ASGITransport
 from typing import AsyncGenerator
 from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
-from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    create_async_engine,
+    async_sessionmaker,
+)
 from app.main import app
 from app.config.session import get_session
 from app.services.auth import assert_admin, get_valid_user
@@ -31,12 +34,11 @@ async def async_db_engine() -> AsyncGenerator[AsyncEngine, None]:
 async def async_db_session(
     async_db_engine: AsyncEngine,
 ) -> AsyncGenerator[AsyncSession, None]:
-    async_session = sessionmaker(
+    async_session = async_sessionmaker(
         bind=async_db_engine,
         class_=AsyncSession,
-        expire_on_commit=False,
-        autocommit=False,
         autoflush=False,
+        expire_on_commit=False,
     )
     async with async_session() as session:
         await session.begin()
@@ -144,7 +146,9 @@ def mock_character2() -> NewCharacter:
 
 # Tests
 @pytest.mark.anyio
-async def test_generate_character(user_client, mock_character1) -> None:
+async def test_generate_character(
+    user_client: AsyncClient, mock_character1: NewCharacter
+) -> None:
     with patch(
         "app.routes.rt_characters.generate_character", return_value=mock_character1
     ), patch(
@@ -158,7 +162,9 @@ async def test_generate_character(user_client, mock_character1) -> None:
 
 
 @pytest.mark.anyio
-async def test_add_character2(admin_client, mock_character2) -> None:
+async def test_add_character2(
+    admin_client: AsyncClient, mock_character2: NewCharacter
+) -> None:
 
     response = await admin_client.post(
         "/character/add", json=mock_character2.model_dump()
@@ -171,11 +177,13 @@ async def test_add_character2(admin_client, mock_character2) -> None:
 
 
 @pytest.mark.anyio
-async def test_get_character_by_id(user_client, mock_character1) -> None:
+async def test_get_character_by_id(
+    user_client: AsyncClient, mock_character1: NewCharacter
+) -> None:
 
     character_id = mock_character1.id
 
-    get_response = await user_client.get(f"/character/{character_id}")
+    get_response = await user_client.get(url=f"/character/{character_id}")
     assert get_response.status_code == 200
     data = get_response.json()
 
@@ -185,7 +193,7 @@ async def test_get_character_by_id(user_client, mock_character1) -> None:
 
 
 @pytest.mark.anyio
-async def test_get_all_characters(user_client) -> None:
+async def test_get_all_characters(user_client: AsyncClient) -> None:
     response = await user_client.get("/character")
     assert response.status_code == 200
     data = response.json()
@@ -195,29 +203,36 @@ async def test_get_all_characters(user_client) -> None:
 
 
 @pytest.mark.anyio
-async def test_get_character_not_found(user_client) -> None:
+async def test_get_character_not_found(user_client: AsyncClient) -> None:
     response = await user_client.get("/character/999")
     assert response.status_code == 404
 
 
 @pytest.mark.anyio
-async def update_character(admin_client, mock_character1) -> None:
+async def test_update_character(
+    admin_client: AsyncClient, mock_character1: NewCharacter
+) -> None:
     updates = CharacterPatchData(planet_name="Barsoom")
     response = await admin_client.patch(
-        "/character/", mock_character1, updates.model_dump()
+        url=f"/character/{mock_character1.id}",
+        json=updates.model_dump(),
     )
     assert response.status_code == 200
     assert response.json()["planet_name"] == "Barsoom"
 
 
 @pytest.mark.anyio
-async def delete_character(admin_client, mock_character2) -> None:
+async def test_delete_character(
+    admin_client: AsyncClient, mock_character2: NewCharacter
+) -> None:
     response = await admin_client.delete(f"/character/{mock_character2.id}")
     assert response.status_code == 200
 
 
 @pytest.mark.anyio
-async def test_add_character_not_allowed(user_client, mock_character1) -> None:
+async def test_add_character_not_allowed(
+    user_client: AsyncClient, mock_character1: NewCharacter
+) -> None:
     response = await user_client.post(
         "/character/add", json=mock_character1.model_dump()
     )

@@ -1,5 +1,6 @@
-from typing import AsyncGenerator, Optional
+from typing import Any
 from openai import AsyncOpenAI
+from openai import AsyncStream
 from app.db.db_models import Character
 
 
@@ -8,8 +9,8 @@ async def ai_response(
     username: str,
     character: Character,
     user_message: str,
-    previous_response_id: Optional[str] = None,
-) -> AsyncGenerator:
+    previous_response_id: str | None = None,
+) -> AsyncStream[Any]:
 
     client = AsyncOpenAI(
         api_key=openai_api_key,

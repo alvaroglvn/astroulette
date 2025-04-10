@@ -17,11 +17,14 @@ def character_mapper(
         quirks=new_character.quirks,
         human_relationship=new_character.human_relationship,
     )
+    # if new_character.id is not int:
+    #     raise ValueError("Character ID must be an integer")
+    assert new_character.id is not None, "Character ID must not be None"
 
     thread = Thread(
         user_id=user_id,
         character_id=new_character.id,
-        created_at=time.time(),
+        created_at=int(time.time()),
     )
 
     return character, thread
@@ -29,16 +32,12 @@ def character_mapper(
 
 def message_mapper(
     thread_id: int,
-    user_id: int,
-    character_id: int,
     role: str,
     content: str,
 ) -> Message:
     return Message(
         thread_id=thread_id,
-        user_id=user_id,
-        character_id=character_id,
-        created_at=time.time(),
+        created_at=int(time.time()),
         role=role,
         content=content,
     )

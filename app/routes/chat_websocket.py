@@ -16,6 +16,7 @@ from app.services.openai.chat import ai_response
 from app.db.db_models import User, Character
 from app.db.db_crud import (
     read_record,
+    read_field,
     store_message,
     get_last_resp_id,
 )
@@ -25,7 +26,11 @@ templates = Jinja2Templates(directory="app/templates")
 
 
 @router.get("/chat-ui", response_class=HTMLResponse)
-async def load_chat(request: Request, session: db_dependency, profile_id: int = 1):
+async def load_chat(
+    request: Request,
+    session: db_dependency,
+    profile_id: int = 1,
+) -> HTMLResponse:
     character = await read_record(session, Character, profile_id)
     return templates.TemplateResponse(
         request=request, name="chat.html", context={"character": character}
@@ -38,7 +43,7 @@ async def chat_with_character(
     session: db_dependency,
     settings: settings_dependency,
     user: valid_user_dependency,
-):
+) -> None:
     # Build the chat thread for the specific user
     thread = await chat_builder(session, settings, user)
     # Accept the WebSocket connection
@@ -49,6 +54,10 @@ async def chat_with_character(
             user_message = await websocket.receive_text()
 
             # Store the user message in your database
+            if thread is None:
+                raise ValueError("Thread is None")
+            if thread.id is not int:
+                raise ValueError("Thread ID is not an integer")
             await store_message(session, thread.id, "user", user_message)
 
             # Retrieve the last OpenAI response id, if any, for context
@@ -57,8 +66,12 @@ async def chat_with_character(
                 last_response_id = None
 
             # Get the streaming response from OpenAI using your custom logic
-            username = await read_record(session, User, thread.user_id, "username")
+            username = await read_field(session, User, thread.user_id, "username")
+            if username is not str:
+                raise ValueError("Username must be a string")
             character = await read_record(session, Character, thread.character_id)
+            if character is None:
+                raise ValueError("Character must be a Character object")
 
             response = await ai_response(
                 settings.openai_api_key,
@@ -70,9 +83,9 @@ async def chat_with_character(
 
             # Initialize variables to capture the final response details
             openai_response_id = None
-            content = ""
-            role = ""
-            created_at = None
+            content: str = ""
+            role: str = ""
+            created_at: int = 0
 
             # Stream the response back to the client chunk by chunk
             async for chunk in response:

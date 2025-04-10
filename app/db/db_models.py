@@ -43,7 +43,7 @@ class Message(SQLModel, table=True):
     thread_id: int = Field(foreign_key="thread.id", nullable=False, index=True)
     role: str = Field(nullable=False, index=True)
     content: str = Field(nullable=False)
-    created_at: str = Field(nullable=False, index=True)
+    created_at: int = Field(nullable=False, index=True)
 
     thread: Optional["Thread"] = Relationship(back_populates="messages")
 

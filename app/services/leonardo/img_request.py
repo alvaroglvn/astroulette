@@ -1,4 +1,3 @@
-from typing import Optional
 import httpx
 import asyncio
 from app.services.leonardo.leon_models import (
@@ -14,7 +13,7 @@ urls = {
 }
 
 
-async def generate_portrait(apikey: str, prompt: str) -> Optional[str]:
+async def generate_portrait(apikey: str, prompt: str) -> str | None:
     payload = PhoenixPayload(prompt=prompt)
 
     headers = {
@@ -61,3 +60,4 @@ async def generate_portrait(apikey: str, prompt: str) -> Optional[str]:
 
             print(f"Unable to retrieve new image's url after {max_retries} retries")
             return None
+        return None

@@ -45,11 +45,16 @@ async def new_character(
             new_character = generate_character(settings.openai_api_key)
 
             # 2. Store new character
+            if not new_character:
+                raise Exception("Failed to generate character")
             stored_character = await store_new_character(session, new_character)
 
             # 3. Generate character portrait
             prompt = stored_character.image_prompt
             portrait_url = await generate_portrait(settings.leonardo_api_key, prompt)
+
+            if stored_character.id is not int:
+                raise ValueError("Character ID is not an integer")
 
             if portrait_url:
                 await update_record(
@@ -81,6 +86,10 @@ async def new_character(
                     },
                     status_code=500,
                 )
+    return JSONResponse(
+        content={"error": "Unexpected error during character creation."},
+        status_code=500,
+    )
 
 
 @router.post("/character/add")
@@ -106,6 +115,8 @@ async def get_all_characters(
 ) -> JSONResponse:
     try:
         characters = await read_all(session, Character)
+        if not characters:
+            return JSONResponse(content="No characters found", status_code=404)
         result = {"characters": [character.model_dump() for character in characters]}
         return JSONResponse(content=result, status_code=200)
     except (DatabaseError, TableNotFound) as e:
@@ -121,6 +132,8 @@ async def get_character_by_id(
     try:
 
         character = await read_record(session, Character, character_id)
+        if not character:
+            return JSONResponse(content="Character not found", status_code=404)
 
         return JSONResponse(
             content={
@@ -148,6 +161,8 @@ async def update_character(
         updated = await update_record(
             session, Character, character_id, updates.model_dump(exclude_unset=True)
         )
+        if not updated:
+            return JSONResponse(content="Character not found", status_code=404)
 
         return JSONResponse(content=updated.model_dump(), status_code=200)
 
