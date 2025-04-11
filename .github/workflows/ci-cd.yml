@@ -43,4 +43,7 @@ jobs:
           pip-audit
 
       - name: Run Pytest
-        run: pytest
+        run: |
+          pip install pytest
+          pip install pytest-order
+          pytest
