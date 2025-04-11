@@ -170,8 +170,8 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-# App specific
+# VS Code settings
+.vscode/
+
+# Database
 app/db/alien_talk.sqlite
-templates
-scraps
-.vscode

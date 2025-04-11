@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chat WebSocket Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+    }
+    /* Flex container for the character info and chat window */
+    #chat-container {
+      display: flex;
+      gap: 1rem;
+    }
+    /* Character info panel styles */
+    #character-info {
+      width: 200px;
+      flex-shrink: 0;
+    }
+    #character-info img {
+      width: 100%;
+      border-radius: 8px;
+    }
+    /* Chat window styles */
+    #chat-window {
+      flex: 1;
+    }
+    #chat-box {
+      border: 1px solid #ccc;
+      padding: 1rem;
+      height: 300px;
+      overflow-y: scroll;
+      margin-bottom: 1rem;
+    }
+    .message {
+      margin: 0.5rem 0;
+    }
+    .message.user {
+      text-align: right;
+      color: blue;
+    }
+    .message.assistant {
+      text-align: left;
+      color: green;
+    }
+    .message.system {
+      text-align: center;
+      font-style: italic;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <h1>WebSocket Chat Test</h1>
+  <div id="chat-container">
+    <div id="character-info">
+      <img id="character-portrait" src="{{ character.image_url }}" alt="Character Portrait" />
+      <p id="character-text">Now talking to {{ character.name }} from {{ character.planet_name }}</p>
+    </div>
+    <div id="chat-window">
+      <div id="chat-box"></div>
+      <form id="chat-form">
+        <input type="text" id="chat-input" placeholder="Type your message..." autocomplete="off" required />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Reference the chat box and form elements
+    const chatBox = document.getElementById('chat-box');
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    let currentStreamingMessage = "";
+
+    // Open a WebSocket connection using the current host (adjust the port if needed)
+    const ws = new WebSocket(`ws://${location.host}/chat`);
+
+    ws.onopen = () => {
+      appendMessage("System: WebSocket connection established.", "system");
+    };
+
+    ws.onmessage = (event) => {
+      // Append the incoming chunk to the accumulated message
+      currentStreamingMessage += event.data;
+
+      // Check if a streaming message element already exists; if not, create one.
+      let messageElement = document.getElementById('streaming-message');
+      if (!messageElement) {
+        messageElement = document.createElement('div');
+        messageElement.id = 'streaming-message';
+        messageElement.classList.add('message', 'assistant');
+        chatBox.appendChild(messageElement);
+      }
+      // Update the content of the streaming message element
+      messageElement.textContent = "Assistant: " + currentStreamingMessage;
+      chatBox.scrollTop = chatBox.scrollHeight;
+    };
+
+    ws.onclose = () => {
+      appendMessage("System: WebSocket connection closed.", "system");
+    };
+
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
+    // Handle form submission to send messages
+    chatForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const message = chatInput.value;
+
+      // Finalize any current assistant streaming message by removing its id (so it stays in the conversation)
+      let existingStreamingElement = document.getElementById('streaming-message');
+      if (existingStreamingElement) {
+        existingStreamingElement.removeAttribute('id');
+      }
+
+      // Append the user's message to the chat
+      appendMessage(message, "user");
+
+      // Create a new container for the upcoming assistant response and append it right after the user message
+      const assistantContainer = document.createElement('div');
+      assistantContainer.id = 'streaming-message';
+      assistantContainer.classList.add('message', 'assistant');
+      chatBox.appendChild(assistantContainer);
+
+      // Reset the accumulator for the next assistant response
+      currentStreamingMessage = "";
+
+      // Send the user's message to the server
+      ws.send(message);
+      chatInput.value = '';
+    });
+
+    // Function to append messages to the chat box
+    function appendMessage(text, sender) {
+      const msgDiv = document.createElement('div');
+      msgDiv.classList.add('message', sender);
+      msgDiv.textContent = sender === "user" ? `User: ${text}` : sender === "assistant" ? `Assistant: ${text}` : text;
+      chatBox.appendChild(msgDiv);
+      // Scroll to the bottom when a new message is added
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  </script>
+</body>
+</html>
