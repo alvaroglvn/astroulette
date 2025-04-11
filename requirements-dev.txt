@@ -1,0 +1,11 @@
+# Main app dependencies
+-r requirements.txt
+
+# Dev Tools
+fastapi-cli
+uvicorn==0.34.0
+black==25.1.0
+mypy==1.15.0
+ruff==0.11.5
+pip-audit==2.9.0
+pytest==8.3.5

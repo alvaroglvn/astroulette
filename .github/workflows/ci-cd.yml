@@ -40,7 +40,7 @@ jobs:
       - name: Safety check
         run: |
           pip install pip-audit
-          pip-audit --fail-on=all
+          pip-audit
 
       - name: Run Pytest
         run: pytest
