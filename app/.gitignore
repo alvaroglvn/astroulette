@@ -174,3 +174,4 @@ cython_debug/
 app/db/alien_talk.sqlite
 templates
 scraps
+.vscode

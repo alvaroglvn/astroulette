@@ -53,7 +53,7 @@ def create_access_token(
     to_encode = data.copy()
     expire = int(time.time()) + (expires_in_seconds or 3600)
     to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, secret_key, algorithm="HS256") # type: ignore
+    return jwt.encode(to_encode, secret_key, algorithm="HS256")  # type: ignore
 
 
 oath2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -84,7 +84,7 @@ async def get_valid_user(
     )
 
     try:
-        payload = jwt.decode(token, settings.secret_key, algorithms=["HS256"]) # type: ignore
+        payload = jwt.decode(token, settings.secret_key, algorithms=["HS256"])  # type: ignore
         user_id = payload.get("sub")
         if not isinstance(user_id, int):
             raise credential_exception
