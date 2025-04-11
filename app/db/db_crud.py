@@ -245,9 +245,7 @@ async def store_new_character(
     # Store character
     stored_character = await create_record(session, character)
     assert stored_character is not None, "Failed to store character"
-    assert stored_character.id is not None, "Character ID must not be None"
-    assert stored_character.id is int, "Character ID must be an integer" 
-    
+    assert isinstance(stored_character.id, int)
 
     # Store thread data
     thread.character_id = stored_character.id
@@ -299,7 +297,6 @@ async def store_message(
     openai_response_id: str | None = None,
     created_at: int = int(time.time()),
 ) -> None:
-
     new_message = Message(
         openai_response_id=openai_response_id,
         thread_id=thread_id,

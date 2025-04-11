@@ -1,6 +1,5 @@
 import logging
 import asyncio
-import traceback
 
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
@@ -33,13 +32,9 @@ async def new_character(
     session: db_dependency,
     user: valid_user_dependency,
 ) -> JSONResponse:
-
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             logging.info(f"Attempt {attempt} to generate character")
-
-            # Start transaction manually
-            await session.begin()
 
             # 1. Generate new character
             new_character = generate_character(settings.openai_api_key)
@@ -54,8 +49,7 @@ async def new_character(
             prompt = stored_character.image_prompt
             portrait_url = await generate_portrait(settings.leonardo_api_key, prompt)
 
-            if stored_character.id is not int:
-                raise ValueError("Character ID is not an integer")
+            assert isinstance(stored_character.id, int)
 
             if portrait_url:
                 await update_record(
@@ -131,7 +125,6 @@ async def get_character_by_id(
     user: valid_user_dependency,
 ) -> JSONResponse:
     try:
-
         character = await read_record(session, Character, character_id)
         if not character:
             return JSONResponse(content="Character not found", status_code=404)
@@ -145,9 +138,6 @@ async def get_character_by_id(
     except (DatabaseError, RecordNotFound, TableNotFound) as e:
         return JSONResponse(content=e.detail, status_code=e.status_code)
     except Exception:
-        logging.error(
-            "Unhandled exception in get_character_by_id:\n" + traceback.format_exc()
-        )
         return JSONResponse(content="Unexpected error", status_code=500)
 
 
@@ -182,7 +172,7 @@ async def delete_character(
     try:
         await delete_record(session, Character, character_id)
 
-        return JSONResponse(content="Character deleted succesfully", status_code=200)
+        return JSONResponse(content="Character deleted successfully", status_code=200)
     except (DatabaseError, RecordNotFound, TableNotFound) as e:
         return JSONResponse(content=e.detail, status_code=e.status_code)
     except Exception:
