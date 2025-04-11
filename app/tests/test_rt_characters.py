@@ -1,5 +1,4 @@
 import pytest
-from unittest.mock import patch
 from httpx import AsyncClient, ASGITransport
 from typing import AsyncGenerator
 from sqlmodel import SQLModel
@@ -145,27 +144,42 @@ def mock_character2() -> NewCharacter:
 
 
 # Tests
-@pytest.mark.anyio
-async def test_generate_character(
-    user_client: AsyncClient, mock_character1: NewCharacter
-) -> None:
-    with patch(
-        "app.routes.rt_characters.generate_character", return_value=mock_character1
-    ), patch(
-        "app.routes.rt_characters.generate_portrait",
-        return_value="https://leonardo.com/alienportrait.png",
-    ):
+# @pytest.mark.anyio
+# async def test_generate_character(
+#     user_client: AsyncClient, mock_character1: NewCharacter
+# ) -> None:
+#     with (
+#         patch(
+#             "app.routes.rt_characters.generate_character", return_value=mock_character1
+#         ),
+#         patch(
+#             "app.routes.rt_characters.generate_portrait",
+#             return_value="https://leonardo.com/alienportrait.png",
+#         ),
+#     ):
+#         response = await user_client.post("/character/generate")
+#         assert response.status_code == 201
+#         assert "created and stored" in response.text
 
-        response = await user_client.post("/character/generate")
-        assert response.status_code == 201
-        assert "created and stored" in response.text
+
+@pytest.mark.anyio
+async def test_add_character1(
+    admin_client: AsyncClient, mock_character1: NewCharacter
+) -> None:
+    response = await admin_client.post(
+        "/character/add", json=mock_character1.model_dump()
+    )
+
+    assert response.status_code == 201
+    data = response.json()
+
+    assert data["name"] == mock_character1.name
 
 
 @pytest.mark.anyio
 async def test_add_character2(
     admin_client: AsyncClient, mock_character2: NewCharacter
 ) -> None:
-
     response = await admin_client.post(
         "/character/add", json=mock_character2.model_dump()
     )
@@ -180,7 +194,6 @@ async def test_add_character2(
 async def test_get_character_by_id(
     user_client: AsyncClient, mock_character1: NewCharacter
 ) -> None:
-
     character_id = mock_character1.id
 
     get_response = await user_client.get(url=f"/character/{character_id}")

@@ -28,40 +28,38 @@ async def chat_builder(
         settings: the application settings.
         user: the user object already validated.
     """
+    assert isinstance(user.id, int)
+    thread: Thread
     # Is there a character the user has not met in the database?
-    if user.id is not int:
-        raise ValueError("User ID must be an integer.")
+    
 
     unmet_character = await fetch_unmet_character(session, user.id)
 
-    if unmet_character is None:
-        raise ValueError("No unmet character found in the database.")
-    elif unmet_character.id is not int:
-        raise ValueError("Unmet character ID must be an integer.")
-
-    # Create a new thread beteen the user and the unmet character
-    thread = Thread(
-        user_id=user.id,
-        character_id=unmet_character.id,
-        created_at=int(time.time()),
-    )
-
+    # If there is no unmet character, generate a new one
     if not unmet_character:
         # Generate a complete new character
         new_character = await generate_character_async(settings.openai_api_key)
-        if new_character is None:
-            raise ValueError("Generated character cannot be None.")
+        assert new_character is not None
         # Store generated character in db
         stored_character = await store_new_character(session, new_character)
+        assert stored_character is not None
 
         # Create a new thread beteen the user and the generated character
-        if stored_character.id is not int:
-            raise ValueError("Stored character ID must be an integer.")
+        assert isinstance(stored_character.id, int)
         thread = Thread(
             user_id=user.id,
             character_id=stored_character.id,
             created_at=int(time.time()),
         )
+    else:
+        assert unmet_character is not None
+        assert isinstance(unmet_character.id, int)
+     
+        thread = Thread(
+            user_id=user.id,
+            character_id=unmet_character.id,
+            created_at=int(time.time()),
+            )
 
     # Store the thread in db
     stored_thread = await create_record(session, thread)

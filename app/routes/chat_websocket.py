@@ -54,25 +54,20 @@ async def chat_with_character(
             user_message = await websocket.receive_text()
 
             # Store the user message in your database
-            if thread is None:
-                raise ValueError("Thread is None")
-            if thread.id is not int:
-                raise ValueError("Thread ID is not an integer")
+            assert thread is not None
+            assert isinstance(thread.id, int), "Thread ID must be an integer"
             await store_message(session, thread.id, "user", user_message)
 
             # Retrieve the last OpenAI response id, if any, for context
             last_response_id = await get_last_resp_id(session, thread.id)
-            if not last_response_id:
-                last_response_id = None
+            assert last_response_id is not None
 
             # Get the streaming response from OpenAI using your custom logic
             username = await read_field(session, User, thread.user_id, "username")
-            if username is not str:
-                raise ValueError("Username must be a string")
+            assert isinstance(username,str)
             character = await read_record(session, Character, thread.character_id)
-            if character is None:
-                raise ValueError("Character must be a Character object")
-
+            assert character is not None
+            
             response = await ai_response(
                 settings.openai_api_key,
                 username,

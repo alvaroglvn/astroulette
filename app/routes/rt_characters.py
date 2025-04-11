@@ -43,11 +43,12 @@ async def new_character(
 
             # 1. Generate new character
             new_character = generate_character(settings.openai_api_key)
+            assert new_character is not None
 
             # 2. Store new character
-            if not new_character:
-                raise Exception("Failed to generate character")
             stored_character = await store_new_character(session, new_character)
+            assert stored_character is not None
+            assert isinstance(stored_character.id, int)
 
             # 3. Generate character portrait
             prompt = stored_character.image_prompt

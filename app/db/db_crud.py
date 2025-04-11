@@ -244,10 +244,10 @@ async def store_new_character(
 
     # Store character
     stored_character = await create_record(session, character)
-    if stored_character is None:
-        raise DatabaseError("create", "Failed to store new character")
-    if stored_character.id is not int:
-        raise ValueError("Character ID is not an integer")
+    assert stored_character is not None, "Failed to store character"
+    assert stored_character.id is not None, "Character ID must not be None"
+    assert stored_character.id is int, "Character ID must be an integer" 
+    
 
     # Store thread data
     thread.character_id = stored_character.id
