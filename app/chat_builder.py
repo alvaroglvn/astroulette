@@ -31,7 +31,6 @@ async def chat_builder(
     assert isinstance(user.id, int)
     thread: Thread
     # Is there a character the user has not met in the database?
-    
 
     unmet_character = await fetch_unmet_character(session, user.id)
 
@@ -54,12 +53,12 @@ async def chat_builder(
     else:
         assert unmet_character is not None
         assert isinstance(unmet_character.id, int)
-     
+
         thread = Thread(
             user_id=user.id,
             character_id=unmet_character.id,
             created_at=int(time.time()),
-            )
+        )
 
     # Store the thread in db
     stored_thread = await create_record(session, thread)

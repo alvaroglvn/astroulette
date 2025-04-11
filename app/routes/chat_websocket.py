@@ -64,10 +64,10 @@ async def chat_with_character(
 
             # Get the streaming response from OpenAI using your custom logic
             username = await read_field(session, User, thread.user_id, "username")
-            assert isinstance(username,str)
+            assert isinstance(username, str)
             character = await read_record(session, Character, thread.character_id)
             assert character is not None
-            
+
             response = await ai_response(
                 settings.openai_api_key,
                 username,
