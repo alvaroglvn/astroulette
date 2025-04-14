@@ -71,7 +71,7 @@ jobs:
 
       - name: Set secrets on Fly.io
         run: |
-          flyctl secrets set \
+          flyctl secrets set
             LOGIN_KEY=${{ secrets.LOGIN_KEY }} \
             SECRET_KEY=${{ secrets.SECRET_KEY }} \
             LEONARDO_API_KEY=${{ secrets.LEONARDO_API_KEY }} \
