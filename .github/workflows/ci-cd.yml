@@ -70,16 +70,16 @@ jobs:
         uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Set secrets on Fly.io
-        run: >
+        run: |
           flyctl secrets set \
-            LOGIN_KEY=${{ secrets.LOGIN_KEY }} \
-            SECRET_KEY=${{ secrets.SECRET_KEY }} \
-            LEONARDO_API_KEY=${{ secrets.LEONARDO_API_KEY }} \
-            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
-            DB_URL=${{ secrets.DB_URL }} \
-            MAILGUN_DOMAIN=${{ secrets.MAILGUN_DOMAIN }} \
-            MAILGUN_API_KEY=${{ secrets.MAILGUN_API_KEY }} \
-            FROM_EMAIL=${{ secrets.FROM_EMAIL }}
+            LOGIN_KEY="${{ secrets.LOGIN_KEY }}" \
+            SECRET_KEY="${{ secrets.SECRET_KEY }}" \
+            LEONARDO_API_KEY="${{ secrets.LEONARDO_API_KEY }}" \
+            OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" \
+            DB_URL="${{ secrets.DB_URL }}" \
+            MAILGUN_DOMAIN="${{ secrets.MAILGUN_DOMAIN }}" \
+            MAILGUN_API_KEY="${{ secrets.MAILGUN_API_KEY }}" \
+            FROM_EMAIL="${{ secrets.FROM_EMAIL }}"
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
