@@ -70,7 +70,7 @@ jobs:
         uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Set secrets on Fly.io
-        run: |
+        run: >
           flyctl secrets set \
             LOGIN_KEY=${{ secrets.LOGIN_KEY }} \
             SECRET_KEY=${{ secrets.SECRET_KEY }} \
