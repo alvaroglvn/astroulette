@@ -8,6 +8,16 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    env:
+      secret_key: ${{ secrets.SECRET_KEY }}
+      openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+      leonardo_api_key: ${{ secrets.LEONARDO_API_KEY }}
+      login_key: ${{ secrets.LOGIN_KEY }}
+      db_url: ${{ secrets.DB_URL }}
+      mailgun_domain: ${{ secrets.MAILGUN_DOMAIN }}
+      mailgun_api_key: ${{ secrets.MAILGUN_API_KEY }}
+      from_email: ${{ secrets.FROM_EMAIL }}
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
