@@ -18,7 +18,7 @@ class AppSettings(BaseSettings):
     mailgun_api_key: str
     from_email: str
 
-    model_config = SettingsConfigDict(env_file="app/.env")
+    model_config = SettingsConfigDict(env_file="app/.env", extra="ignore")
 
 
 @lru_cache

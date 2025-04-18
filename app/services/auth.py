@@ -86,8 +86,9 @@ async def get_valid_user(
     try:
         payload = jwt.decode(token, settings.secret_key, algorithms=["HS256"])  # type: ignore
         user_id = payload.get("sub")
-        if not isinstance(user_id, int):
+        if not str(user_id).isdigit():
             raise credential_exception
+        user_id = int(user_id)
 
         user = await read_record(session, User, user_id)
         if user is None:
