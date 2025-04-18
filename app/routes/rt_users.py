@@ -9,6 +9,7 @@ from app.services.auth import (
     create_mailer_token,
     create_access_token,
     admin_only_dependency,
+    valid_user_dependency,
 )
 from app.db.db_crud import (
     create_record,
@@ -68,7 +69,7 @@ async def register_or_login(
 @router.get("/user/verify")
 async def verify_magic_link(
     token: str, session: db_dependency, settings: settings_dependency
-) -> dict[str, str]:
+) -> JSONResponse:
     user = await read_one_by_field(session, User, "login_token", token)
     if not user:
         raise HTTPException(status_code=401, detail="Invalid token.")
@@ -86,7 +87,27 @@ async def verify_magic_link(
     user.token_expiry = 0
     await session.commit()
 
-    return {"access_token": access_token, "token_type": "bearer"}
+    response = JSONResponse({"message": "Login verified"})
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=True,
+        samesite="strict",
+        max_age=3600,
+        path="/",
+    )
+    return response
+
+    # return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.get("user/me")
+async def get_current_user(user: valid_user_dependency) -> JSONResponse:
+    return JSONResponse(
+        content=user.model_dump(),
+        status_code=200,
+    )
 
 
 @router.post("/user")
