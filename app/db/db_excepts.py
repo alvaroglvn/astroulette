@@ -14,7 +14,7 @@ class RecordNotFound(HTTPException):
     def __init__(self, model: str, record_id: Union[int, str]) -> None:
         super().__init__(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"{model} with id {record_id} not found.",
+            detail=f"{model} with identifier {record_id} not found.",
         )
 
 

@@ -10,8 +10,8 @@ from fastapi import (
     Depends,
     HTTPException,
     status,
+    Request,
 )
-from fastapi.security import OAuth2PasswordBearer
 from app.config.settings import settings_dependency
 from app.config.session import db_dependency
 from app.db.db_models import User
@@ -56,27 +56,12 @@ def create_access_token(
     return jwt.encode(to_encode, secret_key, algorithm="HS256")  # type: ignore
 
 
-oath2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
-
 async def get_valid_user(
     session: db_dependency,
     settings: settings_dependency,
-    token: Annotated[str, Depends(oath2_scheme)],
+    request: Request,
 ) -> User:
-    """
-    Retrieve and validate the current user from the provided JWT token.
 
-    Args:
-        settings: Dependency injection of application settings.
-        token (str): The JWT token to validate.
-
-    Raises:
-        HTTPException: If the token is invalid or expired.
-
-    Returns:
-        User: The user object associated with the token.
-    """
     credential_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Couldn't validate credentials",
@@ -84,6 +69,7 @@ async def get_valid_user(
     )
 
     try:
+        token = request.cookies.get("access_token")
         payload = jwt.decode(token, settings.secret_key, algorithms=["HS256"])  # type: ignore
         user_id = payload.get("sub")
         if not str(user_id).isdigit():

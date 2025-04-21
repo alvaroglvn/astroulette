@@ -31,7 +31,10 @@ async def register_or_login(
     settings: settings_dependency,
 ) -> JSONResponse:
     try:
-        user = await read_one_by_field(session, User, "email", payload.email)
+        try:
+            user = await read_one_by_field(session, User, "email", payload.email)
+        except RecordNotFound:
+            user = None
 
         # If no user exists, create and store it
         if not user:
@@ -46,8 +49,7 @@ async def register_or_login(
             )
             user = await create_record(session, new_user)
             if not user:
-                raise HTTPException(status_code=500, detail="Failed to store new user.")
-
+                raise HTTPException(status_code=500, detail="Failed to storenew user.")
             await send_magic_link(settings, user.email, token)
             return JSONResponse(
                 content=f"User {user.username} registered", status_code=201
@@ -99,13 +101,15 @@ async def verify_magic_link(
     )
     return response
 
-    # return {"access_token": access_token, "token_type": "bearer"}
 
-
-@router.get("user/me")
+@router.get("/user/me")
 async def get_current_user(user: valid_user_dependency) -> JSONResponse:
     return JSONResponse(
-        content=user.model_dump(),
+        content={
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+        },
         status_code=200,
     )
 
