@@ -82,7 +82,7 @@ async def verify_magic_link(
     access_token = create_access_token(
         data={"sub": str(user.id)},
         secret_key=settings.secret_key,
-        expires_in_seconds=3600,
+        expires_in_seconds=60 * 60 * 24 * 7,
     )
 
     user.login_token = "None"
@@ -96,7 +96,7 @@ async def verify_magic_link(
         httponly=True,
         secure=True,
         samesite="strict",
-        max_age=3600,
+        max_age=60 * 60 * 24 * 7,
         path="/",
     )
     return response
@@ -112,6 +112,13 @@ async def get_current_user(user: valid_user_dependency) -> JSONResponse:
         },
         status_code=200,
     )
+
+
+@router.get("/user/logout")
+async def logout_user() -> JSONResponse:
+    response = JSONResponse(content={"message": "Logged out"}, status_code=200)
+    response.delete_cookie(key="access_token", path="/")
+    return response
 
 
 @router.post("/user")
