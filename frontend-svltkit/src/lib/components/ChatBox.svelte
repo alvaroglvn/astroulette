@@ -1,138 +1,137 @@
 <script lang="ts">
-	let messages = $state([
-		{ id: 1, sender: 'user', text: 'Hello' },
-		{ id: 2, sender: 'assistant', text: 'Good day to you!' }
-	]);
-	let currentMessage = $state('');
-	let isTyping = $state(false);
-	let bottomRef = $state<HTMLDivElement>();
+	import { onMount, onDestroy } from 'svelte';
+	import { characterStore } from '$lib/stores/character';
+	import { get } from 'svelte/store';
 
-	$effect(() => {
-		scrollToBottom();
-	});
+	let socket: WebSocket;
+	let messages: { from: 'me' | 'ai'; text: string }[] = [];
+	let currentAssistantMsg = '';
+	let input = '';
 
-	function scrollToBottom() {
-		if (bottomRef) {
-			bottomRef.scrollIntoView({ behavior: 'smooth' });
+	let reconnectDelay = 1000;
+	const maxReconnectDelay = 30000;
+
+	let chatWindow: HTMLDivElement; // Reference for scrolling
+
+	function connect() {
+		const store = get(characterStore);
+
+		if (!store) {
+			console.error('Character store not loaded!');
+			return;
 		}
+
+		console.log('Trying to connect...');
+		socket = new WebSocket(`ws://localhost:8000/chat/${store.thread_id}`);
+
+		socket.addEventListener('open', () => {
+			console.log('Connected to WebSocket');
+			reconnectDelay = 1000;
+		});
+
+		socket.addEventListener('message', (event) => {
+			const chunk = event.data;
+
+			if (currentAssistantMsg == '') {
+				currentAssistantMsg = chunk;
+				messages = [...messages, { from: 'ai', text: currentAssistantMsg }];
+			} else {
+				currentAssistantMsg += chunk;
+				messages[messages.length - 1].text = currentAssistantMsg;
+			}
+
+			scrollToBottom();
+		});
+
+		socket.addEventListener('close', () => {
+			console.log('Disconnected from chat WebSocket');
+			reconnect();
+		});
+
+		socket.addEventListener('error', (e) => {
+			console.error('Websocket error:', e);
+			socket.close();
+		});
+	}
+
+	function reconnect() {
+		setTimeout(() => {
+			console.log(`Reconnecting after ${reconnectDelay} ms...`);
+			connect();
+			reconnectDelay = Math.min(reconnectDelay * 2, maxReconnectDelay);
+		}, reconnectDelay);
 	}
 
 	function sendMessage() {
-		if (currentMessage.trim().length > 0) {
-			const newMessage = {
-				id: Date.now(),
-				sender: 'user',
-				text: currentMessage
-			};
-			messages = [...messages, newMessage];
-			currentMessage = '';
-			isTyping = true;
-
-			setTimeout(() => {
-				const assistantMessage = {
-					id: Date.now() + 1,
-					sender: 'assistant',
-					text: 'This is a mock assistant reply!'
-				};
-				isTyping = false;
-				messages = [...messages, assistantMessage];
-			}, 1000);
+		if (!input.trim()) return;
+		if (socket.readyState == WebSocket.OPEN) {
+			currentAssistantMsg = '';
+			messages = [...messages, { from: 'me', text: input }];
+			socket.send(input);
+			input = '';
+			scrollToBottom();
+		} else {
+			console.warn("Can't send message - Websocket is closed.");
 		}
 	}
 
-	function handleKeydown(event: KeyboardEvent) {
-		if (event.key == 'Enter' && !event.shiftKey) {
-			event.preventDefault();
-			sendMessage();
+	function scrollToBottom() {
+		if (chatWindow) {
+			chatWindow.scrollTop = chatWindow.scrollHeight;
 		}
 	}
+
+	onMount(() => {
+		connect();
+	});
+
+	onDestroy(() => {
+		if (socket) socket.close();
+	});
 </script>
 
 <main>
-	<div class="chat-scroll">
-		{#each messages as message (message.id)}
-			<div
-				class="chat-message"
-				class:user-message={message.sender === 'user'}
-				class:assistant-message={message.sender === 'assistant'}
-			>
-				{message.text}
+	<div bind:this={chatWindow} class="chat-window">
+		{#each messages as msg}
+			<div class={msg.from === 'me' ? 'msg-me' : 'msg-ai'}>
+				<p>{msg.text}</p>
 			</div>
 		{/each}
-
-		{#if isTyping}
-			<div class="chat-message assistant-message typing-indicator">
-				Assistant is typing<span class="dots">
-					<span>.</span><span>.</span><span>.</span>
-				</span>
-			</div>
-		{/if}
-
-		<div bind:this={bottomRef}></div>
 	</div>
-	<textarea bind:value={currentMessage} onkeydown={handleKeydown} aria-label="Type your message"
-	></textarea>
-	<button onclick={sendMessage} disabled={currentMessage.trim() === ''}>Send</button>
+
+	<div class="input-area">
+		<input
+			type="text"
+			bind:value={input}
+			on:keydown={(e) => e.key == 'Enter' && sendMessage()}
+			placeholder="Say something..."
+		/>
+	</div>
 </main>
 
 <style>
-	.chat-message {
-		padding: 0.5rem 1rem;
-		margin-bottom: 0.5rem;
-		border-radius: 1rem;
-		max-width: 70%;
-		line-height: 1.4;
-		font-size: 0.95rem;
-		word-wrap: break-word;
+	.chat-window {
+		height: 50vw;
+		border: 1px solid #444;
+		background: #111;
+		color: #f5f5f5;
+		overflow-y: auto; /* IMPORTANT for scrolling */
+		padding: 1rem;
 	}
-
-	.user-message {
-		background-color: #d0f0ff;
-		align-self: flex-end;
+	.msg-me {
 		text-align: right;
-		border: 1px solid #3399cc;
+		color: #78dce8;
 	}
-
-	.assistant-message {
-		background-color: #eee;
-		align-self: flex-start;
+	.msg-ai {
 		text-align: left;
-		border: 1px solid #bbb;
+		color: #a9dc76;
 	}
-
-	.chat-scroll {
-		max-height: 300px;
-		overflow-y: auto;
-		margin-bottom: 1rem;
-		display: flex;
-		flex-direction: column;
+	.input-area {
+		margin-top: 1rem;
 	}
-
-	.typing-indicator .dots span {
-		animation: blink 1.5s infinite;
-		opacity: 0;
-	}
-
-	.typing-indicator .dots span:nth-child(1) {
-		animation-delay: 0s;
-	}
-
-	.typing-indicator .dots span:nth-child(2) {
-		animation-delay: 0.2s;
-	}
-
-	.typing-indicator .dots span:nth-child(3) {
-		animation-delay: 0.4s;
-	}
-
-	@keyframes blink {
-		0%,
-		80%,
-		100% {
-			opacity: 0;
-		}
-		40% {
-			opacity: 1;
-		}
+	input {
+		width: 95%;
+		padding: 0.5rem;
+		font-size: 1rem;
 	}
 </style>

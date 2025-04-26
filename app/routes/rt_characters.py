@@ -119,29 +119,6 @@ async def get_all_characters(
         return JSONResponse(content=e.detail, status_code=e.status_code)
 
 
-@router.get("/character/{character_id}")
-async def get_character_by_id(
-    session: db_dependency,
-    character_id: int,
-    user: valid_user_dependency,
-) -> JSONResponse:
-    try:
-        character = await read_record(session, Character, character_id)
-        if not character:
-            return JSONResponse(content="Character not found", status_code=404)
-
-        return JSONResponse(
-            content={
-                "character": character.model_dump(),
-            },
-            status_code=200,
-        )
-    except (DatabaseError, RecordNotFound, TableNotFound) as e:
-        return JSONResponse(content=e.detail, status_code=e.status_code)
-    except Exception:
-        return JSONResponse(content="Unexpected error", status_code=500)
-
-
 @router.get("/character/chat")
 async def load_character(
     session: db_dependency,
@@ -169,6 +146,29 @@ async def load_character(
             content={"error": f"Failed to create or load character: {e}"},
             status_code=500,
         )
+
+
+@router.get("/character/{character_id}")
+async def get_character_by_id(
+    session: db_dependency,
+    character_id: int,
+    user: valid_user_dependency,
+) -> JSONResponse:
+    try:
+        character = await read_record(session, Character, character_id)
+        if not character:
+            return JSONResponse(content="Character not found", status_code=404)
+
+        return JSONResponse(
+            content={
+                "character": character.model_dump(),
+            },
+            status_code=200,
+        )
+    except (DatabaseError, RecordNotFound, TableNotFound) as e:
+        return JSONResponse(content=e.detail, status_code=e.status_code)
+    except Exception:
+        return JSONResponse(content="Unexpected error", status_code=500)
 
 
 @router.patch("/character/{character_id}")

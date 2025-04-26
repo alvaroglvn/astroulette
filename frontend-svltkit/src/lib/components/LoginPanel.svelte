@@ -1,6 +1,9 @@
 <script lang="ts">
-	import { isLoggedIn } from '$lib/stores/auth';
-	const { onLoginSuccess } = $props<{ onLoginSuccess: (email: string) => void }>();
+	const { isLoggedIn, user, onLoginSuccess } = $props<{
+		isLoggedIn: boolean;
+		user: { username: string } | null;
+		onLoginSuccess: (email: string) => void;
+	}>();
 	let username = $state('');
 	let email = $state('');
 	let isSubmitting = $state(false);
@@ -10,10 +13,6 @@
 	async function sendMagicLink() {
 		isSubmitting = true;
 		try {
-			if (!email) {
-				errorMsg = 'Email address field is empty';
-				return;
-			}
 			const response = await fetch('/user/login', {
 				headers: { 'Content-Type': 'application/json' },
 				method: 'POST',
@@ -21,11 +20,9 @@
 			});
 
 			if (response.ok) {
-				onLoginSuccess(email);
-				isLoggedIn.set(true);
-				username = '';
 				email = '';
-				successMsg = 'Magic link sent! Check your inbox.';
+				successMsg = 'Link sent! Check your inbox.';
+				onLoginSuccess(email);
 			} else {
 				errorMsg = 'Failed to send link. Try again';
 			}
@@ -40,13 +37,15 @@
 
 <main>
 	<div class="login-panel">
-		<input bind:value={username} placeholder="Your username" />
-		<input bind:value={email} type="email" placeholder="Your email" />
-		{#if $isLoggedIn}
+		{#if isLoggedIn && user}
+			<p>Welcome back, {user.username}</p>
 			<button>Connect!</button>
-		{:else}
-			<button onclick={sendMagicLink} disabled={!email || isSubmitting}>Submit </button>
+		{:else if !isLoggedIn}
+			<input bind:value={username} placeholder="Your username" />
+			<input bind:value={email} type="email" placeholder="Your email" />
+			<button>Connect!</button>
 		{/if}
+
 		{#if errorMsg}
 			<p class="error">{errorMsg}</p>
 		{/if}
@@ -58,13 +57,9 @@
 
 <style>
 	.login-panel {
-		background: #1a1a1a;
-		color: #e6e6e6;
-		font-family: 'Courier New', monospace;
+		background: #ecc6a2;
 		padding: 2rem;
-		border-radius: 8px;
-		box-shadow: 0 0 12px rgba(0, 255, 150, 0.2);
-		max-width: 400px;
+		max-width: 300px;
 		margin: 2rem auto;
 		display: flex;
 		flex-direction: column;
@@ -72,16 +67,15 @@
 	}
 
 	input {
-		background: #000;
-		color: #0f0;
-		border: 1px solid #0f0;
+		background: #f6f6f6;
+		border: 2px solid #eca089;
 		padding: 0.75rem;
 		font-size: 1rem;
 		font-family: inherit;
 	}
 
 	button {
-		background: #0f0;
+		background: #ce5e82;
 		color: #000;
 		border: none;
 		padding: 0.75rem;
@@ -91,7 +85,7 @@
 	}
 
 	button:hover {
-		background: #00ff7f;
+		background: #292651;
 	}
 
 	.error {
