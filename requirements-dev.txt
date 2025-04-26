@@ -2,11 +2,11 @@
 -r requirements.txt
 
 # Dev Tools
-fastapi-cli
-uvicorn==0.34.0
+fastapi-cli==0.0.7
+uvicorn==0.34.2
 black==25.1.0
 mypy==1.15.0
 ruff==0.11.5
-pip-audit==2.9.0
+pip_audit==2.9.0
 pytest==8.3.5
 pytest-order==1.3.0

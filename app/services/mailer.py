@@ -8,7 +8,7 @@ async def send_magic_link(
     to: EmailStr,
     token: str,
 ) -> None:
-    magic_link = f"https://marsroulette.com/login?token={token}"
+    magic_link = f"http://localhost:5173/login/verify?token={token}"
     subject = "Your MarsRoulette Login"
     text = f"Click here to login: {magic_link}"
 

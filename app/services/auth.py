@@ -29,7 +29,7 @@ def create_mailer_token() -> Tuple[str, int]:
         tuple[str, int]: A tuple containing the generated token and its expiry timestamp.
     """
     token = str(uuid.uuid4())
-    expiry = int(time.time()) + 600  # ten minutes
+    expiry = int(time.time()) + 900  # ten minutes
     return token, expiry
 
 

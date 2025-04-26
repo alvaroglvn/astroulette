@@ -15,11 +15,12 @@ from app.db.db_crud import (
     read_record,
     delete_record,
 )
-from app.db.db_models import Character
+from app.db.db_models import Character, Thread
 from app.db.db_excepts import DatabaseError, TableNotFound, RecordNotFound
 from app.services.openai.character import generate_character
 from app.models import NewCharacter
 from app.services.leonardo.img_request import generate_portrait
+from app.chat_builder import chat_builder
 
 router = APIRouter()
 
@@ -139,6 +140,35 @@ async def get_character_by_id(
         return JSONResponse(content=e.detail, status_code=e.status_code)
     except Exception:
         return JSONResponse(content="Unexpected error", status_code=500)
+
+
+@router.get("/character/chat")
+async def load_character(
+    session: db_dependency,
+    settings: settings_dependency,
+    user: valid_user_dependency,
+) -> JSONResponse:
+    try:
+        thread = await chat_builder(session, settings, user)
+        assert thread is not None
+        assert isinstance(thread, Thread)
+
+        character = await read_record(session, Character, thread.character_id)
+        assert character is not None
+        assert isinstance(character, Character)
+
+        return JSONResponse(
+            content={
+                "thread_id": thread.id,
+                "character": character.model_dump(),
+            },
+            status_code=200,
+        )
+    except Exception as e:
+        return JSONResponse(
+            content={"error": f"Failed to create or load character: {e}"},
+            status_code=500,
+        )
 
 
 @router.patch("/character/{character_id}")

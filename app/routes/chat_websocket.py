@@ -11,9 +11,8 @@ from fastapi.templating import Jinja2Templates
 from app.config.settings import settings_dependency
 from app.config.session import db_dependency
 from app.services.auth import valid_user_dependency
-from app.chat_builder import chat_builder
 from app.services.openai.chat import ai_response
-from app.db.db_models import User, Character
+from app.db.db_models import User, Character, Thread
 from app.db.db_crud import (
     read_record,
     read_field,
@@ -37,25 +36,31 @@ async def load_chat(
     )
 
 
-@router.websocket("/chat")
+@router.websocket("/chat/{thread_id}")
 async def chat_with_character(
     websocket: WebSocket,
     session: db_dependency,
     settings: settings_dependency,
     user: valid_user_dependency,
+    thread_id: int,
 ) -> None:
-    # Build the chat thread for the specific user
-    thread = await chat_builder(session, settings, user)
+
     # Accept the WebSocket connection
     await websocket.accept()
+
     try:
+        # Load thread and validate thread
+        thread = await read_record(session, Thread, thread_id)
+        assert thread is not None, "No chat thread found"
+        assert isinstance(thread, Thread), "Thread object is incorrect"
+        assert isinstance(thread.id, int), "Thread id is not an int"
+        assert thread.user_id == user.id, "Error matching user to chat thread"
+
         while True:
             # Receive a text message from the client
             user_message = await websocket.receive_text()
 
             # Store the user message in your database
-            assert thread is not None
-            assert isinstance(thread.id, int), "Thread ID must be an integer"
             await store_message(session, thread.id, "user", user_message)
 
             # Retrieve the last OpenAI response id, if any, for context
@@ -67,6 +72,7 @@ async def chat_with_character(
             assert isinstance(username, str)
             character = await read_record(session, Character, thread.character_id)
             assert character is not None
+            assert isinstance(character, Character)
 
             response = await ai_response(
                 settings.openai_api_key,
@@ -103,9 +109,9 @@ async def chat_with_character(
                     created_at=created_at,
                 )
 
-    except WebSocketDisconnect:
-        # The client disconnected; you might want to perform cleanup here.
-        pass
+    except (AssertionError, WebSocketDisconnect) as e:
+        logging.error(f"Websocket error: {e}")
+        await websocket.close()
     except Exception as e:
         # Log the error if desired and close the WebSocket connection gracefully.
         logging.error(e)
