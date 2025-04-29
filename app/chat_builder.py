@@ -4,13 +4,15 @@ from app.config.session import db_dependency
 from app.config.settings import settings_dependency
 from app.services.auth import valid_user_dependency
 
-from app.db.db_models import Thread
+from app.db.db_models import Thread, Character
 from app.db.db_crud import (
     fetch_unmet_character,
     store_new_character,
     create_record,
+    update_record,
 )
 from app.services.openai.character import generate_character_async
+from app.services.leonardo.img_request import generate_portrait
 
 
 async def chat_builder(
@@ -42,6 +44,16 @@ async def chat_builder(
         # Store generated character in db
         stored_character = await store_new_character(session, new_character)
         assert stored_character is not None
+        # Create the character portrait
+        portrait_url = await generate_portrait(
+            settings.leonardo_api_key, stored_character.image_prompt
+        )
+        # Store the portrait URL in the database
+        assert portrait_url is not None and isinstance(portrait_url, str)
+        assert stored_character.id is not None and isinstance(stored_character.id, int)
+        await update_record(
+            session, Character, stored_character.id, {"image_url": portrait_url}
+        )
 
         # Create a new thread beteen the user and the generated character
         assert isinstance(stored_character.id, int)

@@ -1,4 +1,5 @@
 import logging
+import traceback
 from fastapi import (
     APIRouter,
     WebSocket,
@@ -10,7 +11,6 @@ from fastapi.templating import Jinja2Templates
 
 from app.config.settings import settings_dependency
 from app.config.session import db_dependency
-from app.services.auth import valid_user_dependency
 from app.services.openai.chat import ai_response
 from app.db.db_models import User, Character, Thread
 from app.db.db_crud import (
@@ -41,7 +41,6 @@ async def chat_with_character(
     websocket: WebSocket,
     session: db_dependency,
     settings: settings_dependency,
-    user: valid_user_dependency,
     thread_id: int,
 ) -> None:
 
@@ -54,7 +53,6 @@ async def chat_with_character(
         assert thread is not None, "No chat thread found"
         assert isinstance(thread, Thread), "Thread object is incorrect"
         assert isinstance(thread.id, int), "Thread id is not an int"
-        assert thread.user_id == user.id, "Error matching user to chat thread"
 
         while True:
             # Receive a text message from the client
@@ -65,7 +63,10 @@ async def chat_with_character(
 
             # Retrieve the last OpenAI response id, if any, for context
             last_response_id = await get_last_resp_id(session, thread.id)
-            assert last_response_id is not None
+            if last_response_id:
+                assert isinstance(
+                    last_response_id, int
+                ), "Last response id is not an int"
 
             # Get the streaming response from OpenAI using your custom logic
             username = await read_field(session, User, thread.user_id, "username")
@@ -110,7 +111,8 @@ async def chat_with_character(
                 )
 
     except (AssertionError, WebSocketDisconnect) as e:
-        logging.error(f"Websocket error: {e}")
+        logging.error(f"Websocket error: {repr(e)}")
+        traceback.print_exc()
         await websocket.close()
     except Exception as e:
         # Log the error if desired and close the WebSocket connection gracefully.
