@@ -1,39 +1,27 @@
 import logging
 import traceback
+from typing import List, Any, Dict
 from fastapi import (
     APIRouter,
     WebSocket,
     WebSocketDisconnect,
-    Request,
 )
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+
+from fastapi.responses import JSONResponse
 
 from app.config.settings import settings_dependency
 from app.config.session import db_dependency
 from app.services.openai.chat import ai_response
-from app.db.db_models import User, Character, Thread
+from app.db.db_models import User, Character, Thread, Message
 from app.db.db_crud import (
     read_record,
     read_field,
+    read_all_filtered,
     store_message,
     get_last_resp_id,
 )
 
 router = APIRouter()
-templates = Jinja2Templates(directory="app/templates")
-
-
-@router.get("/chat-ui", response_class=HTMLResponse)
-async def load_chat(
-    request: Request,
-    session: db_dependency,
-    profile_id: int = 1,
-) -> HTMLResponse:
-    character = await read_record(session, Character, profile_id)
-    return templates.TemplateResponse(
-        request=request, name="chat.html", context={"character": character}
-    )
 
 
 @router.websocket("/chat/{thread_id}")
@@ -110,11 +98,44 @@ async def chat_with_character(
                     created_at=created_at,
                 )
 
-    except (AssertionError, WebSocketDisconnect) as e:
-        logging.error(f"Websocket error: {repr(e)}")
+    except WebSocketDisconnect:
+        logging.info("WebSocket disconnected")
+    except AssertionError as e:
+        logging.error(f"Assertion error: {e}")
         traceback.print_exc()
-        await websocket.close()
     except Exception as e:
-        # Log the error if desired and close the WebSocket connection gracefully.
-        logging.error(e)
-        await websocket.close()
+        logging.error(f"Unexpected error: {e}")
+        traceback.print_exc()
+    finally:
+        if websocket.client_state.name == "CONNECTED":
+            await websocket.close()
+
+
+@router.get("/chat/history/{thread_id}")
+async def get_chat_history(
+    session: db_dependency,
+    thread_id: int,
+) -> JSONResponse:
+
+    try:
+        messages = await read_all_filtered(session, Message, thread_id=thread_id)
+
+        if not messages:
+            return JSONResponse(content="Thread is empty", status_code=200)
+
+        assert isinstance(messages, List)
+
+        history: List[Dict[str, Any]] = [
+            {
+                "role": message.role,
+                "content": message.content,
+                "created_at": message.created_at,
+            }
+            for message in sorted(messages, key=lambda x: x.created_at)
+        ]
+        assert isinstance(history, List)
+        return JSONResponse(content=history, status_code=200)
+    except (AssertionError, Exception) as e:
+        logging.error(f"Assertion error: {e}")
+        traceback.print_exc()
+        return JSONResponse(content={"error": str(e)}, status_code=500)

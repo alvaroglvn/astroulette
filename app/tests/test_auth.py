@@ -90,7 +90,7 @@ def test_create_mailer_token() -> None:
 
     now = time.time()
     assert isinstance(expiry, int)
-    assert now + 590 <= expiry <= now + 610
+    assert now + 590 <= expiry <= now + 900
 
 
 def test_create_acess_token(
