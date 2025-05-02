@@ -2,6 +2,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { characterStore } from '$lib/stores/character';
 	import { get } from 'svelte/store';
+	import { FetchChatHistory } from '$lib/api/chat';
 
 	let socket: WebSocket;
 	let messages: { from: 'me' | 'ai'; text: string }[] = [];
@@ -13,11 +14,13 @@
 
 	let chatWindow: HTMLDivElement; // Reference for scrolling
 
+	let isDisconnected = false;
+
 	function connect() {
 		const store = get(characterStore);
 
-		if (!store) {
-			console.error('Character store not loaded!');
+		if (!store || !store.thread_id) {
+			console.error('Character store not loaded or missing thread_id!');
 			return;
 		}
 
@@ -27,6 +30,7 @@
 		socket.addEventListener('open', () => {
 			console.log('Connected to WebSocket');
 			reconnectDelay = 1000;
+			isDisconnected = false;
 		});
 
 		socket.addEventListener('message', (event) => {
@@ -45,6 +49,8 @@
 
 		socket.addEventListener('close', () => {
 			console.log('Disconnected from chat WebSocket');
+			reconnect();
+			isDisconnected = true;
 			reconnect();
 		});
 
@@ -81,8 +87,27 @@
 		}
 	}
 
+	async function loadHistory() {
+		const store = get(characterStore);
+		if (!store || !store.thread_id) {
+			console.error('Character store not loaded or missing thread_id');
+			return;
+		}
+
+		try {
+			const history = await FetchChatHistory(store.thread_id);
+			messages = history.map((entry: any) => ({
+				from: entry.role === 'user' ? 'me' : 'ai',
+				text: entry.content
+			}));
+			scrollToBottom();
+		} catch (err) {
+			console.error('Error loading chat history:', err);
+		}
+	}
+
 	onMount(() => {
-		connect();
+		loadHistory().then(connect);
 	});
 
 	onDestroy(() => {
@@ -91,6 +116,9 @@
 </script>
 
 <main>
+	{#if isDisconnected}
+		<p>Connection lost... Trying to reconnect</p>
+	{/if}
 	<div bind:this={chatWindow} class="chat-window">
 		{#each messages as msg}
 			<div class={msg.from === 'me' ? 'msg-me' : 'msg-ai'}>
@@ -112,26 +140,29 @@
 <style>
 	.chat-window {
 		height: 50vw;
-		border: 1px solid #444;
-		background: #111;
-		color: #f5f5f5;
+		background: #200d3a;
+		color: black;
 		overflow-y: auto; /* IMPORTANT for scrolling */
-		padding: 1rem;
+		padding: 2rem;
+		font-size: 18px;
+		width: fit-content;
 	}
 	.msg-me {
 		text-align: right;
-		color: #78dce8;
+		color: #eca089;
 	}
 	.msg-ai {
 		text-align: left;
-		color: #a9dc76;
+		color: #ecc6a2;
 	}
 	.input-area {
-		margin-top: 1rem;
+		margin-top: 0;
+		padding: 1rem;
 	}
 	input {
-		width: 95%;
+		box-sizing: border-box;
+		width: 100%;
 		padding: 0.5rem;
-		font-size: 1rem;
+		font-size: 18px;
 	}
 </style>

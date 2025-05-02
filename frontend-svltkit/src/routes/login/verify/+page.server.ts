@@ -14,7 +14,5 @@ export const load: PageServerLoad = async ({url, fetch}) => {
         throw redirect(302, '/login?error=invalid-token');
     }
 
-    return { success: true};
+    throw redirect(302, '/loading')
 };
-
-    

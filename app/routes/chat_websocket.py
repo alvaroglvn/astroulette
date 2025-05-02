@@ -53,7 +53,7 @@ async def chat_with_character(
             last_response_id = await get_last_resp_id(session, thread.id)
             if last_response_id:
                 assert isinstance(
-                    last_response_id, int
+                    last_response_id, str
                 ), "Last response id is not an int"
 
             # Get the streaming response from OpenAI using your custom logic

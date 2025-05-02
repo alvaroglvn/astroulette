@@ -48,6 +48,7 @@
 		border-radius: 0.25em;
 		border: 9px double #ce5e82;
 		z-index: 1;
+		font-size: 1em;
 	}
 
 	.main-placeholder {
