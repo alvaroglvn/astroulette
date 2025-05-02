@@ -7,8 +7,8 @@
 <div class="character-card">
 	<img src={imageUrl} alt="Character portrait" class="character-image" />
 	<div class="character-info">
-		<p>Connected to planet:<br /> <strong><span class="info_word">{planetName}</span></strong></p>
 		<p>Now chatting with:<br /> <strong><span class="info_word">{characterName}</span></strong></p>
+		<p>From planet<br /> <strong><span class="info_word">{planetName}</span></strong></p>
 	</div>
 </div>
 
