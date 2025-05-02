@@ -311,7 +311,7 @@ async def store_message(
 async def get_last_resp_id(session: AsyncSession, thread_id: int) -> str | None:
     query = (
         select(Message)
-        .where(Message.thread_id == thread_id)
+        .where(Message.thread_id == thread_id, Message.role == "assistant")
         .order_by(cast(ColumnElement[int], Message.id).desc())
         .limit(1)
     )

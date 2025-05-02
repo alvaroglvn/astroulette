@@ -85,10 +85,6 @@ async def verify_magic_link(
         expires_in_seconds=60 * 60 * 24 * 7,
     )
 
-    user.login_token = "None"
-    user.token_expiry = 0
-    await session.commit()
-
     response = JSONResponse({"message": "Login verified"})
     response.set_cookie(
         key="access_token",
