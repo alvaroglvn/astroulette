@@ -1,6 +1,46 @@
+<script lang="ts">
+	import { onMount } from 'svelte';
+
+	// Number of stars to generate
+	const STAR_COUNT = 80;
+
+	// Array of star settings
+	let stars: Array<{
+		x: number;
+		y: number;
+		delay: number;
+		duration: number;
+		size: number;
+	}> = [];
+
+	onMount(() => {
+		stars = Array.from({ length: STAR_COUNT }, () => ({
+			x: Math.random() * 100, // vw
+			y: Math.random() * 50, // vh (clipped to top 50%)
+			delay: Math.random() * 5, // seconds
+			duration: 2 + Math.random() * 3, // seconds
+			size: 1 + Math.random() * 2 // px
+		}));
+	});
+</script>
+
 <div class="background">
 	<div class="bg"></div>
-	<div class="starfield"></div>
+	<div class="starfield">
+		{#each stars as star}
+			<div
+				class="star"
+				style="
+           top: {star.y}vh;
+           left: {star.x}vw;
+           width: {star.size}px;
+           height: {star.size}px;
+           animation-delay: {star.delay}s;
+           animation-duration: {star.duration}s;
+         "
+			></div>
+		{/each}
+	</div>
 	<div class="grid-container" aria-hidden="true"></div>
 	<div class="grid-fog-bottom" aria-hidden="true"></div>
 </div>
@@ -73,39 +113,27 @@
 		left: 0;
 		width: 100%;
 		height: 100%;
-		background: transparent;
 		overflow: hidden;
 		clip-path: inset(0 0 50% 0);
 	}
 
-	.starfield::before {
-		content: '';
+	.star {
 		position: absolute;
-		top: 0;
-		left: 0;
-		width: 2px;
-		height: 2px;
 		background: white;
-		box-shadow:
-			20vw 30vh white,
-			50vw 80vh white,
-			70vw 60vh white,
-			90vw 20vh white,
-			10vw 50vh white,
-			30vw 70vh white,
-			80vw 40vh white,
-			60vw 10vh white,
-			25vw 85vh white,
-			75vw 15vh white,
-			15vw 20vh white,
-			40vw 45vh white,
-			55vw 35vh white,
-			85vw 90vh white,
-			95vw 65vh white,
-			5vw 80vh white,
-			35vw 5vh white,
-			45vw 50vh white,
-			65vw 25vh white,
-			50vw 95vh white;
+		border-radius: 50%;
+		opacity: 0.8;
+		animation-name: blink;
+		animation-iteration-count: infinite;
+		animation-timing-function: ease-in-out;
+	}
+
+	@keyframes blink {
+		0%,
+		100% {
+			opacity: 0.8;
+		}
+		50% {
+			opacity: 0.2;
+		}
 	}
 </style>
