@@ -8,36 +8,98 @@
 	<img src={imageUrl} alt="Character portrait" class="character-image" />
 	<div class="character-info">
 		<p>Now chatting with:<br /> <strong><span class="info_word">{characterName}</span></strong></p>
-		<p>From planet<br /> <strong><span class="info_word">{planetName}</span></strong></p>
 	</div>
 </div>
+<div class="planet-info">
+	<p>Planet: <strong><span class="info_word">{planetName}</span></strong></p>
+</div>
+<button>Next planet</button>
 
 <style>
 	.character-card {
-		padding: 1.5em;
-		background-color: #292651;
-		border-radius: 0.25em;
-		border: 9px double #ce5e82;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
+		position: relative;
+		padding: 0.25em;
+		background: linear-gradient(
+			to bottom,
+			/* Light edge */ #2e4770 0%,
+			/* Mid shoulder */ #292651 10%,
+			/* Dark center */ #200d3a 50%,
+			/* Mid shoulder */ #292651 90%,
+			/* Light edge */ #2e4770 100%
+		);
+
+		/* darker pink glow */
+		box-shadow:
+			0 0 0 4px #d36b8f,
+			0 0 6px #d36b8f,
+			0 0 12px #d36b8f,
+			0 0 18px #d36b8f;
 	}
 
 	.character-image {
-		width: 80%;
-		height: auto;
-		border-radius: 0.25em;
-		margin-bottom: 1em;
-		border: 9px double #ce5e82;
+		position: absolute;
+		top: -75px;
+		left: -40px;
+		margin-bottom: 0;
+		border-radius: 40%;
+		width: 45%;
+		box-shadow:
+			0 0 0 4px #d36b8f,
+			0 0 6px #d36b8f,
+			0 0 12px #d36b8f,
+			0 0 18px #d36b8f;
 	}
 
 	.character-info {
-		text-align: center;
+		text-align: right;
 		font-size: 20px;
+		margin-right: 0.45em;
+	}
+
+	.planet-info {
+		font-size: 20px;
+		text-align: center;
+		margin-top: 2em;
+
+		background: linear-gradient(
+			to bottom,
+			/* Light edge */ #2e4770 0%,
+			/* Mid shoulder */ #292651 10%,
+			/* Dark center */ #200d3a 50%,
+			/* Mid shoulder */ #292651 90%,
+			/* Light edge */ #2e4770 100%
+		);
+
+		box-shadow:
+			0 0 0 4px #d36b8f,
+			0 0 6px #d36b8f,
+			0 0 12px #d36b8f,
+			0 0 18px #d36b8f;
+	}
+
+	.planet-info p {
+		padding: 0.5em;
 	}
 
 	.info_word {
 		color: #ecc6a2;
+	}
+
+	button {
+		margin-top: 1em;
+		padding: 0.5em;
+		padding-right: 2em;
+		width: fit-content;
+		background-color: #ecc6a2;
+		font-family: 'Space Grotesk', sans-serif;
+		font-size: large;
+		font-weight: 500;
+		border: none;
+		cursor: pointer;
+		clip-path: polygon(0% 0%, calc(100% - 20px) 0%, 100% 50%, calc(100% - 20px) 100%, 0% 100%);
+	}
+
+	button:hover {
+		background-color: #ecd9c9;
 	}
 </style>
