@@ -295,14 +295,14 @@ async def store_message(
     role: str,
     content: str,
     openai_response_id: str | None = None,
-    created_at: int = int(time.time()),
+    created_at: int | None = None,
 ) -> None:
     new_message = Message(
         openai_response_id=openai_response_id,
         thread_id=thread_id,
         role=role,
         content=content,
-        created_at=created_at,
+        created_at=created_at if created_at is not None else int(time.time()),
     )
 
     await create_record(session, new_message)

@@ -102,7 +102,7 @@
 				text: entry.content
 			}));
 			scrollToBottom();
-			// currentAssistantMsg = '';
+			currentAssistantMsg = '';
 		} catch (err) {
 			console.error('Error loading chat history:', err);
 		}
