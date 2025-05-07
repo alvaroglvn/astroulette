@@ -4,18 +4,27 @@
 	export let characterName: string;
 </script>
 
-<div class="character-card">
-	<img src={imageUrl} alt="Character portrait" class="character-image" />
-	<div class="character-info">
-		<p>Now chatting with:<br /> <strong><span class="info_word">{characterName}</span></strong></p>
+<div class="character-container">
+	<div class="character-card">
+		<img src={imageUrl} alt="Character portrait" class="character-image" />
+		<div class="character-info">
+			<p>
+				Now chatting with:<br /> <strong><span class="info_word">{characterName}</span></strong>
+			</p>
+		</div>
 	</div>
+	<div class="planet-info">
+		<p>Planet: <strong><span class="info_word">{planetName}</span></strong></p>
+	</div>
+	<button>Next planet</button>
 </div>
-<div class="planet-info">
-	<p>Planet: <strong><span class="info_word">{planetName}</span></strong></p>
-</div>
-<button>Next planet</button>
 
 <style>
+	.character-container {
+		max-width: clamp(450px, 100%, 350px);
+		margin: 0;
+		padding: 0;
+	}
 	.character-card {
 		position: relative;
 		padding: 0.25em;
@@ -41,8 +50,8 @@
 		top: -75px;
 		left: -40px;
 		margin-bottom: 0;
-		border-radius: 40%;
-		width: 45%;
+		border-radius: 42%;
+		width: clamp(100px, 20vw, 150px);
 		box-shadow:
 			0 0 0 4px #d36b8f,
 			0 0 6px #d36b8f,
@@ -101,5 +110,43 @@
 
 	button:hover {
 		background-color: #ecd9c9;
+	}
+
+	@media (max-width: 1048px) {
+		.character-container {
+			max-width: clamp(450px, 100%, 350px);
+			margin: 0;
+			padding: 0;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		.character-image {
+			position: absolute;
+			top: -125px;
+			left: 50%;
+			transform: translateX(-50%);
+		}
+
+		.character-card {
+			padding: 0;
+			width: 100%;
+		}
+
+		.character-card p {
+			margin-top: 2.25em;
+			text-align: center;
+		}
+
+		.planet-info {
+			width: 100%;
+			margin-top: 1.5em;
+		}
+
+		button {
+			width: 100%;
+			margin-top: 1.5em;
+		}
 	}
 </style>
