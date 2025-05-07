@@ -44,7 +44,7 @@
 		max-width: 550px;
 	}
 	h3 {
-		font-size: clamp(18px, 4vw, 34px);
+		font-size: clamp(14px, 4vw, 34px);
 		color: #ce5e82;
 		text-transform: uppercase;
 		text-align: center;
@@ -98,5 +98,15 @@
 		text-align: center;
 		color: #ce5e82;
 		font-size: clamp(1.8rem, 2.5vw, 2rem);
+	}
+
+	@media (max-width: 768px) {
+		form button {
+			font-size: 14px;
+		}
+
+		form input {
+			font-size: 12px;
+		}
 	}
 </style>

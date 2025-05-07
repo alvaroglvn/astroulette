@@ -41,6 +41,16 @@
 		font-family: 'Space Grotesk', sans-serif;
 	}
 
+	@keyframes fadeInOut {
+		0%,
+		100% {
+			opacity: 0;
+		}
+		50% {
+			opacity: 1;
+		}
+	}
+
 	.loading-screen {
 		height: 100vh;
 		width: 100%;
@@ -59,5 +69,12 @@
 		margin: 0px;
 		padding: 0px;
 		text-align: center;
+		animation: fadeInOut 3s ease-in-out infinite;
+	}
+
+	@media (max-width: 768px) {
+		.info {
+			font-size: 32px;
+		}
 	}
 </style>
