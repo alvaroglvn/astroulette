@@ -46,6 +46,14 @@
 </div>
 
 <style>
+	:global(.loading-screen .grid-container) {
+		animation-duration: 1s !important;
+	}
+
+	:global(.main-placeholder .grid-container) {
+		animation-duration: 0s !important;
+	}
+
 	.background {
 		position: absolute;
 		width: 100%;
