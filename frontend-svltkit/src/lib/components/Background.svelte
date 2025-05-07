@@ -77,7 +77,8 @@
 		background-image:
 			linear-gradient(#ce5e82 1px, transparent 2px),
 			linear-gradient(to right, #ce5e82 1px, transparent 2px);
-		background-size: 70px 70px;
+		/* Use a CSS variable for grid size */
+		background-size: var(--grid-size, 70px) var(--grid-size, 70px);
 		pointer-events: none;
 		transform: perspective(800px) rotateX(60deg);
 		transform-origin: top;
@@ -90,10 +91,24 @@
 
 	@keyframes moveGrid {
 		from {
-			background-position: 0 70px;
+			background-position: 0 var(--grid-size, 70px);
 		}
 		to {
 			background-position: 0 0;
+		}
+	}
+
+	/* Smaller screens: reduce grid size */
+	@media (max-width: 600px) {
+		:root {
+			--grid-size: 40px;
+		}
+	}
+
+	/* Medium screens: slightly reduced grid size */
+	@media (min-width: 601px) and (max-width: 1024px) {
+		:root {
+			--grid-size: 60px;
 		}
 	}
 
