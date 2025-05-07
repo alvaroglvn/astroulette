@@ -55,7 +55,7 @@ def generate_character(
                     "personality_traits": "[Personality traits that would come apparent as the alien speaks.]",
                     "speech_style": "[Explain how they express themselves (e.g. are they cryptic? humorous? regal? cold? poetic? etc.)]",
                     "quirks": "[Any quirky speech habits, or unique expressions they tend to use.]"
-                    "human_relationship": [How they see humans (eg. Are they curious? Friendly? Hostile? Pleasant? Distrustful? Uninterested? etc.)]
+                    "human_relationship": [How they see humans (eg. Are they curious? Friendly? Hostile? Pleasant? Distrustful? Uninterested? etc. This should impact their conversation.)]
                     """,
                 },
             ],
