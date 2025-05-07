@@ -128,25 +128,26 @@
 		{/each}
 	</div>
 
-	<div class="input-area">
-		<input
-			type="text"
-			bind:value={input}
-			on:keydown={(e) => e.key == 'Enter' && sendMessage()}
-			placeholder="Say something..."
-		/>
-	</div>
+	<input
+		type="text"
+		bind:value={input}
+		on:keydown={(e) => e.key == 'Enter' && sendMessage()}
+		placeholder="Say something..."
+	/>
 </main>
 
 <style>
 	.chat-window {
-		height: 50vw;
-		background: #200d3a;
-		color: black;
+		height: 30vw;
 		overflow-y: auto; /* IMPORTANT for scrolling */
 		padding: 2rem;
-		font-size: 18px;
-		width: fit-content;
+		font-size: clamp(12px, 3vw, 18px);
+		background-color: #200d3a;
+		box-shadow:
+			0 0 0 4px #d36b8f,
+			0 0 6px #d36b8f,
+			0 0 12px #d36b8f,
+			0 0 18px #d36b8f;
 	}
 	.msg-me {
 		text-align: right;
@@ -156,14 +157,23 @@
 		text-align: left;
 		color: #ecc6a2;
 	}
-	.input-area {
+	/* .input-area {
 		margin-top: 0;
 		padding: 1rem;
-	}
+		background-color: #ce5e82;
+	} */
 	input {
 		box-sizing: border-box;
 		width: 100%;
+		margin-top: 2em;
 		padding: 0.5rem;
 		font-size: 18px;
+		border: 0;
+
+		box-shadow:
+			0 0 0 4px #d36b8f,
+			0 0 6px #d36b8f,
+			0 0 12px #d36b8f,
+			0 0 18px #d36b8f;
 	}
 </style>

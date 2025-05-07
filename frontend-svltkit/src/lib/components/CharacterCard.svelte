@@ -21,13 +21,14 @@
 
 <style>
 	.character-container {
-		max-width: clamp(450px, 100%, 350px);
+		max-width: clamp(400px, 100%, 350px);
 		margin: 0;
 		padding: 0;
 	}
 	.character-card {
 		position: relative;
-		padding: 0.25em;
+		padding: 0.25rem;
+		padding-left: 120px;
 		background: linear-gradient(
 			to bottom,
 			/* Light edge */ #2e4770 0%,
@@ -47,8 +48,9 @@
 
 	.character-image {
 		position: absolute;
-		top: -75px;
+		top: 50%; /* Center vertically */
 		left: -40px;
+		transform: translateY(-50%); /* Center vertically */
 		margin-bottom: 0;
 		border-radius: 42%;
 		width: clamp(100px, 20vw, 150px);
@@ -60,7 +62,7 @@
 	}
 
 	.character-info {
-		text-align: right;
+		text-align: center;
 		font-size: 20px;
 		margin-right: 0.45em;
 	}
@@ -68,7 +70,7 @@
 	.planet-info {
 		font-size: 20px;
 		text-align: center;
-		margin-top: 2em;
+		margin-top: 3em;
 
 		background: linear-gradient(
 			to bottom,
@@ -98,7 +100,7 @@
 		margin-top: 1em;
 		padding: 0.5em;
 		padding-right: 2em;
-		width: fit-content;
+		width: 100%;
 		background-color: #ecc6a2;
 		font-family: 'Space Grotesk', sans-serif;
 		font-size: large;
@@ -112,7 +114,7 @@
 		background-color: #ecd9c9;
 	}
 
-	@media (max-width: 1048px) {
+	@media (max-width: 1160px) {
 		.character-container {
 			max-width: clamp(450px, 100%, 350px);
 			margin: 0;
@@ -147,6 +149,40 @@
 		button {
 			width: 100%;
 			margin-top: 1.5em;
+		}
+	}
+
+	@media (max-width: 768px) {
+		.character-image {
+			position: absorelute;
+			top: -90px;
+		}
+		.character-card p {
+			margin-top: 10px;
+			margin-bottom: 0;
+			padding: 1em;
+			text-align: center;
+			font-size: 14px;
+		}
+
+		.planet-info p {
+			font-size: 14px;
+			padding: 1em;
+			margin: 0;
+		}
+
+		.character-card,
+		.character-image,
+		.planet-info {
+			box-shadow:
+				0 0 0 2px #d36b8f,
+				0 0 3px #d36b8f,
+				0 0 6px #d36b8f,
+				0 0 9px #d36b8f;
+		}
+
+		button {
+			font-size: 16px;
 		}
 	}
 </style>
