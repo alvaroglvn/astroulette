@@ -96,12 +96,13 @@
 
 		try {
 			const history = await FetchChatHistory(store.thread_id);
+
 			messages = history.map((entry: any) => ({
 				from: entry.role === 'user' ? 'me' : 'ai',
 				text: entry.content
 			}));
 			scrollToBottom();
-			currentAssistantMsg = '';
+			// currentAssistantMsg = '';
 		} catch (err) {
 			console.error('Error loading chat history:', err);
 		}
@@ -116,14 +117,21 @@
 	});
 </script>
 
-<main>
+<div class="chatbox">
 	{#if isDisconnected}
 		<p>Connection lost... Trying to reconnect</p>
 	{/if}
+
 	<div bind:this={chatWindow} class="chat-window">
 		{#each messages as msg}
-			<div class={msg.from === 'me' ? 'msg-me' : 'msg-ai'}>
-				<p>{msg.text}</p>
+			<div
+				class={{
+					msg: true,
+					'msg-me': msg.from == 'me',
+					'msg-ai': msg.from == 'ai'
+				}}
+			>
+				{@html msg.text.replace(/(?:\r\n|\r|\n)/g, '<br />')}
 			</div>
 		{/each}
 	</div>
@@ -134,14 +142,25 @@
 		on:keydown={(e) => e.key == 'Enter' && sendMessage()}
 		placeholder="Say something..."
 	/>
-</main>
+</div>
 
 <style>
+	.chatbox {
+		display: flex;
+		flex-direction: column;
+		justify-content: stretch;
+		align-items: stretch;
+		width: 100%;
+		height: 100%;
+		max-height: 100%;
+	}
 	.chat-window {
-		max-height: 400px;
+		flex: 1 1 0px;
 		overflow-y: auto; /* IMPORTANT for scrolling */
-		padding: 2rem;
+		padding: 1.5rem 1rem;
 		font-family: Arial, Helvetica, sans-serif;
+		display: flex;
+		flex-direction: column;
 
 		font-size: clamp(14px, 2vw, 18px);
 		background-color: #f6f6f6;
@@ -150,25 +169,48 @@
 			0 0 6px #d36b8f,
 			0 0 12px #d36b8f,
 			0 0 18px #d36b8f;
+		width: 100%;
+	}
+
+	.msg {
+		padding: 0.5rem 1rem;
 	}
 	.msg-me {
-		text-align: right;
-		color: #292651;
+		width: max-content;
+		max-width: calc(100% - 3rem);
+		border-radius: 1rem 1rem 0 1rem;
+		border: 0.15rem solid #d36b8f;
+		align-self: end;
 	}
 	.msg-ai {
-		text-align: left;
-		color: #ce5e82;
+		width: max-content;
+		max-width: calc(100% - 3rem);
+		border-radius: 1rem 1rem 1rem 0;
+		border: 0.15rem solid #2e4770;
 	}
-	/* .input-area {
-		margin-top: 0;
-		padding: 1rem;
-		background-color: #ce5e82;
-	} */
+
+	.msg-me + .msg-me,
+	.msg-ai + .msg-ai {
+		margin-top: 0.25rem;
+	}
+	.msg-me + .msg-ai,
+	.msg-ai + .msg-me {
+		margin-top: 1.5rem;
+	}
+
+	.msg-me + .msg-me {
+		border-top-right-radius: 0;
+	}
+	.msg-ai + .msg-ai {
+		border-top-left-radius: 0;
+	}
+
 	input {
+		flex: 0 0 auto;
 		box-sizing: border-box;
 		background-color: #f6f6f6;
+		margin-top: 0.25rem;
 		width: 100%;
-		margin-top: 2em;
 		padding: 0.5rem;
 		font-size: clamp(14px, 2vw, 18px);
 		font-family: 'Kelly Slab', sans-serif;

@@ -5,15 +5,11 @@
 </script>
 
 <div class="character-container">
+	<img src={imageUrl} alt="Character portrait" class="character-image" />
 	<div class="character-card">
-		<img src={imageUrl} alt="Character portrait" class="character-image" />
-		<div class="character-info">
-			<p>
-				Now chatting with:<br /> <strong><span class="info_word">{characterName}</span></strong>
-			</p>
-		</div>
-	</div>
-	<div class="planet-info">
+		<p>
+			User: <strong><span class="info_word">{characterName}</span></strong>
+		</p>
 		<p>Planet: <strong><span class="info_word">{planetName}</span></strong></p>
 	</div>
 	<button>Next planet</button>
@@ -21,14 +17,40 @@
 
 <style>
 	.character-container {
-		max-width: clamp(400px, 100%, 350px);
-		margin: 0;
-		padding: 0;
+		width: 100%;
+		display: grid;
+		grid-template-columns: 150px auto;
+		grid-template-rows: auto auto;
+		gap: 1.25rem;
 	}
+
+	.character-image {
+		grid-column: 1;
+		grid-row: 1 / 3;
+		position: relative;
+		z-index: 1;
+		border-radius: 30% 0 30% 30%;
+		width: 150px;
+		box-shadow:
+			0 0 0 4px #d36b8f,
+			0 0 6px #d36b8f,
+			0 0 12px #d36b8f,
+			0 0 18px #d36b8f;
+	}
+
 	.character-card {
+		grid-column: 2;
+		grid-row: 1;
 		position: relative;
 		padding: 0.25rem;
-		padding-left: 120px;
+		padding-left: calc(75px + 1.25rem);
+		left: calc(-1rem);
+		width: calc(100% + 1rem);
+		font-size: 20px;
+		color: #d36b8f;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
 		background: linear-gradient(
 			to bottom,
 			/* Light edge */ #2e4770 0%,
@@ -46,50 +68,8 @@
 			0 0 18px #d36b8f;
 	}
 
-	.character-image {
-		position: absolute;
-		top: 50%; /* Center vertically */
-		left: -40px;
-		transform: translateY(-50%); /* Center vertically */
-		margin-bottom: 0;
-		border-radius: 42%;
-		width: clamp(100px, 20vw, 150px);
-		box-shadow:
-			0 0 0 4px #d36b8f,
-			0 0 6px #d36b8f,
-			0 0 12px #d36b8f,
-			0 0 18px #d36b8f;
-	}
-
-	.character-info {
-		text-align: center;
-		font-size: 20px;
-		margin-right: 0.45em;
-	}
-
-	.planet-info {
-		font-size: 20px;
-		text-align: center;
-		margin-top: 3em;
-
-		background: linear-gradient(
-			to bottom,
-			/* Light edge */ #2e4770 0%,
-			/* Mid shoulder */ #292651 10%,
-			/* Dark center */ #200d3a 50%,
-			/* Mid shoulder */ #292651 90%,
-			/* Light edge */ #2e4770 100%
-		);
-
-		box-shadow:
-			0 0 0 4px #d36b8f,
-			0 0 6px #d36b8f,
-			0 0 12px #d36b8f,
-			0 0 18px #d36b8f;
-	}
-
-	.planet-info p {
-		padding: 0.5em;
+	p {
+		margin: 0;
 	}
 
 	.info_word {
@@ -97,92 +77,29 @@
 	}
 
 	button {
-		margin-top: 1em;
+		grid-column: 2;
+		grid-row: 2;
 		padding: 0.5em;
 		padding-right: 2em;
-		width: 100%;
+		max-width: 100%;
 		background-color: #ecc6a2;
 		font-family: 'Space Grotesk', sans-serif;
 		font-size: large;
 		font-weight: 500;
 		border: none;
 		cursor: pointer;
-		clip-path: polygon(0% 0%, calc(100% - 20px) 0%, 100% 50%, calc(100% - 20px) 100%, 0% 100%);
+		clip-path: polygon(
+			0% 0%,
+			calc(100% - 20px) 0%,
+			100% 50%,
+			calc(100% - 20px) 100%,
+			0% 100%,
+			calc(0% + 20px) 50%
+		);
+		text-align: right;
 	}
 
 	button:hover {
 		background-color: #ecd9c9;
-	}
-
-	@media (max-width: 1160px) {
-		.character-container {
-			max-width: clamp(450px, 100%, 350px);
-			margin: 0;
-			padding: 0;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-		}
-
-		.character-image {
-			position: absolute;
-			top: -125px;
-			left: 50%;
-			transform: translateX(-50%);
-		}
-
-		.character-card {
-			padding: 0;
-			width: 100%;
-		}
-
-		.character-card p {
-			margin-top: 2.25em;
-			text-align: center;
-		}
-
-		.planet-info {
-			width: 100%;
-			margin-top: 1.5em;
-		}
-
-		button {
-			width: 100%;
-			margin-top: 1.5em;
-		}
-	}
-
-	@media (max-width: 768px) {
-		.character-image {
-			position: absorelute;
-			top: -90px;
-		}
-		.character-card p {
-			margin-top: 10px;
-			margin-bottom: 0;
-			padding: 1em;
-			text-align: center;
-			font-size: 14px;
-		}
-
-		.planet-info p {
-			font-size: 14px;
-			padding: 1em;
-			margin: 0;
-		}
-
-		.character-card,
-		.character-image,
-		.planet-info {
-			box-shadow:
-				0 0 0 2px #d36b8f,
-				0 0 3px #d36b8f,
-				0 0 6px #d36b8f,
-				0 0 9px #d36b8f;
-		}
-
-		button {
-			font-size: 16px;
-		}
 	}
 </style>

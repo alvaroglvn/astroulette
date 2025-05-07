@@ -25,7 +25,6 @@
 </script>
 
 <div class="background">
-	<div class="bg"></div>
 	<div class="starfield">
 		{#each stars as star}
 			<div
@@ -50,10 +49,6 @@
 		animation-duration: 1s !important;
 	}
 
-	:global(.main-placeholder .grid-container) {
-		animation-duration: 0s !important;
-	}
-
 	.background {
 		position: absolute;
 		width: 100%;
@@ -61,8 +56,6 @@
 		top: 0;
 		left: 0;
 		z-index: -1;
-	}
-	.bg {
 		background: linear-gradient(
 			180deg,
 			rgba(18, 7, 36, 1) 0%,

@@ -1,30 +1,31 @@
 <script lang="ts">
 	import Background from '$lib/components/Background.svelte';
-	// import { onMount } from 'svelte';
-	// import { goto } from '$app/navigation';
-	// import { characterStore } from '$lib/stores/character';
+	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { characterStore } from '$lib/stores/character';
 
-	// onMount(async () => {
-	// 	try {
-	// 		const res = await fetch('/api/character/chat');
-	// 		if (!res.ok) {
-	// 			throw new Error('Failed to load character');
-	// 		}
+	onMount(async () => {
+		try {
+			const res = await fetch('/api/character/chat');
+			if (!res.ok) {
+				throw new Error('Failed to load character');
+			}
 
-	// 		const data = await res.json();
+			const data = await res.json();
 
-	// 		characterStore.set({
-	// 			thread_id: data.thread_id,
-	// 			character: data.character
-	// 		});
+			characterStore.set({
+				thread_id: data.thread_id,
+				character: data.character,
+				conversation_id: data.conversation_id
+			});
 
-	// 		await goto('/chat');
-	// 	} catch (error) {
-	// 		console.error('Error during loading:', error);
-	// 		// Optionally redirect back to login if critical
-	// 		// await goto('/login');
-	// 	}
-	// });
+			await goto('/chat');
+		} catch (error) {
+			console.error('Error during loading:', error);
+			// Optionally redirect back to login if critical
+			await goto('/login');
+		}
+	});
 </script>
 
 <main class="loading-screen">

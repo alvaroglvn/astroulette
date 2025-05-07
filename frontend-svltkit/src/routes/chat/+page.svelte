@@ -5,21 +5,18 @@
 	import { characterStore } from '$lib/stores/character';
 </script>
 
-<main class="main-placeholder">
-	<Background />
-	<div class="character-card">
-		{#if $characterStore}
-			<CharacterCard
-				imageUrl={$characterStore.character.image_url}
-				planetName={$characterStore.character.planet_name}
-				characterName={$characterStore.character.name}
-			/>
-		{/if}
-	</div>
+<Background />
 
-	<div class="chatbox">
-		<ChatBox />
-	</div>
+<main>
+	{#if $characterStore}
+		<CharacterCard
+			imageUrl={$characterStore.character.image_url}
+			planetName={$characterStore.character.planet_name}
+			characterName={$characterStore.character.name}
+		/>
+	{/if}
+
+	<ChatBox />
 </main>
 
 <style>
@@ -28,8 +25,13 @@
 	:global(html, body) {
 		margin: 0;
 		padding: 0;
+		width: 100vw;
 		height: 100vh;
 		overflow: hidden;
+		position: relative;
+	}
+
+	:global(body) {
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -39,50 +41,19 @@
 		box-sizing: border-box;
 	}
 
-	.character-card {
-		width: 35%;
-	}
-
-	.chatbox {
-		width: 65%;
-	}
-
-	.main-placeholder {
+	main {
 		display: flex;
 		flex-direction: row;
-		align-items: flex-start;
-		max-width: 1200px;
-		margin: 5em;
-		gap: 3em;
-		color: #ce5e82;
+		align-items: start;
+		height: 100%;
+		width: 100%;
+		padding: 5rem;
+		gap: 3rem;
 		font-family: 'Space Grotesk', sans-serif;
-	}
-
-	@media (max-width: 1000px) {
-		.main-placeholder {
-			flex-direction: column;
-			padding: 3rem;
-			gap: 2rem;
-			margin-top: 5em;
-			margin-bottom: 5em;
-			width: 100%vh;
-			height: fit-content;
-		}
-
-		.character-card {
-			margin: 0 auto;
-			width: 100%;
-		}
-
-		.chatbox {
-			width: 100%;
-		}
-	}
-
-	@media (max-width: 768px) {
-		.main-placeholder {
-			padding: 0px;
-			margin: 3em;
-		}
+		height: 100%;
+		flex-direction: column;
+		gap: 2rem;
+		padding: 5rem 2.5rem;
+		max-width: 600px;
 	}
 </style>
