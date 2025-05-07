@@ -64,23 +64,21 @@
 
 	form input {
 		font-size: 16px;
-		font-family: 'Poppins', sans-serif;
 		padding: 0.5em;
 	}
 
 	form button {
 		padding: 0.25em;
-		background-color: #eca089;
+		background-color: #ecc6a2;
 		font-family: 'Space Grotesk', sans-serif;
 		font-size: x-large;
 		font-weight: bold;
-		font-variant-caps: all-petite-caps;
 		cursor: pointer;
 		border: none;
 	}
 
 	form button:hover {
-		background-color: #ecc6a2;
+		background-color: #eca089;
 	}
 
 	.error-msg {

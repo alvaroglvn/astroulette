@@ -138,11 +138,13 @@
 
 <style>
 	.chat-window {
-		height: 30vw;
+		max-height: 400px;
 		overflow-y: auto; /* IMPORTANT for scrolling */
 		padding: 2rem;
-		font-size: clamp(12px, 3vw, 18px);
-		background-color: #200d3a;
+		font-family: Arial, Helvetica, sans-serif;
+
+		font-size: clamp(14px, 2vw, 18px);
+		background-color: #f6f6f6;
 		box-shadow:
 			0 0 0 4px #d36b8f,
 			0 0 6px #d36b8f,
@@ -151,11 +153,11 @@
 	}
 	.msg-me {
 		text-align: right;
-		color: #eca089;
+		color: #292651;
 	}
 	.msg-ai {
 		text-align: left;
-		color: #ecc6a2;
+		color: #ce5e82;
 	}
 	/* .input-area {
 		margin-top: 0;
@@ -164,10 +166,12 @@
 	} */
 	input {
 		box-sizing: border-box;
+		background-color: #f6f6f6;
 		width: 100%;
 		margin-top: 2em;
 		padding: 0.5rem;
-		font-size: 18px;
+		font-size: clamp(14px, 2vw, 18px);
+		font-family: 'Kelly Slab', sans-serif;
 		border: 0;
 
 		box-shadow:

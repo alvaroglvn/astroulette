@@ -35,6 +35,10 @@
 		align-items: center;
 	}
 
+	:global(*) {
+		box-sizing: border-box;
+	}
+
 	.character-card {
 		width: 35%;
 	}
@@ -47,6 +51,7 @@
 		display: flex;
 		flex-direction: row;
 		align-items: flex-start;
+		max-width: 1200px;
 		margin: 5em;
 		gap: 3em;
 		color: #ce5e82;
