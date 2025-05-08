@@ -3,6 +3,7 @@
 	import { characterStore } from '$lib/stores/character';
 	import { get } from 'svelte/store';
 	import { FetchChatHistory } from '$lib/api/chat';
+	import { page } from '$app/stores';
 
 	let socket: WebSocket;
 	let messages: { from: 'me' | 'ai'; text: string }[] = [];
@@ -20,7 +21,7 @@
 		const store = get(characterStore);
 
 		if (!store || !store.thread_id) {
-			console.error('Character store not loaded or missing thread_id!');
+			console.warn('[ChatBox] Missing character store or thread_id — skipping connect');
 			return;
 		}
 
@@ -49,7 +50,6 @@
 
 		socket.addEventListener('close', () => {
 			console.log('Disconnected from chat WebSocket');
-			reconnect();
 			isDisconnected = true;
 			reconnect();
 		});
@@ -109,6 +109,11 @@
 	}
 
 	onMount(() => {
+		const path = get(page).url.pathname;
+		if (path !== '/chat') {
+			console.log('[ChatBox] Aborting — not on /chat');
+			return;
+		}
 		loadHistory().then(connect);
 	});
 

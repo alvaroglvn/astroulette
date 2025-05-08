@@ -1,4 +1,5 @@
 import logging
+import traceback
 import asyncio
 
 from fastapi import APIRouter
@@ -142,6 +143,7 @@ async def load_character(
             status_code=200,
         )
     except Exception as e:
+        logging.error(traceback.format_exc())
         return JSONResponse(
             content={"error": f"Failed to create or load character: {e}"},
             status_code=500,
