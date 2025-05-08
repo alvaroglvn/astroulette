@@ -2,6 +2,8 @@
 	export let imageUrl: string;
 	export let planetName: string;
 	export let characterName: string;
+
+	import NextCharacter from './NextCharacter.svelte';
 </script>
 
 <div class="character-container">
@@ -12,7 +14,7 @@
 		</p>
 		<p>Planet: <strong><span class="info_word">{planetName}</span></strong></p>
 	</div>
-	<button>Next planet</button>
+	<NextCharacter />
 </div>
 
 <style>
@@ -74,32 +76,5 @@
 
 	.info_word {
 		color: #ecc6a2;
-	}
-
-	button {
-		grid-column: 2;
-		grid-row: 2;
-		padding: 0.5em;
-		padding-right: 2em;
-		max-width: 100%;
-		background-color: #ecc6a2;
-		font-family: 'Space Grotesk', sans-serif;
-		font-size: large;
-		font-weight: 500;
-		border: none;
-		cursor: pointer;
-		clip-path: polygon(
-			0% 0%,
-			calc(100% - 20px) 0%,
-			100% 50%,
-			calc(100% - 20px) 100%,
-			0% 100%,
-			calc(0% + 20px) 50%
-		);
-		text-align: right;
-	}
-
-	button:hover {
-		background-color: #ecd9c9;
 	}
 </style>

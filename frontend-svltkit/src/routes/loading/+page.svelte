@@ -38,8 +38,21 @@
 	:global(html, body) {
 		margin: 0;
 		padding: 0;
+		width: 100vw;
+		height: 100vh;
 		overflow: hidden;
+		position: relative;
 		font-family: 'Space Grotesk', sans-serif;
+	}
+
+	:global(body) {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	:global(*) {
+		box-sizing: border-box;
 	}
 
 	@keyframes fadeInOut {

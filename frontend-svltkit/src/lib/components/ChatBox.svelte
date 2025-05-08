@@ -3,7 +3,6 @@
 	import { characterStore } from '$lib/stores/character';
 	import { get } from 'svelte/store';
 	import { FetchChatHistory } from '$lib/api/chat';
-	import { page } from '$app/stores';
 
 	let socket: WebSocket;
 	let messages: { from: 'me' | 'ai'; text: string }[] = [];
@@ -109,14 +108,13 @@
 	}
 
 	onMount(() => {
-		const path = get(page).url.pathname;
+		const path = window.location.pathname;
 		if (path !== '/chat') {
 			console.log('[ChatBox] Aborting — not on /chat');
 			return;
 		}
 		loadHistory().then(connect);
 	});
-
 	onDestroy(() => {
 		if (socket) socket.close();
 	});
