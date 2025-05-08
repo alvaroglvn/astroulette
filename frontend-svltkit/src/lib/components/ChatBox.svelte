@@ -3,6 +3,7 @@
 	import { characterStore } from '$lib/stores/character';
 	import { get } from 'svelte/store';
 	import { FetchChatHistory } from '$lib/api/chat';
+	import { PUBLIC_API_URL } from '$env/static/public';
 
 	let socket: WebSocket;
 	let messages: { from: 'me' | 'ai'; text: string }[] = [];
@@ -25,7 +26,11 @@
 		}
 
 		console.log('Trying to connect...');
-		socket = new WebSocket(`ws://localhost:8000/chat/${store.thread_id}`);
+		const base = new URL(PUBLIC_API_URL);
+		base.protocol = base.protocol === 'https:' ? 'wss:' : 'ws:';
+		base.pathname = `/chat/${store.thread_id}`;
+		const wsURL = base.toString();
+		socket = new WebSocket(wsURL);
 
 		socket.addEventListener('open', () => {
 			console.log('Connected to WebSocket');

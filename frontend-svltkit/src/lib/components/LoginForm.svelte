@@ -16,7 +16,6 @@
 					: 'Something went wrong. Please try again.'}
 			</p>
 		{/if}
-		<!-- <h2 class="bleed-subtitle">initiate transplanetary relay</h2> -->
 		<input
 			name="username"
 			type="text"

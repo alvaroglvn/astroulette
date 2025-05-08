@@ -1,5 +1,6 @@
 import type { Actions } from './$types';
 import { fail } from '@sveltejs/kit';
+import { PUBLIC_API_URL } from '$env/static/public';
 
 export const actions: Actions = {
     default: async ({request, fetch}) => {
@@ -15,8 +16,11 @@ export const actions: Actions = {
             return fail(400, {error: 'Username must be at least 3 characters.'})
         }
 
+        console.log(PUBLIC_API_URL);
+
         try {
-            const response = await fetch('/api/user/login', {
+            const response = await fetch(`${PUBLIC_API_URL}/user/login`, {
+                credentials: 'include',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
