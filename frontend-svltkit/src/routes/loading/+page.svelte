@@ -23,8 +23,7 @@
 			await goto('/chat');
 		} catch (error) {
 			console.error('Error during loading:', error);
-			// Optionally redirect back to login if critical
-			await goto('/login');
+			await goto('/');
 		}
 	});
 </script>
