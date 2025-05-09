@@ -42,7 +42,7 @@ async def chat_builder(
         new_character = await generate_character_async(settings.openai_api_key)
         assert new_character is not None
         # Store generated character in db
-        stored_character = await store_new_character(session, new_character)
+        stored_character = await store_new_character(session, new_character, user.id)
         assert stored_character is not None
         # Create the character portrait
         portrait_url = await generate_portrait(

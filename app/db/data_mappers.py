@@ -3,9 +3,7 @@ from app.models import NewCharacter
 from app.db.db_models import Character, Thread, Message
 
 
-def character_mapper(
-    new_character: NewCharacter, user_id: int = 1
-) -> tuple[Character, Thread]:
+def character_mapper(new_character: NewCharacter, user_id: int) -> Character:
     character = Character(
         image_prompt=new_character.image_prompt,
         generated_by=user_id,
@@ -17,17 +15,19 @@ def character_mapper(
         quirks=new_character.quirks,
         human_relationship=new_character.human_relationship,
     )
-    # if new_character.id is not int:
-    #     raise ValueError("Character ID must be an integer")
-    assert new_character.id is not None, "Character ID must not be None"
 
-    thread = Thread(
+    return character
+
+
+def thread_mapper(
+    user_id: int,
+    character_id: int,
+) -> Thread:
+    return Thread(
         user_id=user_id,
-        character_id=new_character.id,
+        character_id=character_id,
         created_at=int(time.time()),
     )
-
-    return character, thread
 
 
 def message_mapper(

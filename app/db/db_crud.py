@@ -13,7 +13,7 @@ from sqlalchemy.exc import SQLAlchemyError, NoSuchTableError
 from sqlalchemy.sql.elements import ColumnElement
 from app.models import NewCharacter
 from app.db.db_models import Character, Thread, Message
-from app.db.data_mappers import character_mapper
+from app.db.data_mappers import character_mapper, thread_mapper
 from app.db.db_excepts import TableNotFound, RecordNotFound, DatabaseError
 
 
@@ -237,10 +237,10 @@ async def fetch_unmet_character(
 
 
 async def store_new_character(
-    session: AsyncSession, new_character: NewCharacter
+    session: AsyncSession, new_character: NewCharacter, user_id: int
 ) -> Character:
     # Map character data for storage
-    character, thread = character_mapper(new_character)
+    character = character_mapper(new_character, user_id)
 
     # Store character
     stored_character = await create_record(session, character)
@@ -248,7 +248,7 @@ async def store_new_character(
     assert isinstance(stored_character.id, int)
 
     # Store thread data
-    thread.character_id = stored_character.id
+    thread = thread_mapper(user_id, stored_character.id)
     await create_record(session, thread)
 
     return stored_character
