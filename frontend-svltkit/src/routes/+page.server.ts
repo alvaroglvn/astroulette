@@ -41,5 +41,5 @@ export const actions: Actions = {
                 error: 'Server unavailable. Please try again later.'
             });
         }    
-    }
+    },
 };

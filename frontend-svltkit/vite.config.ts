@@ -9,9 +9,10 @@ const config: UserConfig = {
 	},
 	server: {
 		proxy: {
-			'^/(user|chat|character)': {
+			'/api': {
 				target: 'http://localhost:8000',
 				changeOrigin: true,
+				rewrite: (path) => path.replace(/^\/api/, '')
 			}
 		}
 	}
