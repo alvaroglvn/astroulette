@@ -37,13 +37,16 @@ async def new_character(
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             logging.info(f"Attempt {attempt} to generate character")
+            assert user.id is not None
 
             # 1. Generate new character
             new_character = generate_character(settings.openai_api_key)
             assert new_character is not None
 
             # 2. Store new character
-            stored_character = await store_new_character(session, new_character)
+            stored_character = await store_new_character(
+                session, new_character, user.id
+            )
             assert stored_character is not None
             assert isinstance(stored_character.id, int)
 
@@ -96,7 +99,8 @@ async def add_character(
     admin: admin_only_dependency,
 ) -> JSONResponse:
     try:
-        stored_character = await store_new_character(session, new_character)
+        assert admin.id is not None
+        stored_character = await store_new_character(session, new_character, admin.id)
 
         return JSONResponse(content=stored_character.model_dump(), status_code=201)
     except Exception as e:
