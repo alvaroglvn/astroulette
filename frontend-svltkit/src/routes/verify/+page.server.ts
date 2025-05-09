@@ -4,6 +4,7 @@ import { PUBLIC_API_URL } from '$env/static/public'
 
 export const load: PageServerLoad = async ({url, fetch}) => {
     const token = url.searchParams.get('token');
+    console.log('Token received: ', token);
 
     if (!token) {
         throw redirect(302, '/?error=missing-token')
@@ -15,5 +16,6 @@ export const load: PageServerLoad = async ({url, fetch}) => {
         throw redirect(302, '/?error=invalid-token');
     }
 
+    console.log('Redirecting to loading page');
     throw redirect(302, '/loading')
 };

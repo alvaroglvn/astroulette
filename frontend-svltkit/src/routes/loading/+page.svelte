@@ -7,12 +7,15 @@
 
 	onMount(async () => {
 		try {
+			console.log('Loading character...');
 			const res = await fetch(`${PUBLIC_API_URL}/character/chat`, { credentials: 'include' });
 			if (!res.ok) {
+				console.error('Character fetch failed:', res.status);
 				throw new Error('Failed to load character');
 			}
 
 			const data = await res.json();
+			console.log('Character loaded:', data);
 
 			characterStore.set({
 				thread_id: data.thread_id,

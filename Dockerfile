@@ -1,5 +1,7 @@
 FROM python:3.13.3-slim-bullseye
 
+ENV COOKIE_DOMAIN="mars-roulette.fly.dev"
+
 WORKDIR /code
 
 COPY ./requirements.txt /code/requirements.txt
