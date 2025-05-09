@@ -27,7 +27,6 @@ export const load: PageServerLoad = async ({url, fetch, cookies}) => {
             return acc;
         }, {});
         const sameSite = rawOpts.samesite?.toString().toLowerCase();
-        console.log(str, rawOpts, sameSite);
         const opts: CookieSerializeOptions & { path: string; } = {
             domain: 
                 import.meta.env.DEV ? 
@@ -50,6 +49,7 @@ export const load: PageServerLoad = async ({url, fetch, cookies}) => {
                 sameSite === 'none' ? 'none' : 
                 undefined,
         };
+        console.log(name, value, opts);
 
         cookies.set(name, value, opts);
     });

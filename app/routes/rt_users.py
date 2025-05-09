@@ -92,7 +92,7 @@ async def verify_magic_link(
         value=access_token,
         httponly=True,
         secure=True,
-        samesite="strict",
+        samesite="none",
         max_age=60 * 60 * 24 * 7,
         path="/",
     )
