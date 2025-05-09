@@ -87,7 +87,6 @@ async def verify_magic_link(
 
     response = JSONResponse({"message": "Login verified"})
     response.set_cookie(
-        domain=settings.cookie_domain,
         key="access_token",
         value=access_token,
         httponly=True,
