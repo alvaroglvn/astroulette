@@ -1,6 +1,7 @@
 FROM python:3.13.3-slim-bullseye
 
 ENV COOKIE_DOMAIN="mars-roulette.fly.dev"
+ENV FRONTEND_URL="https://astroulette.fly.dev"
 
 WORKDIR /code
 

@@ -8,7 +8,7 @@ async def send_magic_link(
     to: EmailStr,
     token: str,
 ) -> None:
-    magic_link = f"https://astroulette.fly.dev/verify?token={token}"
+    magic_link = f"{settings.frontend_url}/verify?token={token}"
     subject = "Your MarsRoulette Login"
     text = f"Click here to login: {magic_link}"
 
