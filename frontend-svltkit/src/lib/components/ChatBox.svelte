@@ -2,8 +2,8 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { characterStore } from '$lib/stores/character';
 	import { get } from 'svelte/store';
-	import { FetchChatHistory } from '$lib/api/chat';
-	import { PUBLIC_API_URL } from '$env/static/public';
+	import { fetchChatHistory } from '$lib/api/chat';
+	import { PUBLIC_FRONTEND_URL } from '$env/static/public';
 
 	let socket: WebSocket;
 	let messages: { from: 'me' | 'ai'; text: string }[] = [];
@@ -26,9 +26,9 @@
 		}
 
 		console.log('Trying to connect...');
-		const base = new URL(PUBLIC_API_URL);
+		const base = new URL(PUBLIC_FRONTEND_URL);
 		base.protocol = base.protocol === 'https:' ? 'wss:' : 'ws:';
-		base.pathname = `/chat/${store.thread_id}`;
+		base.pathname = `/api/chat/${store.thread_id}`;
 		const wsURL = base.toString();
 		socket = new WebSocket(wsURL);
 
@@ -99,7 +99,7 @@
 		}
 
 		try {
-			const history = await FetchChatHistory(store.thread_id);
+			const history = await fetchChatHistory(store.thread_id);
 
 			messages = history.map((entry: any) => ({
 				from: entry.role === 'user' ? 'me' : 'ai',

@@ -3,12 +3,11 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { characterStore } from '$lib/stores/character';
-	import { PUBLIC_API_URL } from '$env/static/public';
 
 	onMount(async () => {
 		try {
 			console.log('Loading character...');
-			const res = await fetch(`${PUBLIC_API_URL}/character/chat`, { credentials: 'include' });
+			const res = await fetch(`/api/character/chat`, { credentials: 'include' });
 			if (!res.ok) {
 				console.error('Character fetch failed:', res.status);
 				throw new Error('Failed to load character');

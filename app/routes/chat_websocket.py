@@ -121,7 +121,7 @@ async def get_chat_history(
         messages = await read_all_filtered(session, Message, thread_id=thread_id)
 
         if not messages:
-            return JSONResponse(content="Thread is empty", status_code=200)
+            return JSONResponse(content=[], status_code=200)
 
         assert isinstance(messages, List)
 

@@ -7,15 +7,16 @@ RUN apt-get update && \
     apt-get install -y nodejs && \
     apt-get clean
 
-# Copy Python backend
 ENV FRONTEND_URL="https://astroulette.fly.dev"
+ENV PUBLIC_FRONTEND_URL="https://astroulette.fly.dev"
+
+# Copy Python backend
 WORKDIR /app
 COPY app/ .
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade -r ./requirements.txt
 
 # Copy frontend and install/build
-ENV PUBLIC_API_URL="/api"
 WORKDIR /frontend-svltkit
 COPY frontend-svltkit/ .
 RUN npm install
