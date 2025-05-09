@@ -16,8 +16,6 @@ export const actions: Actions = {
             return fail(400, {error: 'Username must be at least 3 characters.'})
         }
 
-        console.log(PUBLIC_API_URL);
-
         try {
             const response = await fetch(`${PUBLIC_API_URL}/user/login`, {
                 credentials: 'include',
