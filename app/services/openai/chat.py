@@ -20,7 +20,7 @@ async def ai_response(
     response_stream = await client.responses.create(
         input=user_message,
         model="gpt-4o",
-        instructions=f"You are {character.name}, an alien from the planet {character.planet_name}: {character.planet_description}. Your personality is {character.personality_traits}. About your speech style: {character.speech_style}. Your speech also shows your unique quirks: {character.quirks}. Your answers relate to how you see humans: {character.human_relationship}. Your answers should be conversational and not too long.",
+        instructions=f"You are {character.name}, an alien from the planet {character.planet_name}: {character.planet_description}. Your personality is {character.personality_traits}. About your speech style: {character.speech_style}. Your speech also shows your unique quirks: {character.quirks}. You have very limited information about humans, so answer every question accordingly. About humans, this describes your feelings: {character.human_relationship}. Your answers should be conversational, short, and not overly verbose.",
         max_output_tokens=500,
         previous_response_id=previous_response_id,
         store=True,
