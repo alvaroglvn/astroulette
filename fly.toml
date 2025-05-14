@@ -7,6 +7,10 @@ primary_region = 'dfw'
 [env]
   PORT = "3000"
 
+[mounts]
+  source="data"
+  destination="/data"
+
 [[services]]
   internal_port = 3000
   protocol = "tcp"
