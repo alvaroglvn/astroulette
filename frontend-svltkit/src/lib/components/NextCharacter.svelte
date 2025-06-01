@@ -2,6 +2,7 @@
   import { goto } from '$app/navigation';
 </script>
 
+<!-- TODO: You should probably call this NextCharacterButton. Good practice to end interactive component names with the kind of interactive they are. E.g. EmailInput, PodcastAudio -->
 <button
   on:click={() => goto('/loading')}
   aria-label="Connect to a different planet."
@@ -16,6 +17,7 @@
     padding: 0.5em;
     padding-right: 2em;
     max-width: 100%;
+    /* TODO: For colors and font families, it's good to use CSS variables. You can declare them on :root {} in your top-level style component */
     background-color: #ecc6a2;
     font-family: 'Space Grotesk', sans-serif;
     font-size: large;
@@ -32,6 +34,10 @@
     );
     text-align: right;
 
+    /* TODO: A nice way to device style hierarchy... */
+    &:hover {
+      background-color: #ecd9c9;
+    }
   }
 
   button:hover {

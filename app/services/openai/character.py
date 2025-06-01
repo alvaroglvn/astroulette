@@ -29,6 +29,8 @@ def generate_character(
         gender, species, archetype = character_randomizer()
 
         # Make chat request to OpenAI
+        # TODO: Should this be the OpenAIAsync client? Seems weird to use sync. It'll block your server's thread until you get the response.
+        # TODO: I think you should define the client externally and pass the client in as an argument. That way your system is less dependent on env variables. --- The decoupled coding master version is for this argument to receive a function that looks a lot like `parse()` below. Because then you can pass in a mock function for testing AND you can swap out openai for another service at any time. The idea is that this function has no knowledge of what service is being used, it just knows how to call the function that generates a character. --- However, this isn't really necessary for this project until you've tested all stuff that's easy to test or you want to try a different service.
         client = OpenAI(api_key=openai_key, project="proj_iHucBz89WXK9PvH3Hqvf5mhf")
         response = client.beta.chat.completions.parse(
             model="gpt-4o-mini",

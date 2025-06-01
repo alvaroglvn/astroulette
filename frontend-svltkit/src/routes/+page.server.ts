@@ -2,6 +2,7 @@ import type { Actions } from './$types';
 import { fail } from '@sveltejs/kit';
 
 export const actions: Actions = {
+  // TODO: It's not GREAT that your LoginForm and the action associated with that form are so separate. I might make a /components/LoginForm/ directory with the component and loginAction.ts that exports `const loginAction: Action = async () => { ... }` You probably have to use the generic `Action<{ error; success}>` to get the type inference. And then you can import it here `default: loginAction`
   default: async ({ request, fetch }) => {
     const formData = await request.formData();
     const email = formData.get('email');

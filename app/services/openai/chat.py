@@ -11,7 +11,6 @@ async def ai_response(
     user_message: str,
     previous_response_id: str | None = None,
 ) -> AsyncStream[Any]:
-
     client = AsyncOpenAI(
         api_key=openai_api_key,
         project="proj_iHucBz89WXK9PvH3Hqvf5mhf",

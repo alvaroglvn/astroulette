@@ -20,6 +20,7 @@
 </main>
 
 <style>
+  /* TODO: Strange to see fonts and global styles here */
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap');
 
   :global(html, body) {

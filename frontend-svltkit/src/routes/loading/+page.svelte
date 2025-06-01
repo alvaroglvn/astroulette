@@ -38,6 +38,7 @@
 </main>
 
 <style>
+  /* TODO: Again, fonts and global styles should be in a root +layout. */
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap');
   :global(html, body) {
     margin: 0;

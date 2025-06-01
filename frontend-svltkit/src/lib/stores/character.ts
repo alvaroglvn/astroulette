@@ -1,4 +1,5 @@
 import { browser } from '$app/environment';
+// TODO: Why not user $state/$effect runes?
 import { writable } from 'svelte/store';
 
 interface Character {

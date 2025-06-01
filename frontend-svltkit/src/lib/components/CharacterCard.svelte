@@ -8,6 +8,7 @@
 
 <div class="character-container">
   <img src={imageUrl} alt="Character portrait" class="character-image" />
+  <!-- TODO: Better practice to use a defition list element <dl> <dt>Name</dt> <dd>{characterName}</dd> ... </dl>. It will require more styling. You can use dt:after {content: ':'; } to insert the colons. -->
   <div class="character-card">
     <p>
       User: <strong><span class="info_word">{characterName}</span></strong>

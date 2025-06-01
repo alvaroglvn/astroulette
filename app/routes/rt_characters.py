@@ -34,6 +34,7 @@ async def new_character(
     session: db_dependency,
     user: valid_user_dependency,
 ) -> JSONResponse:
+    # TODO: It would be good to have an utility retry function that you pass in an async function and it handles the logic of doing retries.
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             logging.info(f"Attempt {attempt} to generate character")
@@ -54,8 +55,10 @@ async def new_character(
             prompt = stored_character.image_prompt
             portrait_url = await generate_portrait(settings.leonardo_api_key, prompt)
 
+            # TODO: This is a duplicate of above.
             assert isinstance(stored_character.id, int)
 
+            # TODO: Seems like this conditional should just be an assert
             if portrait_url:
                 await update_record(
                     session,

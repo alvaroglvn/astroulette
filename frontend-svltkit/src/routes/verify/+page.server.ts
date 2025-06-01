@@ -18,6 +18,7 @@ export const load: PageServerLoad = async ({ url, fetch, cookies }) => {
     throw redirect(302, '/?error=invalid-token');
   }
 
+  // TODO: This looks like you can pull some of the logic out as "parseCookies(res.headers.getSetCookie())", and then you can iterate over it adding the custom environment logic and run cookies.set(). As a rule, parsing and using are basically always separate functions. (I KNOW, I wrote this code. :p)
   res.headers.getSetCookie().map((str) => {
     const [cookie, ...rest] = str.split(';');
     const [name, value] = cookie.split('=');

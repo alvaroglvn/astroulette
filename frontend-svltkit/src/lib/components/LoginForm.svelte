@@ -1,4 +1,5 @@
 <script lang="ts">
+  // TODO: Why do you have two ways to specify errors? Probably good to have one. Also, for just two properties, it's probably better to use separate props.
   export let form: {
     error?: string;
     success?: boolean;
@@ -13,6 +14,7 @@
   <form method="POST">
     {#if data.error}
       <p class="form-response error">
+        <!-- TODO: I would definitely parse the different error types at a higher level and pass in the actual string. This form isn't directly linked to magic link validation, so it shouldn't store any of the related logic. -->
         {data.error === 'invalid-token' ?
           'Your link is invalid or expired.'
         : 'Something went wrong. Please try again.'}
@@ -70,6 +72,9 @@
     background-color: #2e4770;
     border: 9px double #ce5e82;
 
+    /* TODO: You can also do this to nest styles. But it's worth considering if you need these styles nested under `form` anyway. */
+    & input {
+    }
   }
 
   form input {

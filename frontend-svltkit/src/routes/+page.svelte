@@ -5,6 +5,8 @@
   export let form;
 </script>
 
+<!-- TODO: You should probably have a global +layout file for some reasons: 1. global css. 2. Your <Background> component, since it's used across your entire app. 3. Common css variables in :root {} 4. POSSIBLY also for a single <main> component and styles, given that the app is pretty lean. For reference: https://svelte.dev/docs/kit/routing#layout -->
+
 <main>
   <Background />
   <h1>Astroulette</h1>

@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
 
   // Number of stars to generate
+  // TODO: Worth considering if star count should be a prop with a default value
   const STAR_COUNT = 80;
 
   // Array of star settings
@@ -24,9 +25,13 @@
   });
 </script>
 
+<!-- TODO: `aria-hidden` only has an effect on elements that contain text/media or elements that are interactive (buttons, fields). Here it's not needed. But if you want, you can put it ONLY on the top-level element. -->
+<!-- TODO: `grid-*` classes are a little weird. `matrix`/`fog`? -->
 <div class="background">
   <div class="starfield">
+    <!-- Key is not STRICTLY needed since this loop only runs once, but it's good practice for loops in component libraries. -->
     {#each stars as star (`${star.x}-${star.y}`)}
+      <!-- TODO: You might want to use a function to generate your style attribute -->
       <div
         class="star"
         style="
@@ -46,6 +51,7 @@
 
 <style>
   :global(.loading-screen .grid-container) {
+    /* TODO: Seems VERY weird to use global and !important. Do you need this? Can you do it with a prop? */
     animation-duration: 1s !important;
   }
 

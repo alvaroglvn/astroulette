@@ -12,7 +12,7 @@ urls = {
     "get_info": "https://cloud.leonardo.ai/api/rest/v1/generations/",
 }
 
-
+# TODO: Similar to my note in `openai`, rather than passing in the API key as a parameter, you can pass in a client. But in this case, the client can just be a fetchLeo(method, url, body) function that returns response_info.
 async def generate_portrait(apikey: str, prompt: str) -> str | None:
     payload = PhoenixPayload(prompt=prompt)
 
