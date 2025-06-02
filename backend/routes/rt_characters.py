@@ -1,6 +1,5 @@
 import logging
 import traceback
-import asyncio
 
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
@@ -21,77 +20,34 @@ from backend.db.db_excepts import DatabaseError, TableNotFound, RecordNotFound
 from backend.services.openai.character import generate_character
 from backend.services.leonardo.img_request import generate_portrait
 from backend.chat_builder import chat_builder
+from backend.utils.retry import retry_async
 
 router = APIRouter()
 
-MAX_RETRIES = 3  # Maximum number of retries
-
 
 @router.post("/character/generate")
+@retry_async(3, 1.0)
 async def new_character(
     settings: settings_dependency,
     session: db_dependency,
     user: valid_user_dependency,
 ) -> JSONResponse:
-    # TODO: It would be good to have an utility retry function that you pass in an async function and it handles the logic of doing retries.
-    for attempt in range(1, MAX_RETRIES + 1):
-        try:
-            logging.info(f"Attempt {attempt} to generate character")
-            assert user.id is not None
 
-            # 1. Generate new character
-            new_character = generate_character(settings.openai_api_key)
-            assert new_character is not None
+    new_char = generate_character(settings.openai_api_key)
 
-            # 2. Store new character
-            stored_character = await store_new_character(
-                session, new_character, user.id
-            )
-            assert stored_character is not None
-            assert isinstance(stored_character.id, int)
+    assert isinstance(new_char, NewCharacter)
+    assert isinstance(user.id, int)
+    stored = await store_new_character(session, new_char, user.id)
 
-            # 3. Generate character portrait
-            prompt = stored_character.image_prompt
-            portrait_url = await generate_portrait(settings.leonardo_api_key, prompt)
+    url = await generate_portrait(settings.leonardo_api_key, stored.image_prompt)
 
-            # TODO: This is a duplicate of above.
-            assert isinstance(stored_character.id, int)
+    if not url:
+        raise RuntimeError("portrait failed")
 
-            # TODO: Seems like this conditional should just be an assert
-            if portrait_url:
-                await update_record(
-                    session,
-                    Character,
-                    stored_character.id,
-                    {"image_url": portrait_url},
-                )
-            else:
-                raise Exception("Failed to generate character portrait")
+    assert isinstance(stored.id, int)
+    await update_record(session, Character, stored.id, {"image_url": url})
 
-            return JSONResponse(
-                content=f"{stored_character.name} created and stored.",
-                status_code=201,
-            )
-
-        except Exception as e:
-            logging.error(f"Error on attempt {attempt}: {e}")
-            await session.rollback()  # Rollback changes if an error occurs
-
-            if attempt < MAX_RETRIES:
-                logging.info(f"Retrying character creation (Attempt {attempt + 1})...")
-                await asyncio.sleep(1)  # Small delay before retrying
-            else:
-                logging.error("Max retries reached. Failing character creation.")
-                return JSONResponse(
-                    content={
-                        "error": "Character creation failed after multiple attempts."
-                    },
-                    status_code=500,
-                )
-    return JSONResponse(
-        content={"error": "Unexpected error during character creation."},
-        status_code=500,
-    )
+    return JSONResponse(content=f"{stored.name} created and stored.", status_code=201)
 
 
 @router.post("/character/add")
