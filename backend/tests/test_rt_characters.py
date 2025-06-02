@@ -9,11 +9,11 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
     async_sessionmaker,
 )
-from app.main import app
-from app.config.session import get_session
-from app.services.auth import assert_admin, get_valid_user
-from app.schemas import NewCharacter, CharacterPatchData
-from app.db.db_models import User
+from backend.main import app
+from backend.config.session import get_session
+from backend.services.auth import assert_admin, get_valid_user
+from backend.schemas import NewCharacter, CharacterPatchData
+from backend.db.db_models import User
 
 
 # Fixtures for database and session management

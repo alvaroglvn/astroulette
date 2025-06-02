@@ -2,10 +2,10 @@ from typing import AsyncGenerator, Any
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from app.db.db_init import init_db
-from app.routes.rt_users import router as users
-from app.routes.rt_characters import router as characters
-from app.routes.chat_websocket import router as chat
+from backend.db.db_init import init_db
+from backend.routes.rt_users import router as users
+from backend.routes.rt_characters import router as characters
+from backend.routes.chat_websocket import router as chat
 
 
 @asynccontextmanager

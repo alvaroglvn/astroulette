@@ -1,6 +1,6 @@
 import time
-from app.schemas import NewCharacter
-from app.db.db_models import Character, Thread, Message
+from backend.schemas import NewCharacter
+from backend.db.db_models import Character, Thread, Message
 
 
 def character_mapper(new_character: NewCharacter, user_id: int) -> Character:

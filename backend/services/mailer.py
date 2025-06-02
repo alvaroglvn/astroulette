@@ -1,6 +1,6 @@
 import httpx
 from pydantic import EmailStr
-from app.config.settings import settings_dependency
+from backend.config.settings import settings_dependency
 
 
 async def send_magic_link(

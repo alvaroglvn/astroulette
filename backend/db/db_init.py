@@ -1,9 +1,9 @@
 import logging
 from sqlmodel import SQLModel
-from app.config.session import async_engine, get_async_session
-from app.db.db_models import User
-from app.db.db_crud import create_record, read_record
-from app.db.db_excepts import RecordNotFound
+from backend.config.session import async_engine, get_async_session
+from backend.db.db_models import User
+from backend.db.db_crud import create_record, read_record
+from backend.db.db_excepts import RecordNotFound
 
 
 async def init_db() -> None:

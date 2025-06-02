@@ -1,18 +1,18 @@
 import time
 
-from app.config.session import db_dependency
-from app.config.settings import settings_dependency
-from app.services.auth import valid_user_dependency
+from backend.config.session import db_dependency
+from backend.config.settings import settings_dependency
+from backend.services.auth import valid_user_dependency
 
-from app.db.db_models import Thread, Character
-from app.db.db_crud import (
+from backend.db.db_models import Thread, Character
+from backend.db.db_crud import (
     fetch_unmet_character,
     store_new_character,
     create_record,
     update_record,
 )
-from app.services.openai.character import generate_character_async
-from app.services.leonardo.img_request import generate_portrait
+from backend.services.openai.character import generate_character_async
+from backend.services.leonardo.img_request import generate_portrait
 
 # TODO: This file seems like it should be in the same directory as rt_characters.py, since that's where it's used.
 

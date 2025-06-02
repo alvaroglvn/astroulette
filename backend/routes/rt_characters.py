@@ -5,22 +5,22 @@ import asyncio
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
-from app.config.settings import settings_dependency
-from app.config.session import db_dependency
-from app.services.auth import admin_only_dependency, valid_user_dependency
-from app.schemas import CharacterPatchData, NewCharacter
-from app.db.db_crud import (
+from backend.config.settings import settings_dependency
+from backend.config.session import db_dependency
+from backend.services.auth import admin_only_dependency, valid_user_dependency
+from backend.schemas import CharacterPatchData, NewCharacter
+from backend.db.db_crud import (
     store_new_character,
     update_record,
     read_all,
     read_record,
     delete_record,
 )
-from app.db.db_models import Character, Thread
-from app.db.db_excepts import DatabaseError, TableNotFound, RecordNotFound
-from app.services.openai.character import generate_character
-from app.services.leonardo.img_request import generate_portrait
-from app.chat_builder import chat_builder
+from backend.db.db_models import Character, Thread
+from backend.db.db_excepts import DatabaseError, TableNotFound, RecordNotFound
+from backend.services.openai.character import generate_character
+from backend.services.leonardo.img_request import generate_portrait
+from backend.chat_builder import chat_builder
 
 router = APIRouter()
 

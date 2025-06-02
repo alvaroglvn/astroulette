@@ -11,10 +11,10 @@ from sqlmodel import SQLModel, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError, NoSuchTableError
 from sqlalchemy.sql.elements import ColumnElement
-from app.schemas import NewCharacter
-from app.db.db_models import Character, Thread, Message
-from app.db.data_mappers import character_mapper, thread_mapper
-from app.db.db_excepts import TableNotFound, RecordNotFound, DatabaseError
+from backend.schemas import NewCharacter
+from backend.db.db_models import Character, Thread, Message
+from backend.db.data_mappers import character_mapper, thread_mapper
+from backend.db.db_excepts import TableNotFound, RecordNotFound, DatabaseError
 
 
 # Global variable for type hinting

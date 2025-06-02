@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from app.config.settings import get_settings
+from backend.config.settings import get_settings
 
 app_settings = get_settings()
 DATABASE_URL = app_settings.db_url

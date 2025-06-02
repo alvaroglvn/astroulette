@@ -9,11 +9,11 @@ from fastapi import (
 
 from fastapi.responses import JSONResponse
 
-from app.config.settings import settings_dependency
-from app.config.session import db_dependency
-from app.services.openai.chat import ai_response
-from app.db.db_models import User, Character, Thread, Message
-from app.db.db_crud import (
+from backend.config.settings import settings_dependency
+from backend.config.session import db_dependency
+from backend.services.openai.chat import ai_response
+from backend.db.db_models import User, Character, Thread, Message
+from backend.db.db_crud import (
     read_record,
     read_field,
     read_all_filtered,

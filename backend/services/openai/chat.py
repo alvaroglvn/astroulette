@@ -1,7 +1,7 @@
 from typing import Any
 from openai import AsyncOpenAI
 from openai import AsyncStream
-from app.db.db_models import Character
+from backend.db.db_models import Character
 
 
 async def ai_response(

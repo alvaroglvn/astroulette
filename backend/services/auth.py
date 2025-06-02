@@ -12,10 +12,10 @@ from fastapi import (
     status,
     Request,
 )
-from app.config.settings import settings_dependency
-from app.config.session import db_dependency
-from app.db.db_models import User
-from app.db.db_crud import read_record
+from backend.config.settings import settings_dependency
+from backend.config.session import db_dependency
+from backend.db.db_models import User
+from backend.db.db_crud import read_record
 
 
 def create_mailer_token() -> Tuple[str, int]:

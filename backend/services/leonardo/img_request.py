@@ -1,6 +1,6 @@
 import httpx
 import asyncio
-from app.services.leonardo.leon_models import (
+from backend.services.leonardo.leon_models import (
     PhoenixPayload,
     ImageGenResponse,
     GenerationInfo,
@@ -35,7 +35,7 @@ async def generate_portrait(apikey: str, prompt: str) -> str | None:
             max_retries = 10
             delay = 1
 
-            for attempt in range(max_retries):
+            for _ in range(max_retries):
                 async with httpx.AsyncClient() as client:
                     response_info = await client.get(
                         f"{urls["get_info"]}{generation_id}", headers=headers

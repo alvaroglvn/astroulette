@@ -11,13 +11,13 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
     async_sessionmaker,
 )
-from app.config.settings import AppSettings, get_settings
-from app.services.auth import (
+from backend.config.settings import AppSettings, get_settings
+from backend.services.auth import (
     create_mailer_token,
     create_access_token,
     get_valid_user,
 )
-from app.db.db_models import User
+from backend.db.db_models import User
 
 
 @pytest.fixture(scope="module")

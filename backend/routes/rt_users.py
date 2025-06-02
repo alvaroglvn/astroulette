@@ -1,25 +1,25 @@
 import time
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
-from app.config.settings import settings_dependency
-from app.config.session import db_dependency
-from app.schemas import MagicLinkRequest, UserPatchData
-from app.services.mailer import send_magic_link
-from app.services.auth import (
+from backend.config.settings import settings_dependency
+from backend.config.session import db_dependency
+from backend.schemas import MagicLinkRequest, UserPatchData
+from backend.services.mailer import send_magic_link
+from backend.services.auth import (
     create_mailer_token,
     create_access_token,
     admin_only_dependency,
     valid_user_dependency,
 )
-from app.db.db_crud import (
+from backend.db.db_crud import (
     create_record,
     read_record,
     read_one_by_field,
     read_all,
     update_record,
 )
-from app.db.db_models import User
-from app.db.db_excepts import DatabaseError, TableNotFound, RecordNotFound
+from backend.db.db_models import User
+from backend.db.db_excepts import DatabaseError, TableNotFound, RecordNotFound
 
 router = APIRouter()
 
