@@ -4,7 +4,7 @@ import asyncio
 from typing import Optional
 from concurrent.futures import ThreadPoolExecutor
 from openai import OpenAI, OpenAIError
-from app.models import NewCharacter
+from app.schemas import NewCharacter
 
 
 def generate_character(

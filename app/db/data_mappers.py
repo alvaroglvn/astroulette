@@ -1,5 +1,5 @@
 import time
-from app.models import NewCharacter
+from app.schemas import NewCharacter
 from app.db.db_models import Character, Thread, Message
 
 

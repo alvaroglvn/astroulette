@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 
 # TODO: Feels like these should be in the files (or at least the modules) that use them. E.g. rt_users.py, rt_characters.py, etc. At the very least, it's strange to see them in the root.
 
@@ -25,16 +25,3 @@ class CharacterPatchData(BaseModel):
     speech_style: str | None = None
     quirks: str | None = None
     human_relationship: str | None = None
-
-
-class UserPatchData(BaseModel):
-    username: str | None = None
-    email: EmailStr | None = None
-    active: bool | None = None
-    login_token: str | None = None
-    token_expiry: int | None = None
-
-
-class MagicLinkRequest(BaseModel):
-    email: EmailStr
-    username: str

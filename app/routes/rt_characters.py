@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 from app.config.settings import settings_dependency
 from app.config.session import db_dependency
 from app.services.auth import admin_only_dependency, valid_user_dependency
-from app.models import CharacterPatchData
+from app.schemas import CharacterPatchData, NewCharacter
 from app.db.db_crud import (
     store_new_character,
     update_record,
@@ -19,7 +19,6 @@ from app.db.db_crud import (
 from app.db.db_models import Character, Thread
 from app.db.db_excepts import DatabaseError, TableNotFound, RecordNotFound
 from app.services.openai.character import generate_character
-from app.models import NewCharacter
 from app.services.leonardo.img_request import generate_portrait
 from app.chat_builder import chat_builder
 

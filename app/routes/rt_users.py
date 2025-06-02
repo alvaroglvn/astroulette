@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from app.config.settings import settings_dependency
 from app.config.session import db_dependency
-from app.models import MagicLinkRequest, UserPatchData
+from app.schemas import MagicLinkRequest, UserPatchData
 from app.services.mailer import send_magic_link
 from app.services.auth import (
     create_mailer_token,
