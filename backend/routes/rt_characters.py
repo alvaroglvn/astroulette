@@ -19,7 +19,7 @@ from backend.db.db_models import Character, Thread
 from backend.db.db_excepts import DatabaseError, TableNotFound, RecordNotFound
 from backend.services.openai.character import generate_character
 from backend.services.leonardo.img_request import generate_portrait
-from backend.chat_builder import chat_builder
+from backend.services.chat_builder import chat_builder
 from backend.utils.retry import retry_async
 
 router = APIRouter()

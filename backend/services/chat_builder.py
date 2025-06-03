@@ -14,7 +14,6 @@ from backend.db.db_crud import (
 from backend.services.openai.character import generate_character_async
 from backend.services.leonardo.img_request import generate_portrait
 
-# TODO: This file seems like it should be in the same directory as rt_characters.py, since that's where it's used.
 
 async def chat_builder(
     session: db_dependency,
