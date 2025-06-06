@@ -4,8 +4,11 @@ import traceback
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
+from openai import OpenAI
+
 from backend.config.settings import settings_dependency
 from backend.config.session import db_dependency
+from backend.config.clients import openAI_client
 from backend.services.auth import admin_only_dependency, valid_user_dependency
 from backend.schemas import CharacterPatchData, NewCharacter
 from backend.db.db_crud import (
@@ -28,12 +31,12 @@ router = APIRouter()
 @router.post("/character/generate")
 @retry_async(3, 1.0)
 async def new_character(
-    settings: settings_dependency,
     session: db_dependency,
     user: valid_user_dependency,
+    client: OpenAI = openAI_client,
 ) -> JSONResponse:
 
-    new_char = generate_character(settings.openai_api_key)
+    new_char = generate_character(client)
 
     assert isinstance(new_char, NewCharacter)
     assert isinstance(user.id, int)

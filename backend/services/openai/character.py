@@ -5,10 +5,11 @@ from typing import Optional
 from concurrent.futures import ThreadPoolExecutor
 from openai import OpenAI, OpenAIError
 from backend.schemas import NewCharacter
+from backend.config.clients import openAI_client
 
 
 def generate_character(
-    openai_key: str,
+    client: OpenAI = openAI_client,
 ) -> Optional[NewCharacter]:
     """
     Generate a new character via OpenAI and return the character's data and profile.
@@ -31,7 +32,6 @@ def generate_character(
         # Make chat request to OpenAI
         # TODO: Should this be the OpenAIAsync client? Seems weird to use sync. It'll block your server's thread until you get the response.
         # TODO: I think you should define the client externally and pass the client in as an argument. That way your system is less dependent on env variables. --- The decoupled coding master version is for this argument to receive a function that looks a lot like `parse()` below. Because then you can pass in a mock function for testing AND you can swap out openai for another service at any time. The idea is that this function has no knowledge of what service is being used, it just knows how to call the function that generates a character. --- However, this isn't really necessary for this project until you've tested all stuff that's easy to test or you want to try a different service.
-        client = OpenAI(api_key=openai_key, project="proj_iHucBz89WXK9PvH3Hqvf5mhf")
         response = client.beta.chat.completions.parse(
             model="gpt-4o-mini",
             messages=[
@@ -123,7 +123,9 @@ def character_randomizer() -> tuple[str, str, str]:
 executor = ThreadPoolExecutor()
 
 
-async def generate_character_async(openai_key: str) -> Optional[NewCharacter]:
+async def generate_character_async(
+    client: OpenAI = openAI_client,
+) -> Optional[NewCharacter]:
     """
     This function is a wrapper for the generate_character function to run it in a separate thread.
     It uses asyncio's run_in_executor to allow for non-blocking behavior in an async context.
@@ -133,4 +135,4 @@ async def generate_character_async(openai_key: str) -> Optional[NewCharacter]:
         Optional[NewCharacter]: Generated character data and profile as a NewCharacter object.
     """
     loop = asyncio.get_running_loop()
-    return await loop.run_in_executor(executor, generate_character, openai_key)
+    return await loop.run_in_executor(executor, generate_character, client)

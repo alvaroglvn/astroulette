@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 
-# TODO: Feels like these should be in the files (or at least the modules) that use them. E.g. rt_users.py, rt_characters.py, etc. At the very least, it's strange to see them in the root.
 
 class NewCharacter(BaseModel):
     id: int | None = None
