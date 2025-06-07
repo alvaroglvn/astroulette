@@ -6,9 +6,8 @@ from fastapi.responses import JSONResponse
 
 from openai import OpenAI
 
-from backend.config.settings import settings_dependency
 from backend.config.session import db_dependency
-from backend.config.clients import openAI_client
+from backend.config.clients import openAI_client, LeonardoClient
 from backend.services.auth import admin_only_dependency, valid_user_dependency
 from backend.schemas import CharacterPatchData, NewCharacter
 from backend.db.db_crud import (
@@ -33,16 +32,17 @@ router = APIRouter()
 async def new_character(
     session: db_dependency,
     user: valid_user_dependency,
-    client: OpenAI = openAI_client,
+    image_client: LeonardoClient,
+    text_client: OpenAI = openAI_client,
 ) -> JSONResponse:
 
-    new_char = generate_character(client)
+    new_char = generate_character(text_client)
 
     assert isinstance(new_char, NewCharacter)
     assert isinstance(user.id, int)
     stored = await store_new_character(session, new_char, user.id)
 
-    url = await generate_portrait(settings.leonardo_api_key, stored.image_prompt)
+    url = await generate_portrait(image_client, stored.image_prompt)
 
     if not url:
         raise RuntimeError("portrait failed")
@@ -88,11 +88,12 @@ async def get_all_characters(
 @router.get("/character/chat")
 async def load_character(
     session: db_dependency,
-    settings: settings_dependency,
     user: valid_user_dependency,
+    image_client: LeonardoClient,
+    text_client: OpenAI = openAI_client,
 ) -> JSONResponse:
     try:
-        thread = await chat_builder(session, settings, user)
+        thread = await chat_builder(session, user, image_client, text_client)
         assert thread is not None
         assert isinstance(thread, Thread)
 

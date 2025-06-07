@@ -3,8 +3,7 @@ import time
 from openai import OpenAI
 
 from backend.config.session import db_dependency
-from backend.config.clients import openAI_client
-from backend.config.settings import settings_dependency
+from backend.config.clients import openAI_client, LeonardoClient
 from backend.services.auth import valid_user_dependency
 
 from backend.db.db_models import Thread, Character
@@ -20,9 +19,9 @@ from backend.services.leonardo.img_request import generate_portrait
 
 async def chat_builder(
     session: db_dependency,
-    settings: settings_dependency,
     user: valid_user_dependency,
-    client: OpenAI = openAI_client,
+    image_client: LeonardoClient,
+    text_client: OpenAI = openAI_client,
 ) -> Thread | None:
     """
     Load chat for the user with a character they have never met:
@@ -43,14 +42,14 @@ async def chat_builder(
     # If there is no unmet character, generate a new one
     if not unmet_character:
         # Generate a complete new character
-        new_character = await generate_character_async(client)
+        new_character = await generate_character_async(text_client)
         assert new_character is not None
         # Store generated character in db
         stored_character = await store_new_character(session, new_character, user.id)
         assert stored_character is not None
         # Create the character portrait
         portrait_url = await generate_portrait(
-            settings.leonardo_api_key, stored_character.image_prompt
+            image_client, stored_character.image_prompt
         )
         # Store the portrait URL in the database
         assert portrait_url is not None and isinstance(portrait_url, str)

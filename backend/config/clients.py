@@ -11,26 +11,12 @@ from backend.services.leonardo.leon_models import (
 )
 
 
-class OpenAIClient:
-    def __init__(self, api_key: str) -> None:
-        self.api_key = api_key
+# OPENAI API #
 
-    def build_client(self, project: str | None = None) -> OpenAI:
-        """
-        Initializes and returns an OpenAI client with the provided API key and optional project name.
-
-        Args:
-            project (str | None): Optional project name for the OpenAI client.
-
-        Returns:
-            OpenAI: An instance of the OpenAI client.
-        """
-        return OpenAI(api_key=self.api_key, project=project)
-
-
-openAI_client = OpenAIClient(api_key=get_settings().openai_api_key).build_client(
-    project="proj_iHucBz89WXK9PvH3Hqvf5mhf"
+openAI_client = OpenAI(
+    api_key=get_settings().openai_api_key, project="proj_iHucBz89WXK9PvH3Hqvf5mhf"
 )
+
 
 # LEONARDO API #
 
