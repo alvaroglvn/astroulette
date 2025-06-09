@@ -52,3 +52,5 @@ Thumbs.db
 coverage.xml
 .nox/
 *.cover
+
+backend/db/astroulette.sqlite

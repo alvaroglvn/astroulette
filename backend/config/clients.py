@@ -1,9 +1,11 @@
 from openai import OpenAI
-from typing import Annotated
-from fastapi import Depends
 import httpx
 import logging
 import asyncio
+
+from typing import Annotated
+
+from fastapi import Depends
 
 from backend.config.settings import get_settings
 from backend.services.leonardo.leon_models import (
@@ -29,7 +31,7 @@ openai_client = OpenAIClient(
     get_settings().openai_api_key,
     "proj_iHucBz89WXK9PvH3Hqvf5mhf",
 )
-# Declare OpenAI dependency
+# Declare dependency
 openai_dep = Annotated[OpenAI, Depends(openai_client.get_client)]
 
 
@@ -134,5 +136,5 @@ class LeonardoClient:
 
 # Init Leonardo client
 leonardo_client = LeonardoClient(get_settings().leonardo_api_key)
-# Declare Leonardo dependency
+# Declare dependency
 leonardo_dep = Annotated[LeonardoClient, Depends(leonardo_client.get_client)]

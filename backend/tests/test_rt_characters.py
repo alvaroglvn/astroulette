@@ -151,10 +151,11 @@ async def test_generate_character(
 ) -> None:
     with (
         patch(
-            "app.routes.rt_characters.generate_character", return_value=mock_character1
+            "backend.routes.rt_characters.generate_character",
+            return_value=mock_character1,
         ),
         patch(
-            "app.routes.rt_characters.generate_portrait",
+            "backend.routes.rt_characters.generate_portrait",
             return_value="https://leonardo.com/alienportrait.png",
         ),
     ):

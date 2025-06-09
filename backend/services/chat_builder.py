@@ -1,9 +1,7 @@
 import time
 
-from openai import OpenAI
-
 from backend.config.session import db_dependency
-from backend.config.clients import openAI_client, LeonardoClient
+from backend.config.clients import openai_dep, leonardo_dep
 from backend.services.auth import valid_user_dependency
 
 from backend.db.db_models import Thread, Character
@@ -20,8 +18,8 @@ from backend.services.leonardo.img_request import generate_portrait
 async def chat_builder(
     session: db_dependency,
     user: valid_user_dependency,
-    image_client: LeonardoClient,
-    text_client: OpenAI = openAI_client,
+    image_client: leonardo_dep,
+    text_client: openai_dep,
 ) -> Thread | None:
     """
     Load chat for the user with a character they have never met:

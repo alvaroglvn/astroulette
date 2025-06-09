@@ -4,10 +4,12 @@ import traceback
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
-from openai import OpenAI
 
 from backend.config.session import db_dependency
-from backend.config.clients import openAI_client, LeonardoClient
+from backend.config.clients import (
+    openai_dep,
+    leonardo_dep,
+)
 from backend.services.auth import admin_only_dependency, valid_user_dependency
 from backend.schemas import CharacterPatchData, NewCharacter
 from backend.db.db_crud import (
@@ -32,8 +34,8 @@ router = APIRouter()
 async def new_character(
     session: db_dependency,
     user: valid_user_dependency,
-    image_client: LeonardoClient,
-    text_client: OpenAI = openAI_client,
+    image_client: leonardo_dep,
+    text_client: openai_dep,
 ) -> JSONResponse:
 
     new_char = generate_character(text_client)
@@ -89,8 +91,8 @@ async def get_all_characters(
 async def load_character(
     session: db_dependency,
     user: valid_user_dependency,
-    image_client: LeonardoClient,
-    text_client: OpenAI = openAI_client,
+    image_client: leonardo_dep,
+    text_client: openai_dep,
 ) -> JSONResponse:
     try:
         thread = await chat_builder(session, user, image_client, text_client)
