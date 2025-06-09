@@ -1,4 +1,6 @@
 from openai import OpenAI
+from typing import Annotated
+from fastapi import Depends
 import httpx
 import logging
 import asyncio
@@ -12,19 +14,33 @@ from backend.services.leonardo.leon_models import (
 
 
 # OPENAI API #
+class OpenAIClient:
+    def __init__(self, api_key: str, project: str | None = None) -> None:
+        self.api_key = api_key
+        self.project = project
+        self._client = OpenAI(api_key=api_key, project=project)
 
-openAI_client = OpenAI(
-    api_key=get_settings().openai_api_key, project="proj_iHucBz89WXK9PvH3Hqvf5mhf"
+    def get_client(self) -> OpenAI:
+        return self._client
+
+
+# Init OpenAI client
+openai_client = OpenAIClient(
+    get_settings().openai_api_key,
+    "proj_iHucBz89WXK9PvH3Hqvf5mhf",
 )
+# Declare OpenAI dependency
+openai_dep = Annotated[OpenAI, Depends(openai_client.get_client)]
 
 
 # LEONARDO API #
-
-
 class LeonardoClient:
     def __init__(self, api_key: str) -> None:
         self.api_key = api_key
         self.url = "https://cloud.leonardo.ai/api/rest/v1/generations/"
+
+    def get_client(self) -> "LeonardoClient":
+        return self
 
     def get_payload(
         self,
@@ -114,3 +130,9 @@ class LeonardoClient:
                 return None
         logging.error(f"Unable to retrieve new image's URL after {max_retries} retries")
         return None
+
+
+# Init Leonardo client
+leonardo_client = LeonardoClient(get_settings().leonardo_api_key)
+# Declare Leonardo dependency
+leonardo_dep = Annotated[LeonardoClient, Depends(leonardo_client.get_client)]
