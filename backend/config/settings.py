@@ -20,7 +20,7 @@ class AppSettings(BaseSettings):
 
     frontend_url: str
 
-    model_config = SettingsConfigDict(env_file="app/.env", extra="ignore")
+    model_config = SettingsConfigDict(env_file="backend/.env", extra="ignore")
 
 
 @lru_cache
