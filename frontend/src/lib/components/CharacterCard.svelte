@@ -8,12 +8,13 @@
 
 <div class="character-container">
   <img src={imageUrl} alt="Character portrait" class="character-image" />
-  <!-- TODO: Better practice to use a defition list element <dl> <dt>Name</dt> <dd>{characterName}</dd> ... </dl>. It will require more styling. You can use dt:after {content: ':'; } to insert the colons. -->
   <div class="character-card">
-    <p>
-      User: <strong><span class="info_word">{characterName}</span></strong>
-    </p>
-    <p>Planet: <strong><span class="info_word">{planetName}</span></strong></p>
+    <dl>
+      <dt>Name</dt>
+      <dd>{characterName}</dd>
+      <dt>Planet</dt>
+      <dd>{planetName}</dd>
+    </dl>
   </div>
   <NextCharacter />
 </div>
@@ -62,8 +63,6 @@
       /* Mid shoulder */ #292651 90%,
       /* Light edge */ #2e4770 100%
     );
-
-    /* darker pink glow */
     box-shadow:
       0 0 0 4px #d36b8f,
       0 0 6px #d36b8f,
@@ -71,11 +70,23 @@
       0 0 18px #d36b8f;
   }
 
-  p {
+  dl {
     margin: 0;
   }
 
-  .info_word {
-    color: #ecc6a2;
+  dt {
+    font-weight: bold;
+    display: inline;
+  }
+
+  /* Use a pseudo-element to append a colon after each definition term */
+  dt::after {
+    content: ':';
+    margin-right: 0.25rem;
+  }
+
+  dd {
+    display: inline;
+    margin: 0 1rem 0 0;
   }
 </style>
