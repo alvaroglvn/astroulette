@@ -1,27 +1,21 @@
 <script>
   import Background from '$lib/components/Background.svelte';
-  import CharacterCard from '$lib/components/CharacterCard.svelte';
-  import ChatBox from '$lib/components/ChatBox.svelte';
-  import { characterStore } from '$lib/stores/character';
+
+  let { children } = $props();
 </script>
 
-<Background />
-
 <main>
-  {#if $characterStore}
-    <CharacterCard
-      imageUrl={$characterStore.character.image_url}
-      planetName={$characterStore.character.planet_name}
-      characterName={$characterStore.character.name}
-    />
-  {/if}
-
-  <ChatBox />
+  <Background />
+  {@render children()}
 </main>
 
 <style>
-  /* TODO: Strange to see fonts and global styles here */
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap');
+
+  :root {
+    --font-display: 'Space Grotesk', sans-serif;
+    --pink-500: #ce5e82;
+  }
 
   :global(html, body) {
     margin: 0;
@@ -30,6 +24,8 @@
     height: 100vh;
     overflow: hidden;
     position: relative;
+    font-family: var(--font-display);
+    color: var(--pink-500);
   }
 
   :global(body) {
@@ -45,7 +41,8 @@
   main {
     display: flex;
     flex-direction: row;
-    align-items: start;
+    align-items: center;
+    justify-content: center;
     height: 100%;
     width: 100%;
     padding: 5rem;
