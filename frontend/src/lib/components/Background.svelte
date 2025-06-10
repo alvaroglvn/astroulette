@@ -1,21 +1,19 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  export let starCount: number = 80;
+  export const matrixDuration: string = '1s';
 
-  // Number of stars to generate
-  // TODO: Worth considering if star count should be a prop with a default value
-  const STAR_COUNT = 80;
-
-  // Array of star settings
-  let stars: Array<{
+  type Star = {
     x: number;
     y: number;
     delay: number;
     duration: number;
     size: number;
-  }> = [];
+  };
+  let stars: Star[] = [];
 
   onMount(() => {
-    stars = Array.from({ length: STAR_COUNT }, () => ({
+    stars = Array.from({ length: starCount }, () => ({
       x: Math.random() * 100, // vw
       y: Math.random() * 50, // vh (clipped to top 50%)
       delay: Math.random() * 5, // seconds
@@ -23,38 +21,30 @@
       size: 1 + Math.random() * 2, // px
     }));
   });
+
+  function getStarStyle(star: Star): string {
+    return `
+      top: ${star.y}vh;
+      left: ${star.x}vw;
+      width: ${star.size}px;
+      height: ${star.size}px;
+      animation-delay: ${star.delay}s;
+      animation-duration: ${star.duration}s;
+    `;
+  }
 </script>
 
-<!-- TODO: `aria-hidden` only has an effect on elements that contain text/media or elements that are interactive (buttons, fields). Here it's not needed. But if you want, you can put it ONLY on the top-level element. -->
-<!-- TODO: `grid-*` classes are a little weird. `matrix`/`fog`? -->
-<div class="background">
+<div class="background" aria-hidden="true">
   <div class="starfield">
-    <!-- Key is not STRICTLY needed since this loop only runs once, but it's good practice for loops in component libraries. -->
     {#each stars as star (`${star.x}-${star.y}`)}
-      <!-- TODO: You might want to use a function to generate your style attribute -->
-      <div
-        class="star"
-        style="
-           top: {star.y}vh;
-           left: {star.x}vw;
-           width: {star.size}px;
-           height: {star.size}px;
-           animation-delay: {star.delay}s;
-           animation-duration: {star.duration}s;
-         "
-      ></div>
+      <div class="star" style={getStarStyle(star)}></div>
     {/each}
   </div>
-  <div class="grid-container" aria-hidden="true"></div>
-  <div class="grid-fog-bottom" aria-hidden="true"></div>
+  <div class="matrix"></div>
+  <div class="fog"></div>
 </div>
 
 <style>
-  :global(.loading-screen .grid-container) {
-    /* TODO: Seems VERY weird to use global and !important. Do you need this? Can you do it with a prop? */
-    animation-duration: 1s !important;
-  }
-
   .background {
     position: absolute;
     width: 100%;
@@ -76,7 +66,8 @@
     align-items: center;
   }
 
-  .grid-container {
+  .matrix {
+    animation: moveGrid var(--matrix-duration, 1s) linear infinite;
     position: absolute;
     bottom: 0;
     width: 100%;
@@ -120,7 +111,7 @@
     }
   }
 
-  .grid-fog-bottom {
+  .fog {
     position: absolute;
     bottom: 0;
     width: 100%;
