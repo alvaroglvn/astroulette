@@ -1,23 +1,15 @@
 <script lang="ts">
-  // TODO: Why do you have two ways to specify errors? Probably good to have one. Also, for just two properties, it's probably better to use separate props.
-  export let form: {
-    error?: string;
-    success?: boolean;
-  } | null;
-
-  export let data: { error?: string | null };
+  export let error: string | null = null;
+  export let success: boolean = false;
 </script>
 
 <div class="login-form">
   <h3>Begin interplanetary relay</h3>
 
   <form method="POST">
-    {#if data.error}
+    {#if error}
       <p class="form-response error">
-        <!-- TODO: I would definitely parse the different error types at a higher level and pass in the actual string. This form isn't directly linked to magic link validation, so it shouldn't store any of the related logic. -->
-        {data.error === 'invalid-token' ?
-          'Your link is invalid or expired.'
-        : 'Something went wrong. Please try again.'}
+        {error}
       </p>
     {/if}
 
@@ -39,11 +31,7 @@
 
     <button type="submit">Let's go!</button>
 
-    {#if form?.error}
-      <p class="error-msg">{form.error}</p>
-    {/if}
-
-    {#if form?.success}
+    {#if success}
       <p class="success-msg">Check your email for your login link</p>
     {/if}
   </form>
@@ -59,7 +47,6 @@
     color: #ce5e82;
     text-transform: uppercase;
     text-align: center;
-    display: block;
     margin: 0;
     line-height: 0.73em;
   }
@@ -71,17 +58,11 @@
     padding: 2em;
     background-color: #2e4770;
     border: 9px double #ce5e82;
-
-    /* TODO: You can also do this to nest styles. But it's worth considering if you need these styles nested under `form` anyway. */
-    & input {
-    }
   }
-
   form input {
     font-size: 16px;
     padding: 0.5em;
   }
-
   form button {
     padding: 0.25em;
     background-color: #ecc6a2;
@@ -91,35 +72,24 @@
     cursor: pointer;
     border: none;
   }
-
   form button:hover {
     background-color: #eca089;
   }
-
-  .error-msg {
+  .form-response.error {
     text-align: center;
     color: #ce5e82;
-    font-size: 3vw;
+    font-size: clamp(1.8rem, 2.5vw, 2rem);
   }
-
   .success-msg {
     text-align: center;
     color: #ecc6a2;
     font-size: clamp(1.8rem, 2.5vw, 2rem);
     line-height: clamp(0.5rem, 5vw, 2rem);
   }
-
-  .form-response.error {
-    text-align: center;
-    color: #ce5e82;
-    font-size: clamp(1.8rem, 2.5vw, 2rem);
-  }
-
   @media (max-width: 768px) {
     form button {
       font-size: 14px;
     }
-
     form input {
       font-size: 12px;
     }
