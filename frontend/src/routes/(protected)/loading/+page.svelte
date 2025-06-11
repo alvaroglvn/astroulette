@@ -1,8 +1,7 @@
 <script lang="ts">
-  import Background from '$lib/components/Background.svelte';
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import { $characterState } from '$lib/stores/character';
+  import { characterState, setCharacterState } from '$lib/stores/character';
 
   onMount(async () => {
     try {
@@ -18,11 +17,11 @@
       const data = await res.json();
       console.log('Character loaded:', data);
 
-      $characterState = {
+      setCharacterState({
         thread_id: data.thread_id,
         character: data.character,
         conversation_id: data.conversation_id,
-      };
+      });
 
       await goto('/chat');
     } catch (error) {
@@ -37,7 +36,7 @@
 <style>
   .info {
     font-size: 48px;
-    color: #d36b8f;
+    color: var(--pink-500);
     text-shadow:
       0 0 2px var(--pink-500),
       0 0 10px var(--pink-500);
