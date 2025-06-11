@@ -74,8 +74,8 @@
     height: 50vh;
     background-color: transparent;
     background-image:
-      linear-gradient(#ce5e82 1px, transparent 2px),
-      linear-gradient(to right, #ce5e82 1px, transparent 2px);
+      linear-gradient(var(--pink-500) 1px, transparent 2px),
+      linear-gradient(to right, var(--pink-500) 1px, transparent 2px);
     /* Use a CSS variable for grid size */
     background-size: var(--grid-size, 70px) var(--grid-size, 70px);
     pointer-events: none;

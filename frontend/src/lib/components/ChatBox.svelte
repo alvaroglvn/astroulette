@@ -1,8 +1,7 @@
 <script lang="ts">
   /* eslint-disable svelte/no-at-html-tags */
   import { onMount, onDestroy } from 'svelte';
-  import { characterStore } from '$lib/stores/character';
-  import { get } from 'svelte/store';
+  import { characterState } from '$lib/stores/character';
   import { fetchChatHistory } from '$lib/api/chat';
   import { PUBLIC_FRONTEND_URL } from '$env/static/public';
 
@@ -19,8 +18,7 @@
   let isDisconnected = false;
 
   function connect() {
-    const store = get(characterStore);
-
+    const store = $characterState;
     if (!store || !store.thread_id) {
       console.warn(
         '[ChatBox] Missing character store or thread_id — skipping connect',
@@ -95,7 +93,7 @@
   }
 
   async function loadHistory() {
-    const store = get(characterStore);
+    const store = $characterState;
     if (!store || !store.thread_id) {
       console.error('Character store not loaded or missing thread_id');
       return;
@@ -104,7 +102,7 @@
     try {
       const history = await fetchChatHistory(store.thread_id);
 
-      messages = history.map((entry) => ({
+      messages = history.map((entry: { role: string; content: string }) => ({
         from: entry.role === 'user' ? 'me' : 'ai',
         text: entry.content,
       }));
@@ -170,35 +168,38 @@
     flex: 1 1 0px;
     overflow-y: auto; /* IMPORTANT for scrolling */
     padding: 1.5rem 1rem;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-display);
     display: flex;
     flex-direction: column;
 
     font-size: clamp(14px, 2vw, 18px);
     background-color: #f6f6f6;
     box-shadow:
-      0 0 0 4px #d36b8f,
-      0 0 6px #d36b8f,
-      0 0 12px #d36b8f,
-      0 0 18px #d36b8f;
+      0 0 0 4px --var(--pink-500),
+      0 0 6px --var(--pink-500),
+      0 0 12px --var(--pink-500),
+      0 0 18px --var(--pink-500);
     width: 100%;
   }
 
   .msg {
     padding: 0.5rem 1rem;
+    font-family: var(--font-display);
   }
   .msg-me {
     width: max-content;
     max-width: calc(100% - 3rem);
     border-radius: 1rem 1rem 0 1rem;
-    border: 0.15rem solid #d36b8f;
+    border: 0.15rem solid --var(--pink-500);
     align-self: end;
+    font-family: var(--font-display);
   }
   .msg-ai {
     width: max-content;
     max-width: calc(100% - 3rem);
     border-radius: 1rem 1rem 1rem 0;
     border: 0.15rem solid #2e4770;
+    font-family: var(--font-display);
   }
 
   .msg-me + .msg-me,
@@ -225,13 +226,13 @@
     width: 100%;
     padding: 0.5rem;
     font-size: clamp(14px, 2vw, 18px);
-    font-family: 'Kelly Slab', sans-serif;
+    font-family: var(--font-display);
     border: 0;
 
     box-shadow:
-      0 0 0 4px #d36b8f,
-      0 0 6px #d36b8f,
-      0 0 12px #d36b8f,
-      0 0 18px #d36b8f;
+      0 0 0 4px --var(--pink-500),
+      0 0 6px --var(--pink-500),
+      0 0 12px --var(--pink-500),
+      0 0 18px --var(--pink-500);
   }
 </style>

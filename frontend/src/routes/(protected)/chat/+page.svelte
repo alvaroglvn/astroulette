@@ -1,14 +1,14 @@
 <script>
   import CharacterCard from '$lib/components/CharacterCard.svelte';
   import ChatBox from '$lib/components/ChatBox.svelte';
-  import { characterStore } from '$lib/stores/character';
+  import { $characterState } from '$lib/stores/character';
 </script>
 
-{#if $characterStore}
+{#if $characterState}
   <CharacterCard
-    imageUrl={$characterStore.character.image_url}
-    planetName={$characterStore.character.planet_name}
-    characterName={$characterStore.character.name}
+    imageUrl={$characterState.character.image_url}
+    planetName={$characterState.character.planet_name}
+    characterName={$characterState.character.name}
   />
 {/if}
 

@@ -3,7 +3,7 @@
   export let planetName: string;
   export let characterName: string;
 
-  import NextCharacter from './NextCharacter.svelte';
+  import NextCharacter from './NextCharacterButton.svelte';
 </script>
 
 <div class="character-container">
@@ -51,7 +51,7 @@
     left: calc(-1rem);
     width: calc(100% + 1rem);
     font-size: 20px;
-    color: #d36b8f;
+    color: var(--pink-500);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -68,6 +68,7 @@
       0 0 6px #d36b8f,
       0 0 12px #d36b8f,
       0 0 18px #d36b8f;
+    font-family: var(--font-display);
   }
 
   dl {

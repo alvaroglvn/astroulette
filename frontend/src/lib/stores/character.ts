@@ -1,6 +1,5 @@
 import { browser } from '$app/environment';
-// TODO: Why not user $state/$effect runes?
-import { writable } from 'svelte/store';
+
 
 interface Character {
   id: number;
@@ -15,13 +14,13 @@ interface CharacterState {
   character: Character;
 }
 
-const initialValue: CharacterState | null =
-  browser ? JSON.parse(localStorage.getItem('characterState') || 'null') : null;
 
-export const characterStore = writable<CharacterState | null>(initialValue);
+export let $characterState = $state<CharacterState | null>(
+  browser ? JSON.parse(localStorage.getItem('characterState') || 'null') : null
+);
 
 if (browser) {
-  characterStore.subscribe((value) => {
-    localStorage.setItem('characterState', JSON.stringify(value));
+  $effect(() => {
+    localStorage.setItem('characterState', JSON.stringify($characterState));
   });
 }

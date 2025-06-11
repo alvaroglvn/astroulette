@@ -17,8 +17,8 @@
     padding-right: 2em;
     max-width: 100%;
 
-    background-color: --var(--soft-yellow);
-    font-family: --var(--font-display);
+    background-color: var(--soft-yellow);
+    font-family: var(--font-display);
     font-size: large;
     font-weight: 500;
     border: none;
@@ -34,7 +34,7 @@
     text-align: right;
 
     &:hover {
-      background-color: #ecd9c9;
+      background-color: var(--soft-yellow);
     }
   }
 </style>

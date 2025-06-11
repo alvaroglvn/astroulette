@@ -15,6 +15,10 @@
   :root {
     --font-display: 'Space Grotesk', sans-serif;
     --pink-500: #ce5e82;
+    --soft-yellow: #ecd9c9;
+    --main-padding: 5rem 2.5rem;
+    --main-gap: 2rem;
+    --container-max-width: 600px;
   }
 
   :global(html, body) {
@@ -40,18 +44,14 @@
 
   main {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100%;
     width: 100%;
-    padding: 5rem;
-    gap: 3rem;
-    font-family: 'Space Grotesk', sans-serif;
-    height: 100%;
-    flex-direction: column;
-    gap: 2rem;
-    padding: 5rem 2.5rem;
-    max-width: 600px;
+    padding: var(--main-padding);
+    gap: var(--main-gap);
+    font-family: var(--font-display);
+    max-width: var(--container-max-width);
   }
 </style>
