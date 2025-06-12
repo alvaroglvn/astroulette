@@ -18,7 +18,7 @@
   let isDisconnected = false;
 
   function connect() {
-    const store = characterState;
+    const store = $characterState;
     if (!store || !store.thread_id) {
       console.warn(
         '[ChatBox] Missing character store or thread_id — skipping connect',
@@ -93,7 +93,7 @@
   }
 
   async function loadHistory() {
-    const store = characterState;
+    const store = $characterState;
     if (!store || !store.thread_id) {
       console.error('Character store not loaded or missing thread_id');
       return;

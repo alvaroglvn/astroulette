@@ -1,4 +1,5 @@
 import { browser } from '$app/environment';
+import { writable, type Writable } from 'svelte/store';
 
 
 interface Character {
@@ -12,19 +13,14 @@ type CharacterState = {
   thread_id: number;
   conversation_id: string;
   character: Character;
-}
+};
 
-
-export let characterState = $state<CharacterState | null>(
+export const characterState: Writable<CharacterState | null> = writable(
   browser ? JSON.parse(localStorage.getItem('characterState') || 'null') : null
 );
 
-export function setCharacterState(newState: CharacterState | null) {
-  characterState = newState;
-}
-
 if (browser) {
-  $effect(() => {
-    localStorage.setItem('characterState', JSON.stringify(characterState));
+  characterState.subscribe((value) => {
+    localStorage.setItem('characterState', JSON.stringify(value));
   });
 }

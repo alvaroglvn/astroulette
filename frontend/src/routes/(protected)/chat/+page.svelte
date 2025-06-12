@@ -4,11 +4,11 @@
   import { characterState } from '$lib/stores/character';
 </script>
 
-{#if characterState}
+{#if $characterState}
   <CharacterCard
-    imageUrl={characterState.character.image_url}
-    planetName={characterState.character.planet_name}
-    characterName={characterState.character.name}
+    imageUrl={$characterState.character.image_url}
+    planetName={$characterState.character.planet_name}
+    characterName={$characterState.character.name}
   />
 {/if}
 

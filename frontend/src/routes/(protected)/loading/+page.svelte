@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import { characterState, setCharacterState } from '$lib/stores/character';
+  import { characterState } from '$lib/stores/character';
 
   onMount(async () => {
     try {
@@ -17,7 +17,7 @@
       const data = await res.json();
       console.log('Character loaded:', data);
 
-      setCharacterState({
+      characterState.set({
         thread_id: data.thread_id,
         character: data.character,
         conversation_id: data.conversation_id,
