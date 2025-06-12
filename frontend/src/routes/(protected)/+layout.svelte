@@ -12,6 +12,4 @@
   Logged in as {data.user.username}
 </header>
 
-<main>
-  <slot />
-</main>
+<slot />
