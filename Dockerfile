@@ -9,6 +9,7 @@ RUN apt-get update && \
 
 ENV FRONTEND_URL="https://astroulette.fly.dev"
 ENV PUBLIC_FRONTEND_URL="https://astroulette.fly.dev"
+ENV PUBLIC_BACKEND_URL="https://astroulette.fly.dev"
 
 # Copy Python backend
 WORKDIR /app

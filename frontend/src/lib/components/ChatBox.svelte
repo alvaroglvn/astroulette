@@ -3,7 +3,7 @@
   import { onMount, onDestroy } from 'svelte';
   import { characterState } from '$lib/stores/character';
   import { fetchChatHistory } from '$lib/api/chat';
-  import { PUBLIC_FRONTEND_URL } from '$env/static/public';
+  import { PUBLIC_BACKEND_URL } from '$env/static/public';
 
   let socket: WebSocket;
   let messages: { from: 'me' | 'ai'; text: string }[] = [];
@@ -27,7 +27,7 @@
     }
 
     console.log('Trying to connect...');
-    const base = new URL(PUBLIC_FRONTEND_URL);
+    const base = new URL(PUBLIC_BACKEND_URL);
     base.protocol = base.protocol === 'https:' ? 'wss:' : 'ws:';
     base.pathname = `/api/chat/${store.thread_id}`;
     const wsURL = base.toString();
