@@ -34,6 +34,7 @@ async def chat_with_character(
 
     # Accept the WebSocket connection
     await websocket.accept()
+    logging.info(f"WebSocket connection established for thread {thread_id}")
 
     try:
         # Load thread and validate thread
