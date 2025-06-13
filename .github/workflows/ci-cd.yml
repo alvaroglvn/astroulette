@@ -34,27 +34,22 @@ jobs:
 
       - name: Format check
         run: |
-          pip install black
           black --check .
 
       - name: Type check
         run: |
-          pip install mypy
           mypy backend/
 
       - name: Linting
         run: |
-          pip install ruff
           ruff check .
 
       - name: Safety check
         run: |
-          pip install pip-audit
           pip-audit
 
       - name: Run Pytest w/ pytest-order
         run: |
-          pip install pytest-order
           pytest
 
   # deploy:
