@@ -17,6 +17,7 @@ jobs:
       mailgun_domain: ${{ secrets.MAILGUN_DOMAIN }}
       mailgun_api_key: ${{ secrets.MAILGUN_API_KEY }}
       from_email: ${{ secrets.FROM_EMAIL }}
+      frontend_url: http://localhost:5173
 
     steps:
       - name: Checkout repo
