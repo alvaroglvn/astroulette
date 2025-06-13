@@ -50,6 +50,7 @@ jobs:
 
       - name: Run Pytest w/ pytest-order
         run: |
+          cd backend
           pytest
 
   # deploy:
