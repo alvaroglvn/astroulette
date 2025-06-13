@@ -14,7 +14,10 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[Any, None]:
     yield
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+    lifespan=lifespan,
+    root_path="/api",  # Set the root path for the API
+)  # add /api prefix, then update all frontend API requests accordingly
 
 app.add_middleware(
     CORSMiddleware,
