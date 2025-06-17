@@ -3,7 +3,7 @@
   export let planetName: string;
   export let characterName: string;
 
-  import NextCharacter from './NextCharacterButton.svelte';
+  import NextCharacterButton from './NextCharacterButton.svelte';
 </script>
 
 <div class="character-container">
@@ -16,7 +16,7 @@
       <dd>{planetName}</dd>
     </dl>
   </div>
-  <NextCharacter />
+  <NextCharacterButton />
 </div>
 
 <style>
