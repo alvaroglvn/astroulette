@@ -5,9 +5,8 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  backend-test:
     runs-on: ubuntu-latest
-
     env:
       secret_key: TEST_SECRET
       leonardo_api_key: TEST_LEONARDO
@@ -18,41 +17,59 @@ jobs:
       mailgun_api_key: TEST_MAILGUN
       from_email: test@example.com
       frontend_url: http://localhost:5173
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.13.2"
-
-      - name: Install dependencies
+      - name: Install backend dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r backend/requirements.txt
-
       - name: Format check
         run: |
           black --check .
-
       - name: Type check
         run: |
           mypy backend/
-
       - name: Linting
         run: |
           ruff check .
-
       - name: Safety check
         run: |
           pip-audit
-
       - name: Run Pytest w/ pytest-order
         run: |
           cd backend
           pytest
+
+  frontend-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm install
+      - name: Lint frontend
+        run: |
+          cd frontend
+          npm run lint
+      - name: Type check frontend
+        run: |
+          cd frontend
+          npm run check
+      - name: Build frontend
+        run: |
+          cd frontend
+          npm run build
 
   # deploy:
   #   needs: [test]

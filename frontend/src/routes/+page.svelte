@@ -1,7 +1,7 @@
 <script lang="ts">
   import LoginForm from '$lib/components/loginForm/LoginForm.svelte';
 
-  export let error: string | null = null;
+  export let data: { error?: string | null };
 
   function parseError(error: string): string {
     if (error === 'invalid token') {
@@ -14,7 +14,7 @@
 <h1>Astroulette</h1>
 <h2>Random connections across the cosmos</h2>
 <!-- Pass the parsed error to the LoginForm -->
-<LoginForm error={error ? parseError(error) : null} />
+<LoginForm error={data?.error ? parseError(data.error) : null} />
 
 <style>
   h1,

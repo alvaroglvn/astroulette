@@ -1,7 +1,6 @@
 import { browser } from '$app/environment';
 import { writable, type Writable } from 'svelte/store';
 
-
 interface Character {
   id: number;
   name: string;
@@ -16,7 +15,7 @@ type CharacterState = {
 };
 
 export const characterState: Writable<CharacterState | null> = writable(
-  browser ? JSON.parse(localStorage.getItem('characterState') || 'null') : null
+  browser ? JSON.parse(localStorage.getItem('characterState') || 'null') : null,
 );
 
 if (browser) {
