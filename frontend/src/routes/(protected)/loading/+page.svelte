@@ -31,10 +31,10 @@
   });
 </script>
 
-<h1 class="info">Establishing intergalactic uplink</h1>
+<h1>Establishing intergalactic uplink</h1>
 
 <style>
-  .info {
+  h1 {
     font-size: 48px;
     color: var(--pink-500);
     text-shadow:
@@ -43,11 +43,23 @@
     margin: 0px;
     padding: 0px;
     text-align: center;
-    animation: fadeInOut 3s ease-in-out infinite;
+    animation: fadeInOut 2s ease-in-out infinite;
+  }
+
+  @keyframes fadeInOut {
+    0% {
+      opacity: 0.2;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.2;
+    }
   }
 
   @media (max-width: 768px) {
-    .info {
+    h1 {
       font-size: 32px;
     }
   }
