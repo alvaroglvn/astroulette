@@ -73,7 +73,7 @@ jobs:
           npm run build
 
   # deploy:
-  #   needs: [test]
+  #   needs: [backend-test, frontend-test]
   #   runs-on: ubuntu-latest
   #   concurrency: deploy-group
 
