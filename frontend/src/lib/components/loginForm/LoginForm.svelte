@@ -57,7 +57,7 @@
     text-transform: uppercase;
     text-align: center;
     margin: 0;
-    line-height: 0.73em;
+    line-height: 0.68em;
   }
   form {
     width: 100%;
@@ -97,7 +97,7 @@
   .success-msg {
     text-align: center;
     color: var(--soft-yellow);
-    font-size: clamp(1.8rem, 2.5vw, 2rem);
+    font-size: clamp(1.5rem, 2.5vw, 1.6rem);
     line-height: clamp(0.5rem, 5vw, 2rem);
     font-family: var(--font-display);
   }
