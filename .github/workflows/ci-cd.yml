@@ -65,6 +65,7 @@ jobs:
       - name: Type check frontend
         run: |
           cd frontend
+          echo "PUBLIC_BACKEND_URL=http://localhost:8000" > .env
           npm run check
       - name: Build frontend
         run: |
