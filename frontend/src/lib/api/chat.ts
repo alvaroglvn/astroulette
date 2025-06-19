@@ -1,9 +1,9 @@
-import { array, object, string, parse } from 'valibot';
+import { array, object, string, number, parse } from 'valibot';
 
 const ChatMessageSchema = object({
   role: string(),
   content: string(),
-  created_at: string(),
+  created_at: number(), // Change from string() to number()
 });
 
 const ChatMessagesSchema = array(ChatMessageSchema);
@@ -15,5 +15,11 @@ export async function fetchChatHistory(threadId: number) {
   if (!response.ok) {
     throw new Error(`Failed to fetch chat history: ${response.statusText}`);
   }
-  return parse(ChatMessagesSchema, await response.json());
+  const data = await response.json();
+  console.log('API response:', data); // Debugging
+  // Validate that the response is an array
+  if (!Array.isArray(data)) {
+    throw new Error('Invalid API response: Expected an array');
+  }
+  return parse(ChatMessagesSchema, data);
 }

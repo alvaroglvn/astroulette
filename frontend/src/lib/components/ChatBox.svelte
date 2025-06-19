@@ -146,12 +146,18 @@
     {/each}
   </div>
 
-  <input
-    type="text"
+  <textarea
     bind:value={input}
-    on:keydown={(e) => e.key == 'Enter' && sendMessage()}
-    placeholder="Say something..."
-  />
+    rows="2"
+    placeholder="Say something.."
+    on:keydown={(e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    }}
+    class="chat-input"
+  ></textarea>
 </div>
 
 <style>
@@ -218,7 +224,7 @@
     border-top-left-radius: 0;
   }
 
-  input {
+  textarea.chat-input {
     flex: 0 0 auto;
     box-sizing: border-box;
     background-color: #f6f6f6;
@@ -228,11 +234,11 @@
     font-size: clamp(14px, 2vw, 18px);
     font-family: var(--font-display);
     border: 0;
-
+    resize: none;
     box-shadow:
-      0 0 0 4px --var(--pink-500),
-      0 0 6px --var(--pink-500),
-      0 0 12px --var(--pink-500),
-      0 0 18px --var(--pink-500);
+      0 0 0 4px var(--pink-500),
+      0 0 6px var(--pink-500),
+      0 0 12px var(--pink-500),
+      0 0 18px var(--pink-500);
   }
 </style>
