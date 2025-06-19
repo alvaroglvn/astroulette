@@ -10,6 +10,7 @@ RUN apt-get update && \
 ENV FRONTEND_URL="https://astroulette.fly.dev"
 ENV PUBLIC_FRONTEND_URL="https://astroulette.fly.dev"
 ENV PUBLIC_BACKEND_URL="https://astroulette.fly.dev"
+ENV DB_URL="sqlite+aiosqlite:///data/astroulette.sqlite"
 
 # Copy Python backend
 WORKDIR /backend
