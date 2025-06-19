@@ -71,34 +71,34 @@ jobs:
           cd frontend
           npm run build
 
-  # deploy:
-  #   needs: [backend-test, frontend-test]
-  #   runs-on: ubuntu-latest
-  #   concurrency: deploy-group
+  deploy:
+    needs: [backend-test, frontend-test]
+    runs-on: ubuntu-latest
+    concurrency: deploy-group
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  #     - name: Set up Fly
-  #       uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Set up Fly
+        uses: superfly/flyctl-actions/setup-flyctl@master
 
-  #     - name: Set secrets on Fly.io
-  #       run: |
-  #         flyctl secrets set \
-  #           LOGIN_KEY="${{ secrets.LOGIN_KEY }}" \
-  #           SECRET_KEY="${{ secrets.SECRET_KEY }}" \
-  #           LEONARDO_API_KEY="${{ secrets.LEONARDO_API_KEY }}" \
-  #           OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" \
-  #           DB_URL="${{ secrets.DB_URL }}" \
-  #           MAILGUN_DOMAIN="${{ secrets.MAILGUN_DOMAIN }}" \
-  #           MAILGUN_API_KEY="${{ secrets.MAILGUN_API_KEY }}" \
-  #           FROM_EMAIL="${{ secrets.FROM_EMAIL }}"
-  #       env:
-  #         FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      - name: Set secrets on Fly.io
+        run: |
+          flyctl secrets set \
+            LOGIN_KEY="${{ secrets.LOGIN_KEY }}" \
+            SECRET_KEY="${{ secrets.SECRET_KEY }}" \
+            LEONARDO_API_KEY="${{ secrets.LEONARDO_API_KEY }}" \
+            OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" \
+            DB_URL="${{ secrets.DB_URL }}" \
+            MAILGUN_DOMAIN="${{ secrets.MAILGUN_DOMAIN }}" \
+            MAILGUN_API_KEY="${{ secrets.MAILGUN_API_KEY }}" \
+            FROM_EMAIL="${{ secrets.FROM_EMAIL }}"
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
-  #     - name: Deploy
-  #       env:
-  #         FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-  #       run: |
-  #         flyctl deploy --remote-only
+      - name: Deploy
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          flyctl deploy --remote-only

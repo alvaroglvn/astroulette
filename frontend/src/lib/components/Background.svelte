@@ -5,7 +5,7 @@
     starCount?: number;
     matrixDuration?: string;
   }
-  let { starCount = 80, matrixDuration = '6s' } = $props();
+  let { starCount = 80, matrixDuration = '6s' }: Props = $props();
 
   type Star = {
     x: number;
