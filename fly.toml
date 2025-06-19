@@ -1,4 +1,5 @@
 app = 'astroulette'
+app_name = 'astroulette'
 primary_region = 'dfw'
 
 [build]
