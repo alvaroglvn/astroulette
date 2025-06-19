@@ -1,7 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  export let starCount: number = 80;
-  export const matrixDuration: string = '1s';
+
+  interface Props {
+    starCount?: number;
+    matrixDuration?: string;
+  }
+  let { starCount = 80, matrixDuration = '6s' } = $props();
 
   type Star = {
     x: number;
@@ -10,7 +14,7 @@
     duration: number;
     size: number;
   };
-  let stars: Star[] = [];
+  let stars: Star[] = $state([]);
 
   onMount(() => {
     stars = Array.from({ length: starCount }, () => ({
@@ -34,7 +38,11 @@
   }
 </script>
 
-<div class="background" aria-hidden="true">
+<div
+  class="background"
+  aria-hidden="true"
+  style="--matrix-duration: {matrixDuration}"
+>
   <div class="starfield">
     {#each stars as star (`${star.x}-${star.y}`)}
       <div class="star" style={getStarStyle(star)}></div>
@@ -81,7 +89,6 @@
     pointer-events: none;
     transform: perspective(800px) rotateX(60deg);
     transform-origin: top;
-    animation: moveGrid 6s linear infinite;
     z-index: 3;
     opacity: 0.6;
     mask-image: linear-gradient(to top, black 50%, transparent 100%);
