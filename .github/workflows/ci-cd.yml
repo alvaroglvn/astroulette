@@ -84,7 +84,20 @@ jobs:
         uses: superfly/flyctl-actions/setup-flyctl@master
 
       - name: Set secrets on Fly.io
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
+          # print length of secrets to ensure they are set
+          echo "Setting secrets on Fly.io"
+          echo "FLY_API_TOKEN length: ${#FLY_API_TOKEN}"
+          echo "LOGIN_KEY length: ${#LOGIN_KEY}"
+          echo "SECRET_KEY length: ${#SECRET_KEY}"
+          echo "LEONARDO_API_KEY length: ${#LEONARDO_API_KEY}"
+          echo "OPENAI_API_KEY length: ${#OPENAI_API_KEY}"
+          echo "DB_URL length: ${#DB_URL}"
+          echo "MAILGUN_DOMAIN length: ${#MAILGUN_DOMAIN}"
+          echo "MAILGUN_API_KEY length: ${#MAILGUN_API_KEY}"
+          echo "FROM_EMAIL length: ${#FROM_EMAIL}"
           flyctl secrets set \
             LOGIN_KEY="${{ secrets.LOGIN_KEY }}" \
             SECRET_KEY="${{ secrets.SECRET_KEY }}" \
@@ -94,8 +107,6 @@ jobs:
             MAILGUN_DOMAIN="${{ secrets.MAILGUN_DOMAIN }}" \
             MAILGUN_API_KEY="${{ secrets.MAILGUN_API_KEY }}" \
             FROM_EMAIL="${{ secrets.FROM_EMAIL }}"
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
       - name: Deploy
         env:

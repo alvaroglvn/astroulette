@@ -12,14 +12,13 @@ ENV PUBLIC_FRONTEND_URL="https://astroulette.fly.dev"
 ENV PUBLIC_BACKEND_URL="https://astroulette.fly.dev"
 
 # Copy Python backend
-WORKDIR /app
-COPY app/ .
-COPY requirements.txt .
+WORKDIR /backend
+COPY backend/ .
 RUN pip install --no-cache-dir --upgrade -r ./requirements.txt
 
 # Copy frontend and install/build
-WORKDIR /frontend-svltkit
-COPY frontend-svltkit/ .
+WORKDIR /frontend
+COPY frontend/ .
 RUN npm install
 RUN npm run build
 
