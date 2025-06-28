@@ -4,6 +4,18 @@
   let { children } = $props();
 </script>
 
+<svelte:head>
+  <title>Astroulette</title>
+  <meta
+    name="description"
+    content="Drift into a retro-futuristic galaxy where you chat with AI-generated alien strangers. Discover weird worlds and unexpected conversations."
+  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" />
+
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+</svelte:head>
+
 <main>
   <Background />
   {@render children()}
