@@ -7,9 +7,9 @@ RUN apt-get update && \
     apt-get install -y nodejs && \
     apt-get clean
 
-ENV FRONTEND_URL="https://astroulette.fly.dev"
-ENV PUBLIC_FRONTEND_URL="https://astroulette.fly.dev"
-ENV PUBLIC_BACKEND_URL="https://astroulette.fly.dev"
+ENV FRONTEND_URL="https://astroulette.com"
+ENV PUBLIC_FRONTEND_URL="https://astroulette.com"
+ENV PUBLIC_BACKEND_URL="https://astroulette.com"
 ENV DB_URL="sqlite+aiosqlite:///data/astroulette.sqlite"
 
 # Copy Python backend
