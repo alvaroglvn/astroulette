@@ -23,6 +23,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://astroulette.fly.dev",
+        "https://astroulette.com",
         "http://localhost:5173",
         "http://localhost:8000",
     ],

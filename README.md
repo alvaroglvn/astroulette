@@ -1,6 +1,6 @@
 # 👽 ASTROULETTE 👽
 
-[Astroulette](https://astroulette.fly.dev) is a retro-futuristic chat roulette where users have real-time conversations with alien characters generated on the spot by AI.
+[Astroulette](https://astroulette.com) is a retro-futuristic chat roulette where users have real-time conversations with alien characters generated on the spot by AI.
 
 I built this project for three main reasons:  
 👾 Because I love Sci-Fi.  
