@@ -6,14 +6,37 @@
 
 <svelte:head>
   <title>Astroulette</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+  <meta charset="UTF-8" />
   <meta
     name="description"
     content="Drift into a retro-futuristic galaxy where you chat with AI-generated alien strangers. Discover weird worlds and unexpected conversations."
   />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta charset="UTF-8" />
 
-  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+  <meta property="og:title" content="Astroulette" />
+  <meta property="og:image" content="/og-image.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta
+    property="og:description"
+    content="Drift into a retro-futuristic galaxy where you chat with AI-generated alien strangers. Discover weird worlds and unexpected conversations."
+  />
+  <meta property="og:url" content="https://astroulette.fly.dev" />
+  <meta property="og:type" content="website" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Astroulette" />
+  <meta
+    name="twitter:description"
+    content="Drift into a retro-futuristic galaxy where you chat with AI-generated alien strangers. Discover weird worlds and unexpected conversations."
+  />
+  <meta name="twitter:image" content="/og-image.png" />
+  <meta
+    name="twitter:image:alt"
+    content="Smiling aliens in a retro synthwave galactic background"
+  />
 </svelte:head>
 
 <main>
