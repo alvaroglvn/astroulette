@@ -15,10 +15,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <meta property="og:title" content="Astroulette" />
-  <meta
-    property="og:image"
-    content="https://astroulette.fly.dev/og-image.png"
-  />
+  <meta property="og:image" content="https://astroulette.com/og-image.png" />
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
@@ -26,7 +23,7 @@
     property="og:description"
     content="Drift into a retro-futuristic galaxy where you chat with AI-generated alien strangers. Discover weird worlds and unexpected conversations."
   />
-  <meta property="og:url" content="https://astroulette.fly.dev" />
+  <meta property="og:url" content="https://astroulette.com" />
   <meta property="og:type" content="website" />
 
   <meta name="twitter:card" content="summary_large_image" />
@@ -35,10 +32,7 @@
     name="twitter:description"
     content="Drift into a retro-futuristic galaxy where you chat with AI-generated alien strangers. Discover weird worlds and unexpected conversations."
   />
-  <meta
-    name="twitter:image"
-    content="https://astroulette.fly.dev/og-image.png"
-  />
+  <meta name="twitter:image" content="https://astroulette.com/og-image.png" />
   <meta
     name="twitter:image:alt"
     content="Smiling aliens in a retro synthwave galactic background"
