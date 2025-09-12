@@ -27,7 +27,17 @@ primary_region = 'dfw'
     port = 443
     handlers = ["tls", "http"]
 
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
 [[vm]]
   memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
+
+[experimental]
+  cmd = []
+  enable_consul = true
+  enable_ipv6 = true

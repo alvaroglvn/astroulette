@@ -12,7 +12,10 @@ async def send_magic_link(
     subject = "Your MarsRoulette Login"
     text = f"Click here to login: {magic_link}"
 
-    async with httpx.AsyncClient() as client:
+    # Configure httpx with longer timeout for better reliability on Fly.io
+    timeout = 30.0
+
+    async with httpx.AsyncClient(timeout=timeout) as client:
         try:
             response = await client.post(
                 f"https://api.mailgun.net/v3/{settings.mailgun_domain}/messages",
@@ -25,5 +28,10 @@ async def send_magic_link(
                 },
             )
             response.raise_for_status()
+        except httpx.ConnectError as e:
+            # If IPv6 connection fails, this might help with debugging
+            raise Exception(
+                f"Failed to connect to Mailgun API (network unreachable): {e}"
+            )
         except Exception as e:
             raise Exception(f"Failed to send magic link: {e}")
