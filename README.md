@@ -9,12 +9,6 @@ I built this project for three main reasons:
 
 Pretty much, it's a labor of love! ❤️
 
-- [x] TODO: Rename /frontend-svltkit and /app to /frontend and /backend OR /web and /api
-- [x] TODO: Move the python-specific config (like requirements.txt) to the backend folder
-- [ ] TODO: At the bottom of this doc, write a section on how to setup the project locally and how to run it all.
-- [ ] TODO: All the horizontal rules in your markdown is a bit noisy.
-- [x] TODO: You should probably clean up your .gitignore and then review your .dockerignore and your .prettierignore. The others are usually slight variations on the first.
-
 ---
 
 ## 🧠 Tech Stack
