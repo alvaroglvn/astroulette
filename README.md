@@ -77,7 +77,7 @@ This extra complexity is the main reason I would migrate the API into Sveltekit,
 
 This is just the beginning. Future improvements include:
 
-- Add e2e test coverage, and incorproate into the CI/CD pipeline
+- Add e2e test coverage, and incorporate into the CI/CD pipeline
 - Migrate local sqlite db file to Turso for better data persistence
 - Exploring better prompt tuning and alternate LLMs
 - Integrating [Hedra](https://www.hedra.com/) or similar to animate characters as they speak
